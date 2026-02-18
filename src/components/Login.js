@@ -159,18 +159,7 @@ const Login = () => {
           </div>
         </div>
 
-        <div style={styles.footer}>
-          <p style={styles.footerText}>Demo Credentials:</p>
-          <p style={styles.footerText}>
-            <strong>Admin:</strong> admin@csms.com / admin123
-          </p>
-          <p style={styles.footerText}>
-            <strong>User:</strong> user@csms.com / user123
-          </p>
-          <p style={styles.footerNote}>
-            Admin and User logins work even without Firebase setup
-          </p>
-        </div>
+     
       </div>
     </div>
   );
