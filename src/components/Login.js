@@ -158,8 +158,6 @@ const Login = () => {
             </button>
           </div>
         </div>
-
-     
       </div>
     </div>
   );
@@ -171,16 +169,17 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f3f4f6',
-    backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    backgroundColor: '#ffffff',
+    backgroundImage: 'none'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '40px',
     borderRadius: '16px',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '400px',
+    border: '1px solid #e0e0e0'
   },
   header: {
     textAlign: 'center',
@@ -193,12 +192,12 @@ const styles = {
   },
   title: {
     fontSize: '24px',
-    color: '#1f2937',
+    color: '#000000',
     margin: '0 0 8px 0'
   },
   subtitle: {
     fontSize: '14px',
-    color: '#6b7280',
+    color: '#666666',
     margin: 0
   },
   form: {
@@ -211,47 +210,52 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '8px',
-    color: '#4b5563',
+    color: '#333333',
     fontSize: '14px',
     fontWeight: '500'
   },
   input: {
     width: '100%',
     padding: '12px',
-    border: '1px solid #d1d5db',
+    border: '1px solid #cccccc',
     borderRadius: '8px',
     fontSize: '14px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff',
+    color: '#000000'
   },
   button: {
-    backgroundColor: '#667eea',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     padding: '12px',
     border: 'none',
     borderRadius: '8px',
     fontSize: '16px',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.3s'
   },
   error: {
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
+    backgroundColor: '#f5f5f5',
+    color: '#ff0000',
     padding: '12px',
     borderRadius: '8px',
     marginBottom: '20px',
     fontSize: '14px',
-    textAlign: 'center'
+    textAlign: 'center',
+    border: '1px solid #ff0000'
   },
   quickLogin: {
     marginTop: '20px',
     padding: '16px',
-    backgroundColor: '#e8f4fd',
-    borderRadius: '8px'
+    backgroundColor: '#f5f5f5',
+    borderRadius: '8px',
+    border: '1px solid #cccccc'
   },
   quickLoginText: {
     margin: '0 0 10px 0',
     fontSize: '14px',
-    color: '#0369a1',
+    color: '#000000',
     fontWeight: '500',
     textAlign: 'center'
   },
@@ -262,31 +266,14 @@ const styles = {
   quickButton: {
     flex: 1,
     padding: '10px',
-    backgroundColor: '#0ea5e9',
-    color: 'white',
+    backgroundColor: '#666666',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
-    cursor: 'pointer'
-  },
-  footer: {
-    marginTop: '20px',
-    padding: '16px',
-    backgroundColor: '#f9fafb',
-    borderRadius: '8px',
-    textAlign: 'center'
-  },
-  footerText: {
-    margin: '4px 0',
-    fontSize: '12px',
-    color: '#6b7280'
-  },
-  footerNote: {
-    margin: '8px 0 0 0',
-    fontSize: '11px',
-    color: '#9ca3af',
-    fontStyle: 'italic'
+    cursor: 'pointer',
+    transition: 'background-color 0.3s'
   }
 };
 

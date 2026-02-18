@@ -50,42 +50,42 @@ const AdminDashboard = () => {
           title="Total Vetted (#2)"
           value={stats.totalVetted}
           icon="👥"
-          color="#2196f3"
+          color="#000000"
           onClick={() => navigate('/offenders')}
         />
         <StatCard
           title="Not Recommended (#3)"
           value={stats.notRecommended}
           icon="❌"
-          color="#ff9800"
+          color="#333333"
           onClick={() => navigate('/offenders?filter=not-recommended')}
         />
         <StatCard
           title="Recommended (#4)"
           value={stats.recommended}
           icon="✅"
-          color="#4caf50"
+          color="#666666"
           onClick={() => navigate('/recommended')}
         />
         <StatCard
           title="Completed (#7)"
           value={stats.completed}
           icon="🎉"
-          color="#9c27b0"
+          color="#999999"
           onClick={() => navigate('/reports?type=completed')}
         />
         <StatCard
           title="Defaulted (#8)"
           value={stats.defaulted}
           icon="⚠️"
-          color="#f44336"
+          color="#4d4d4d"
           onClick={() => navigate('/reports?type=defaulted')}
         />
         <StatCard
           title="Active Cases"
           value={stats.active}
           icon="⚡"
-          color="#00bcd4"
+          color="#1a1a1a"
           onClick={() => navigate('/offenders?filter=active')}
         />
       </div>
@@ -119,7 +119,9 @@ const AdminDashboard = () => {
 const styles = {
   container: {
     maxWidth: '1400px',
-    margin: '0 auto'
+    margin: '0 auto',
+    padding: '20px',
+    backgroundColor: '#ffffff'
   },
   header: {
     display: 'flex',
@@ -129,24 +131,24 @@ const styles = {
   },
   title: {
     fontSize: '32px',
-    color: '#1f2937',
+    color: '#000000',
     margin: 0
   },
   refreshButton: {
-    backgroundColor: 'white',
-    border: '1px solid #e5e7eb',
+    backgroundColor: '#ffffff',
+    border: '1px solid #cccccc',
     borderRadius: '8px',
     padding: '10px 20px',
     fontSize: '14px',
     fontWeight: '500',
-    color: '#4b5563',
+    color: '#333333',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     transition: 'background-color 0.2s',
     ':hover': {
-      backgroundColor: '#f9fafb'
+      backgroundColor: '#f5f5f5'
     }
   },
   refreshIcon: {
@@ -159,14 +161,15 @@ const styles = {
     marginBottom: '40px'
   },
   recentActivity: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '12px',
     padding: '24px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   sectionTitle: {
     fontSize: '20px',
-    color: '#1f2937',
+    color: '#000000',
     marginTop: 0,
     marginBottom: '20px'
   },
@@ -179,40 +182,45 @@ const styles = {
     display: 'flex',
     gap: '16px',
     padding: '12px',
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
     borderRadius: '8px',
     transition: 'background-color 0.2s',
+    border: '1px solid #e0e0e0',
     ':hover': {
-      backgroundColor: '#f3f4f6'
+      backgroundColor: '#e8e8e8'
     }
   },
   activityIcon: {
     width: '40px',
     height: '40px',
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#d9d9d9',
     borderRadius: '50%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: '20px'
+    fontSize: '20px',
+    border: '1px solid #b3b3b3'
   },
   activityContent: {
     flex: 1
   },
   activityDescription: {
     margin: '0 0 4px 0',
-    color: '#1f2937',
+    color: '#000000',
     fontSize: '14px'
   },
   activityTime: {
     margin: 0,
-    color: '#6b7280',
+    color: '#666666',
     fontSize: '12px'
   },
   noActivity: {
     textAlign: 'center',
-    color: '#6b7280',
-    padding: '40px'
+    color: '#666666',
+    padding: '40px',
+    backgroundColor: '#f5f5f5',
+    borderRadius: '8px',
+    border: '1px dashed #cccccc'
   }
 };
 

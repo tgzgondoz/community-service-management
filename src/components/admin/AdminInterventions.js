@@ -70,6 +70,15 @@ const AdminInterventions = () => {
     }
   };
 
+  const getRiskColor = (risk) => {
+    switch (risk) {
+      case 'High': return '#666666';
+      case 'Medium': return '#999999';
+      case 'Low': return '#333333';
+      default: return '#cccccc';
+    }
+  };
+
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Intervention Management (#5)</h2>
@@ -82,11 +91,10 @@ const AdminInterventions = () => {
             {offenders.filter(o => !o.hasIntervention).map(offender => (
               <div key={offender.id} style={styles.offenderCard}>
                 <div style={styles.cardHeader}>
-                  <strong>{offender.firstName} {offender.lastName}</strong>
+                  <strong style={styles.offenderName}>{offender.firstName} {offender.lastName}</strong>
                   <span style={{
                     ...styles.riskBadge,
-                    backgroundColor: offender.riskLevel === 'High' ? '#f44336' :
-                                   offender.riskLevel === 'Medium' ? '#ff9800' : '#4caf50'
+                    backgroundColor: getRiskColor(offender.riskLevel)
                   }}>
                     {offender.riskLevel}
                   </span>
@@ -118,18 +126,18 @@ const AdminInterventions = () => {
                   <span style={styles.interventionIcon}>
                     {getInterventionIcon(intervention.type)}
                   </span>
-                  <strong>{intervention.offenderName}</strong>
+                  <strong style={styles.offenderName}>{intervention.offenderName}</strong>
                 </div>
                 
                 <div style={styles.interventionDetails}>
-                  <p><strong>Type:</strong> {intervention.type}</p>
-                  <p><strong>Provider:</strong> {intervention.provider}</p>
-                  <p><strong>Start:</strong> {new Date(intervention.startDate).toLocaleDateString()}</p>
+                  <p style={styles.detailItem}><strong>Type:</strong> {intervention.type}</p>
+                  <p style={styles.detailItem}><strong>Provider:</strong> {intervention.provider}</p>
+                  <p style={styles.detailItem}><strong>Start:</strong> {new Date(intervention.startDate).toLocaleDateString()}</p>
                   {intervention.endDate && (
-                    <p><strong>End:</strong> {new Date(intervention.endDate).toLocaleDateString()}</p>
+                    <p style={styles.detailItem}><strong>End:</strong> {new Date(intervention.endDate).toLocaleDateString()}</p>
                   )}
                   {intervention.notes && (
-                    <p><strong>Notes:</strong> {intervention.notes}</p>
+                    <p style={styles.detailItem}><strong>Notes:</strong> {intervention.notes}</p>
                   )}
                 </div>
               </div>
@@ -142,12 +150,12 @@ const AdminInterventions = () => {
       {showForm && (
         <div style={styles.modal}>
           <div style={styles.modalContent}>
-            <h3>Assign Intervention</h3>
+            <h3 style={styles.modalTitle}>Assign Intervention</h3>
             <button onClick={() => setShowForm(false)} style={styles.closeButton}>×</button>
             
             <form onSubmit={handleSubmit}>
               <div style={styles.formGroup}>
-                <label>Intervention Type *</label>
+                <label style={styles.label}>Intervention Type *</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({...formData, type: e.target.value})}
@@ -165,7 +173,7 @@ const AdminInterventions = () => {
 
               <div style={styles.formRow}>
                 <div style={styles.formGroup}>
-                  <label>Start Date *</label>
+                  <label style={styles.label}>Start Date *</label>
                   <input
                     type="date"
                     value={formData.startDate}
@@ -176,7 +184,7 @@ const AdminInterventions = () => {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label>End Date</label>
+                  <label style={styles.label}>End Date</label>
                   <input
                     type="date"
                     value={formData.endDate}
@@ -187,7 +195,7 @@ const AdminInterventions = () => {
               </div>
 
               <div style={styles.formGroup}>
-                <label>Provider *</label>
+                <label style={styles.label}>Provider *</label>
                 <input
                   type="text"
                   value={formData.provider}
@@ -198,7 +206,7 @@ const AdminInterventions = () => {
               </div>
 
               <div style={styles.formGroup}>
-                <label>Notes</label>
+                <label style={styles.label}>Notes</label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
@@ -226,12 +234,13 @@ const styles = {
   container: {
     padding: '20px',
     maxWidth: '1400px',
-    margin: '0 auto'
+    margin: '0 auto',
+    backgroundColor: '#ffffff'
   },
   title: {
     fontSize: '28px',
     marginBottom: '20px',
-    color: '#333'
+    color: '#000000'
   },
   grid: {
     display: 'grid',
@@ -239,31 +248,35 @@ const styles = {
     gap: '20px'
   },
   column: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '8px',
     padding: '20px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   columnTitle: {
     marginTop: 0,
     marginBottom: '20px',
-    color: '#555'
+    color: '#000000',
+    fontSize: '18px'
   },
   cardList: {
     maxHeight: '600px',
     overflowY: 'auto'
   },
   offenderCard: {
-    border: '1px solid #ddd',
+    border: '1px solid #cccccc',
     borderRadius: '8px',
     padding: '15px',
-    marginBottom: '10px'
+    marginBottom: '10px',
+    backgroundColor: '#f5f5f5'
   },
   interventionCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f5f5f5',
     borderRadius: '8px',
     padding: '15px',
-    marginBottom: '10px'
+    marginBottom: '10px',
+    border: '1px solid #cccccc'
   },
   cardHeader: {
     display: 'flex',
@@ -271,10 +284,13 @@ const styles = {
     alignItems: 'center',
     marginBottom: '10px'
   },
+  offenderName: {
+    color: '#000000'
+  },
   riskBadge: {
     padding: '4px 8px',
     borderRadius: '12px',
-    color: 'white',
+    color: '#ffffff',
     fontSize: '12px'
   },
   needs: {
@@ -284,19 +300,22 @@ const styles = {
     flexWrap: 'wrap'
   },
   need: {
-    backgroundColor: '#ffeb3b',
+    backgroundColor: '#e0e0e0',
+    color: '#333333',
     padding: '2px 8px',
     borderRadius: '12px',
-    fontSize: '11px'
+    fontSize: '11px',
+    border: '1px solid #cccccc'
   },
   assignButton: {
     width: '100%',
     padding: '8px',
-    backgroundColor: '#4caf50',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   interventionIcon: {
     fontSize: '20px',
@@ -304,7 +323,10 @@ const styles = {
   },
   interventionDetails: {
     fontSize: '14px',
-    color: '#666'
+    color: '#333333'
+  },
+  detailItem: {
+    margin: '4px 0'
   },
   modal: {
     position: 'fixed',
@@ -312,19 +334,24 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '30px',
     borderRadius: '8px',
     maxWidth: '500px',
     width: '90%',
-    position: 'relative'
+    position: 'relative',
+    border: '1px solid #cccccc'
+  },
+  modalTitle: {
+    marginTop: 0,
+    color: '#000000'
   },
   closeButton: {
     position: 'absolute',
@@ -333,7 +360,13 @@ const styles = {
     fontSize: '24px',
     background: 'none',
     border: 'none',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    color: '#666666'
+  },
+  label: {
+    color: '#333333',
+    fontWeight: '500',
+    marginBottom: '5px'
   },
   formGroup: {
     marginBottom: '15px',
@@ -346,10 +379,12 @@ const styles = {
   input: {
     width: '100%',
     padding: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid #cccccc',
     borderRadius: '4px',
     marginTop: '5px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff',
+    color: '#000000'
   },
   modalButtons: {
     display: 'flex',
@@ -359,20 +394,22 @@ const styles = {
   cancelButton: {
     flex: 1,
     padding: '10px',
-    backgroundColor: '#f44336',
-    color: 'white',
+    backgroundColor: '#666666',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   submitButton: {
     flex: 1,
     padding: '10px',
-    backgroundColor: '#4caf50',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   }
 };
 

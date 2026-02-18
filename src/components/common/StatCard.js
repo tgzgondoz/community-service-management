@@ -23,7 +23,7 @@ const StatCard = ({ title, value, icon, color, onClick }) => {
 
 const styles = {
   card: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '8px',
     padding: '20px',
     display: 'flex',
@@ -31,6 +31,7 @@ const styles = {
     gap: '20px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     transition: 'transform 0.2s, box-shadow 0.2s',
+    border: '1px solid #e0e0e0',
     ':hover': {
       transform: 'translateY(-2px)',
       boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
@@ -39,11 +40,12 @@ const styles = {
   iconContainer: {
     width: '60px',
     height: '60px',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f0f0',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    border: '1px solid #cccccc'
   },
   icon: {
     fontSize: '30px'
@@ -53,14 +55,16 @@ const styles = {
   },
   title: {
     margin: '0 0 8px 0',
-    color: '#666',
-    fontSize: '14px'
+    color: '#666666',
+    fontSize: '14px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
   },
   value: {
     margin: 0,
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#333'
+    color: '#000000'
   }
 };
 

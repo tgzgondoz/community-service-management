@@ -191,24 +191,24 @@ const AdminRecommendedList = () => {
                 </h3>
                 <span style={{
                   ...styles.status,
-                  backgroundColor: offender.status === 'assigned' ? '#4caf50' : '#ff9800'
+                  backgroundColor: offender.status === 'assigned' ? '#333333' : '#666666'
                 }}>
                   {offender.status === 'assigned' ? 'Assigned' : 'Pending'}
                 </span>
               </div>
 
               <div style={styles.cardBody}>
-                <p><strong>Offense:</strong> {offender.offenseType || 'N/A'}</p>
-                <p><strong>Risk Level:</strong> 
+                <p style={styles.cardText}><strong>Offense:</strong> {offender.offenseType || 'N/A'}</p>
+                <p style={styles.cardText}><strong>Risk Level:</strong> 
                   <span style={{
                     ...styles.riskBadge,
-                    backgroundColor: offender.riskLevel === 'High' ? '#f44336' :
-                                   offender.riskLevel === 'Medium' ? '#ff9800' : '#4caf50'
+                    backgroundColor: offender.riskLevel === 'High' ? '#666666' :
+                                   offender.riskLevel === 'Medium' ? '#999999' : '#333333'
                   }}>
                     {offender.riskLevel || 'Low'}
                   </span>
                 </p>
-                <p><strong>Sentence:</strong> {offender.sentenceLength || '0'} months</p>
+                <p style={styles.cardText}><strong>Sentence:</strong> {offender.sentenceLength || '0'} months</p>
                 
                 <div style={styles.needs}>
                   {offender.substanceAbuse && (
@@ -237,12 +237,12 @@ const AdminRecommendedList = () => {
       {showAssignment && selectedOffender && (
         <div style={styles.modal}>
           <div style={styles.modalContent}>
-            <h3>Assign to Institution</h3>
+            <h3 style={styles.modalTitle}>Assign to Institution</h3>
             <button onClick={() => setShowAssignment(false)} style={styles.closeButton}>×</button>
             
             <form onSubmit={handleSubmitAssignment}>
               <div style={styles.formGroup}>
-                <label>Institution *</label>
+                <label style={styles.label}>Institution *</label>
                 <input
                   type="text"
                   name="institution"
@@ -256,7 +256,7 @@ const AdminRecommendedList = () => {
 
               <div style={styles.formRow}>
                 <div style={styles.formGroup}>
-                  <label>Start Date *</label>
+                  <label style={styles.label}>Start Date *</label>
                   <input
                     type="date"
                     name="startDate"
@@ -268,7 +268,7 @@ const AdminRecommendedList = () => {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label>End Date *</label>
+                  <label style={styles.label}>End Date *</label>
                   <input
                     type="date"
                     name="endDate"
@@ -282,7 +282,7 @@ const AdminRecommendedList = () => {
 
               <div style={styles.formRow}>
                 <div style={styles.formGroup}>
-                  <label>Hours Required *</label>
+                  <label style={styles.label}>Hours Required *</label>
                   <input
                     type="number"
                     name="hoursRequired"
@@ -296,7 +296,7 @@ const AdminRecommendedList = () => {
                 </div>
 
                 <div style={styles.formGroup}>
-                  <label>Supervisor *</label>
+                  <label style={styles.label}>Supervisor *</label>
                   <input
                     type="text"
                     name="supervisor"
@@ -329,21 +329,22 @@ const styles = {
   container: {
     padding: '20px',
     maxWidth: '1400px',
-    margin: '0 auto'
+    margin: '0 auto',
+    backgroundColor: '#ffffff'
   },
   title: {
     fontSize: '28px',
     marginBottom: '20px',
-    color: '#333'
+    color: '#000000'
   },
   userInfo: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#f5f5f5',
     padding: '10px 15px',
     borderRadius: '8px',
     marginBottom: '20px',
     fontSize: '14px',
-    color: '#0d47a1',
-    border: '1px solid #90caf9'
+    color: '#333333',
+    border: '1px solid #cccccc'
   },
   stats: {
     display: 'grid',
@@ -352,28 +353,30 @@ const styles = {
     marginBottom: '30px'
   },
   statCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '20px',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    textAlign: 'center'
+    textAlign: 'center',
+    border: '1px solid #e0e0e0'
   },
   statLabel: {
-    color: '#666',
+    color: '#666666',
     marginBottom: '10px'
   },
   statValue: {
     fontSize: '32px',
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000000',
     margin: 0
   },
   emptyState: {
     textAlign: 'center',
     padding: '40px',
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '8px',
-    color: '#666'
+    color: '#666666',
+    border: '1px solid #e0e0e0'
   },
   grid: {
     display: 'grid',
@@ -381,10 +384,11 @@ const styles = {
     gap: '20px'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    padding: '20px'
+    padding: '20px',
+    border: '1px solid #e0e0e0'
   },
   cardHeader: {
     display: 'flex',
@@ -394,12 +398,17 @@ const styles = {
   },
   cardTitle: {
     margin: 0,
-    fontSize: '18px'
+    fontSize: '18px',
+    color: '#000000'
+  },
+  cardText: {
+    color: '#333333',
+    marginBottom: '5px'
   },
   status: {
     padding: '4px 8px',
     borderRadius: '12px',
-    color: 'white',
+    color: '#ffffff',
     fontSize: '12px'
   },
   cardBody: {
@@ -408,7 +417,7 @@ const styles = {
   riskBadge: {
     padding: '4px 8px',
     borderRadius: '12px',
-    color: 'white',
+    color: '#ffffff',
     fontSize: '12px',
     marginLeft: '8px'
   },
@@ -419,24 +428,28 @@ const styles = {
     flexWrap: 'wrap'
   },
   need: {
-    backgroundColor: '#ffeb3b',
+    backgroundColor: '#e0e0e0',
+    color: '#333333',
     padding: '4px 8px',
     borderRadius: '12px',
-    fontSize: '12px'
+    fontSize: '12px',
+    border: '1px solid #cccccc'
   },
   assignButton: {
     width: '100%',
     padding: '10px',
-    backgroundColor: '#4caf50',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   loading: {
     textAlign: 'center',
     padding: '40px',
-    color: '#666'
+    color: '#666666',
+    backgroundColor: '#ffffff'
   },
   modal: {
     position: 'fixed',
@@ -444,19 +457,24 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '30px',
     borderRadius: '8px',
     maxWidth: '500px',
     width: '90%',
-    position: 'relative'
+    position: 'relative',
+    border: '1px solid #cccccc'
+  },
+  modalTitle: {
+    marginTop: 0,
+    color: '#000000'
   },
   closeButton: {
     position: 'absolute',
@@ -465,7 +483,13 @@ const styles = {
     fontSize: '24px',
     background: 'none',
     border: 'none',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    color: '#666666'
+  },
+  label: {
+    color: '#333333',
+    fontWeight: '500',
+    marginBottom: '5px'
   },
   formGroup: {
     marginBottom: '15px',
@@ -478,10 +502,12 @@ const styles = {
   input: {
     width: '100%',
     padding: '8px',
-    border: '1px solid #ddd',
+    border: '1px solid #cccccc',
     borderRadius: '4px',
     marginTop: '5px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff',
+    color: '#000000'
   },
   modalButtons: {
     display: 'flex',
@@ -491,20 +517,22 @@ const styles = {
   cancelButton: {
     flex: 1,
     padding: '10px',
-    backgroundColor: '#f44336',
-    color: 'white',
+    backgroundColor: '#666666',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   submitButton: {
     flex: 1,
     padding: '10px',
-    backgroundColor: '#4caf50',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   }
 };
 

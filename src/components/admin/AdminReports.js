@@ -88,7 +88,7 @@ const AdminReports = () => {
 
       {reportType === 'summary' && stats && (
         <div style={styles.summary}>
-          <h3>Summary Statistics</h3>
+          <h3 style={styles.sectionTitle}>Summary Statistics</h3>
           
           <div style={styles.statsGrid}>
             <div style={styles.statCard}>
@@ -118,13 +118,14 @@ const AdminReports = () => {
           </div>
 
           <div style={styles.completionRate}>
-            <h4>Completion Rate</h4>
+            <h4 style={styles.subSectionTitle}>Completion Rate</h4>
             <div style={styles.progressBar}>
               <div style={{
                 ...styles.progress,
                 width: `${stats.completed + stats.defaulted > 0 
                   ? (stats.completed / (stats.completed + stats.defaulted)) * 100 
-                  : 0}%`
+                  : 0}%`,
+                backgroundColor: '#000000'
               }}>
                 {stats.completed + stats.defaulted > 0 
                   ? ((stats.completed / (stats.completed + stats.defaulted)) * 100).toFixed(1) 
@@ -137,31 +138,31 @@ const AdminReports = () => {
 
       {reportType === 'offenders' && (
         <div style={styles.tableContainer}>
-          <h3>Offenders Report</h3>
+          <h3 style={styles.sectionTitle}>Offenders Report</h3>
           <table style={styles.table}>
             <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Offense</th>
-                <th>Risk</th>
-                <th>Recommended</th>
-                <th>Status</th>
-                <th>Vetted By</th>
-                <th>Created</th>
+              <tr style={styles.tableHeader}>
+                <th style={styles.th}>Name</th>
+                <th style={styles.th}>Email</th>
+                <th style={styles.th}>Offense</th>
+                <th style={styles.th}>Risk</th>
+                <th style={styles.th}>Recommended</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Vetted By</th>
+                <th style={styles.th}>Created</th>
               </tr>
             </thead>
             <tbody>
               {offenders.map(o => (
-                <tr key={o.id}>
-                  <td>{o.firstName} {o.lastName}</td>
-                  <td>{o.email}</td>
-                  <td>{o.offenseType}</td>
-                  <td>{o.riskLevel}</td>
-                  <td>{o.recommendedForCS ? 'Yes' : 'No'}</td>
-                  <td>{o.status}</td>
-                  <td>{o.vettedBy}</td>
-                  <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                <tr key={o.id} style={styles.tableRow}>
+                  <td style={styles.td}>{o.firstName} {o.lastName}</td>
+                  <td style={styles.td}>{o.email}</td>
+                  <td style={styles.td}>{o.offenseType}</td>
+                  <td style={styles.td}>{o.riskLevel}</td>
+                  <td style={styles.td}>{o.recommendedForCS ? 'Yes' : 'No'}</td>
+                  <td style={styles.td}>{o.status}</td>
+                  <td style={styles.td}>{o.vettedBy}</td>
+                  <td style={styles.td}>{new Date(o.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -171,36 +172,38 @@ const AdminReports = () => {
 
       {reportType === 'assignments' && (
         <div style={styles.tableContainer}>
-          <h3>Assignments Report</h3>
+          <h3 style={styles.sectionTitle}>Assignments Report</h3>
           <table style={styles.table}>
             <thead>
-              <tr>
-                <th>Offender</th>
-                <th>Institution</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Hours</th>
-                <th>Status</th>
-                <th>Supervisor</th>
-                <th>Assigned By</th>
+              <tr style={styles.tableHeader}>
+                <th style={styles.th}>Offender</th>
+                <th style={styles.th}>Institution</th>
+                <th style={styles.th}>Start Date</th>
+                <th style={styles.th}>End Date</th>
+                <th style={styles.th}>Hours</th>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Supervisor</th>
+                <th style={styles.th}>Assigned By</th>
               </tr>
             </thead>
             <tbody>
               {assignments.map(a => (
-                <tr key={a.id}>
-                  <td>{a.offenderName}</td>
-                  <td>{a.institution}</td>
-                  <td>{new Date(a.startDate).toLocaleDateString()}</td>
-                  <td>{a.endDate ? new Date(a.endDate).toLocaleDateString() : '-'}</td>
-                  <td>{a.hoursRequired}</td>
+                <tr key={a.id} style={styles.tableRow}>
+                  <td style={styles.td}>{a.offenderName}</td>
+                  <td style={styles.td}>{a.institution}</td>
+                  <td style={styles.td}>{new Date(a.startDate).toLocaleDateString()}</td>
+                  <td style={styles.td}>{a.endDate ? new Date(a.endDate).toLocaleDateString() : '-'}</td>
+                  <td style={styles.td}>{a.hoursRequired}</td>
                   <td style={{
-                    color: a.status === 'completed' ? '#4caf50' :
-                           a.status === 'defaulted' ? '#f44336' : '#ff9800'
+                    ...styles.td,
+                    color: a.status === 'completed' ? '#008000' :
+                           a.status === 'defaulted' ? '#ff0000' : '#666666',
+                    fontWeight: '500'
                   }}>
                     {a.status}
                   </td>
-                  <td>{a.supervisor}</td>
-                  <td>{a.assignedBy}</td>
+                  <td style={styles.td}>{a.supervisor}</td>
+                  <td style={styles.td}>{a.assignedBy}</td>
                 </tr>
               ))}
             </tbody>
@@ -215,12 +218,23 @@ const styles = {
   container: {
     padding: '20px',
     maxWidth: '1400px',
-    margin: '0 auto'
+    margin: '0 auto',
+    backgroundColor: '#ffffff'
   },
   title: {
     fontSize: '28px',
     marginBottom: '20px',
-    color: '#333'
+    color: '#000000'
+  },
+  sectionTitle: {
+    fontSize: '20px',
+    marginBottom: '15px',
+    color: '#000000'
+  },
+  subSectionTitle: {
+    fontSize: '16px',
+    marginBottom: '10px',
+    color: '#333333'
   },
   controls: {
     display: 'flex',
@@ -231,40 +245,46 @@ const styles = {
   select: {
     flex: 1,
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid #cccccc',
     borderRadius: '4px',
     fontSize: '14px',
-    minWidth: '200px'
+    minWidth: '200px',
+    backgroundColor: '#ffffff',
+    color: '#000000'
   },
   exportButton: {
     padding: '10px 20px',
-    backgroundColor: '#4caf50',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   printButton: {
     padding: '10px 20px',
-    backgroundColor: '#2196f3',
-    color: 'white',
+    backgroundColor: '#333333',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   refreshButton: {
     padding: '10px 20px',
-    backgroundColor: '#ff9800',
-    color: 'white',
+    backgroundColor: '#666666',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
   },
   summary: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '20px',
     borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   statsGrid: {
     display: 'grid',
@@ -273,55 +293,87 @@ const styles = {
     marginBottom: '30px'
   },
   statCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f5f5f5',
     padding: '20px',
     borderRadius: '8px',
-    textAlign: 'center'
+    textAlign: 'center',
+    border: '1px solid #cccccc'
   },
   statLabel: {
-    color: '#666',
-    marginBottom: '10px'
+    color: '#333333',
+    marginBottom: '10px',
+    fontSize: '14px'
   },
   statValue: {
     fontSize: '32px',
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000000',
     margin: 0
   },
   completionRate: {
-    marginTop: '20px'
+    marginTop: '20px',
+    padding: '15px',
+    backgroundColor: '#f5f5f5',
+    borderRadius: '8px',
+    border: '1px solid #cccccc'
   },
   progressBar: {
     width: '100%',
     height: '30px',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#e0e0e0',
     borderRadius: '4px',
     overflow: 'hidden'
   },
   progress: {
     height: '100%',
-    backgroundColor: '#4caf50',
-    color: 'white',
+    color: '#ffffff',
     textAlign: 'center',
     lineHeight: '30px',
-    fontSize: '14px'
+    fontSize: '14px',
+    transition: 'width 0.3s ease'
   },
   tableContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '20px',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    overflow: 'auto'
+    overflow: 'auto',
+    border: '1px solid #e0e0e0'
   },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
     marginTop: '20px'
   },
+  tableHeader: {
+    backgroundColor: '#f0f0f0',
+    borderBottom: '2px solid #cccccc'
+  },
+  th: {
+    padding: '12px',
+    textAlign: 'left',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#000000',
+    borderBottom: '1px solid #cccccc'
+  },
+  tableRow: {
+    borderBottom: '1px solid #e0e0e0',
+    ':hover': {
+      backgroundColor: '#f5f5f5'
+    }
+  },
+  td: {
+    padding: '10px 12px',
+    fontSize: '14px',
+    color: '#333333',
+    borderBottom: '1px solid #e0e0e0'
+  },
   loading: {
     textAlign: 'center',
     padding: '40px',
-    color: '#666'
+    color: '#666666',
+    backgroundColor: '#ffffff'
   }
 };
 

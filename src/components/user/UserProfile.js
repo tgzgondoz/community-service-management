@@ -112,9 +112,9 @@ const UserProfile = () => {
       {message.text && (
         <div style={{
           ...styles.message,
-          backgroundColor: message.type === 'error' ? '#f8d7da' : '#d4edda',
-          color: message.type === 'error' ? '#721c24' : '#155724',
-          border: message.type === 'error' ? '1px solid #f5c6cb' : '1px solid #c3e6cb'
+          backgroundColor: message.type === 'error' ? '#f0f0f0' : '#f0f0f0',
+          color: message.type === 'error' ? '#ff0000' : '#000000',
+          border: message.type === 'error' ? '1px solid #ff0000' : '1px solid #00ff00'
         }}>
           {message.text}
         </div>
@@ -126,7 +126,7 @@ const UserProfile = () => {
           <input
             type="email"
             value={userEmail || ''}
-            style={{...styles.input, backgroundColor: '#f5f5f5'}}
+            style={{...styles.input, backgroundColor: '#f0f0f0'}}
             disabled
           />
         </div>
@@ -203,18 +203,20 @@ const styles = {
   container: {
     padding: '20px',
     maxWidth: '600px',
-    margin: '0 auto'
+    margin: '0 auto',
+    backgroundColor: '#ffffff'
   },
   title: {
     fontSize: '28px',
     marginBottom: '20px',
-    color: '#333'
+    color: '#000000'
   },
   form: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '30px',
     borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   formGroup: {
     marginBottom: '20px'
@@ -222,32 +224,36 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '5px',
-    color: '#555',
+    color: '#333333',
     fontWeight: '500'
   },
   input: {
     width: '100%',
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid #cccccc',
     borderRadius: '4px',
     fontSize: '14px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff',
+    color: '#000000'
   },
   button: {
-    backgroundColor: '#1976d2',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     padding: '12px',
     border: 'none',
     borderRadius: '4px',
     fontSize: '16px',
     fontWeight: '600',
-    width: '100%'
+    width: '100%',
+    transition: 'background-color 0.3s'
   },
   message: {
     padding: '10px',
     borderRadius: '4px',
     marginBottom: '20px',
-    textAlign: 'center'
+    textAlign: 'center',
+    backgroundColor: '#f0f0f0'
   }
 };
 

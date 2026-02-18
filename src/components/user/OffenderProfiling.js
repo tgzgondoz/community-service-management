@@ -386,37 +386,39 @@ const styles = {
   container: {
     padding: '20px',
     maxWidth: '800px',
-    margin: '0 auto'
+    margin: '0 auto',
+    backgroundColor: '#ffffff'
   },
   title: {
     fontSize: '28px',
     marginBottom: '20px',
-    color: '#333'
+    color: '#000000'
   },
   userInfo: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#f5f5f5',
     padding: '10px 15px',
     borderRadius: '8px',
     marginBottom: '20px',
     fontSize: '14px',
-    color: '#0d47a1',
-    border: '1px solid #90caf9'
+    color: '#333333',
+    border: '1px solid #cccccc'
   },
   form: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: '30px',
     borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   formSection: {
     marginBottom: '30px',
     paddingBottom: '20px',
-    borderBottom: '1px solid #eee'
+    borderBottom: '1px solid #e0e0e0'
   },
   sectionTitle: {
     fontSize: '18px',
     marginBottom: '15px',
-    color: '#555'
+    color: '#333333'
   },
   formRow: {
     display: 'grid',
@@ -430,16 +432,18 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '5px',
-    color: '#555',
+    color: '#333333',
     fontWeight: '500'
   },
   input: {
     width: '100%',
     padding: '10px',
-    border: '1px solid #ddd',
+    border: '1px solid #cccccc',
     borderRadius: '4px',
     fontSize: '14px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff',
+    color: '#000000'
   },
   checkboxGroup: {
     marginBottom: '10px'
@@ -448,19 +452,20 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    color: '#555',
+    color: '#333333',
     cursor: 'pointer'
   },
   button: {
-    backgroundColor: '#1976d2',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     padding: '15px',
     border: 'none',
     borderRadius: '4px',
     fontSize: '16px',
     cursor: 'pointer',
     width: '100%',
-    fontWeight: '600'
+    fontWeight: '600',
+    transition: 'background-color 0.3s'
   },
   message: {
     padding: '10px',
@@ -469,14 +474,14 @@ const styles = {
     textAlign: 'center'
   },
   successMessage: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
-    border: '1px solid #c3e6cb'
+    backgroundColor: '#f0f0f0',
+    color: '#000000',
+    border: '1px solid #00ff00'
   },
   errorMessage: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
-    border: '1px solid #f5c6cb'
+    backgroundColor: '#f0f0f0',
+    color: '#ff0000',
+    border: '1px solid #ff0000'
   }
 };
 

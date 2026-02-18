@@ -85,7 +85,7 @@ const UserNavigation = ({ onLogout }) => {
               onClick={() => navigate(item.path)}
               style={{
                 ...styles.navLink,
-                backgroundColor: isActive(item.path) ? 'rgba(255,255,255,0.2)' : 'transparent'
+                backgroundColor: isActive(item.path) ? '#333333' : 'transparent'
               }}
             >
               <span style={styles.navIcon}>{item.icon}</span>
@@ -179,10 +179,10 @@ const UserNavigation = ({ onLogout }) => {
 
 const styles = {
   navbar: {
-    backgroundColor: '#2c3e50',
+    backgroundColor: '#000000',
     padding: '12px 0',
-    color: 'white',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    color: '#ffffff',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
     position: 'sticky',
     top: 0,
     zIndex: 1000
@@ -207,7 +207,8 @@ const styles = {
   logoText: {
     fontSize: '20px',
     fontWeight: '600',
-    letterSpacing: '0.5px'
+    letterSpacing: '0.5px',
+    color: '#ffffff'
   },
   desktopMenu: {
     display: 'flex',
@@ -218,14 +219,15 @@ const styles = {
     padding: '10px 16px',
     border: 'none',
     borderRadius: '8px',
-    color: 'white',
+    color: '#ffffff',
     cursor: 'pointer',
     fontSize: '15px',
     fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    background: 'transparent'
+    background: 'transparent',
+    transition: 'background-color 0.2s'
   },
   navIcon: {
     fontSize: '18px'
@@ -236,7 +238,7 @@ const styles = {
     gap: '16px'
   },
   userBadge: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#333333',
     padding: '6px 12px',
     borderRadius: '20px',
     fontSize: '14px',
@@ -244,20 +246,22 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    border: '1px solid rgba(255,255,255,0.2)'
+    border: '1px solid #666666',
+    color: '#ffffff'
   },
   logoutButton: {
     padding: '8px 16px',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.3)',
+    backgroundColor: '#333333',
+    border: '1px solid #666666',
     borderRadius: '8px',
-    color: 'white',
+    color: '#ffffff',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '8px',
+    transition: 'background-color 0.2s'
   },
   logoutIcon: {
     fontSize: '16px'
@@ -267,7 +271,7 @@ const styles = {
     fontSize: '24px',
     background: 'none',
     border: 'none',
-    color: 'white',
+    color: '#ffffff',
     cursor: 'pointer',
     padding: '8px',
     borderRadius: '4px'
@@ -275,14 +279,15 @@ const styles = {
   mobileMenu: {
     display: 'none',
     padding: '16px',
-    backgroundColor: '#34495e'
+    backgroundColor: '#1a1a1a',
+    borderTop: '1px solid #333333'
   },
   mobileNavLink: {
     padding: '12px',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#333333',
     border: 'none',
     borderRadius: '8px',
-    color: 'white',
+    color: '#ffffff',
     cursor: 'pointer',
     fontSize: '16px',
     display: 'flex',
@@ -290,11 +295,12 @@ const styles = {
     gap: '12px',
     width: '100%',
     textAlign: 'left',
-    marginBottom: '8px'
+    marginBottom: '8px',
+    transition: 'background-color 0.2s'
   },
   mobileUserBadge: {
     padding: '12px',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: '#333333',
     borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
@@ -302,14 +308,15 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     marginBottom: '4px',
-    border: '1px solid rgba(255,255,255,0.2)'
+    border: '1px solid #666666',
+    color: '#ffffff'
   },
   mobileLogoutButton: {
     padding: '12px',
-    backgroundColor: '#f44336',
+    backgroundColor: '#666666',
     border: 'none',
     borderRadius: '8px',
-    color: 'white',
+    color: '#ffffff',
     cursor: 'pointer',
     fontSize: '16px',
     display: 'flex',
@@ -317,7 +324,8 @@ const styles = {
     gap: '12px',
     width: '100%',
     textAlign: 'left',
-    marginTop: '8px'
+    marginTop: '8px',
+    transition: 'background-color 0.2s'
   }
 };
 

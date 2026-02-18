@@ -142,19 +142,19 @@ const UserDashboard = () => {
       )}
 
       <div style={styles.statsGrid}>
-        <div style={{...styles.statCard, backgroundColor: '#2196f3'}}>
+        <div style={{...styles.statCard, backgroundColor: '#000000'}}>
           <p style={styles.statLabel}>Total Profiles Created</p>
           <p style={styles.statValue}>{userStats.totalProfiled}</p>
         </div>
-        <div style={{...styles.statCard, backgroundColor: '#4caf50'}}>
+        <div style={{...styles.statCard, backgroundColor: '#333333'}}>
           <p style={styles.statLabel}>Recommended (#4)</p>
           <p style={styles.statValue}>{userStats.recommended}</p>
         </div>
-        <div style={{...styles.statCard, backgroundColor: '#ff9800'}}>
+        <div style={{...styles.statCard, backgroundColor: '#666666'}}>
           <p style={styles.statLabel}>Not Recommended (#3)</p>
           <p style={styles.statValue}>{userStats.notRecommended}</p>
         </div>
-        <div style={{...styles.statCard, backgroundColor: '#9c27b0'}}>
+        <div style={{...styles.statCard, backgroundColor: '#999999'}}>
           <p style={styles.statLabel}>Pending Review</p>
           <p style={styles.statValue}>{userStats.pending}</p>
         </div>
@@ -192,7 +192,7 @@ const UserDashboard = () => {
                   </span>
                   <span style={{
                     ...styles.profileStatus,
-                    backgroundColor: profile.recommendedForCS ? '#4caf50' : '#ff9800'
+                    backgroundColor: profile.recommendedForCS ? '#333333' : '#666666'
                   }}>
                     {profile.recommendedForCS ? 'Recommended' : 'Not Recommended'}
                   </span>
@@ -201,8 +201,8 @@ const UserDashboard = () => {
                 <p style={styles.profileDetail}>Risk Level: {profile.riskLevel || 'N/A'}</p>
                 <p style={styles.profileDetail}>
                   Status: <span style={{
-                    color: profile.status === 'completed' ? '#4caf50' :
-                           profile.status === 'defaulted' ? '#f44336' : '#ff9800'
+                    color: profile.status === 'completed' ? '#008000' :
+                           profile.status === 'defaulted' ? '#ff0000' : '#666666'
                   }}>{profile.status || 'pending'}</span>
                 </p>
                 <p style={styles.profileDate}>
@@ -225,7 +225,8 @@ const styles = {
   container: {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '20px'
+    padding: '20px',
+    backgroundColor: '#ffffff'
   },
   header: {
     display: 'flex',
@@ -235,28 +236,28 @@ const styles = {
   },
   title: {
     fontSize: '28px',
-    color: '#1f2937',
+    color: '#000000',
     margin: 0
   },
   refreshButton: {
-    backgroundColor: 'white',
-    border: '1px solid #e5e7eb',
+    backgroundColor: '#ffffff',
+    border: '1px solid #cccccc',
     borderRadius: '8px',
     padding: '10px 20px',
     fontSize: '14px',
     fontWeight: '500',
-    color: '#4b5563',
+    color: '#333333',
     cursor: 'pointer',
     transition: 'background-color 0.2s'
   },
   infoMessage: {
-    backgroundColor: '#e3f2fd',
-    border: '1px solid #90caf9',
+    backgroundColor: '#f5f5f5',
+    border: '1px solid #cccccc',
     borderRadius: '8px',
     padding: '20px',
     marginBottom: '30px',
     textAlign: 'center',
-    color: '#0d47a1'
+    color: '#000000'
   },
   statsGrid: {
     display: 'grid',
@@ -267,7 +268,7 @@ const styles = {
   statCard: {
     padding: '20px',
     borderRadius: '12px',
-    color: 'white',
+    color: '#ffffff',
     textAlign: 'center',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
   },
@@ -282,15 +283,16 @@ const styles = {
     margin: 0
   },
   quickActions: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '12px',
     padding: '24px',
     marginBottom: '30px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   sectionTitle: {
     fontSize: '20px',
-    color: '#1f2937',
+    color: '#000000',
     marginTop: 0,
     marginBottom: '20px'
   },
@@ -300,8 +302,8 @@ const styles = {
     flexWrap: 'wrap'
   },
   actionButton: {
-    backgroundColor: '#1976d2',
-    color: 'white',
+    backgroundColor: '#000000',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '8px',
     padding: '12px 24px',
@@ -317,10 +319,11 @@ const styles = {
     fontSize: '20px'
   },
   recentProfiles: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '12px',
     padding: '24px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
   },
   profileList: {
     display: 'grid',
@@ -328,10 +331,10 @@ const styles = {
     gap: '16px'
   },
   profileCard: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f5f5f5',
     borderRadius: '8px',
     padding: '16px',
-    border: '1px solid #e5e7eb'
+    border: '1px solid #cccccc'
   },
   profileHeader: {
     display: 'flex',
@@ -342,31 +345,31 @@ const styles = {
   profileName: {
     fontSize: '16px',
     fontWeight: '600',
-    color: '#1f2937'
+    color: '#000000'
   },
   profileStatus: {
     fontSize: '12px',
     padding: '4px 8px',
     borderRadius: '12px',
-    color: 'white'
+    color: '#ffffff'
   },
   profileDetail: {
     margin: '4px 0',
-    color: '#4b5563',
+    color: '#333333',
     fontSize: '14px'
   },
   profileDate: {
     marginTop: '8px',
-    color: '#6b7280',
+    color: '#666666',
     fontSize: '12px'
   },
   emptyState: {
     textAlign: 'center',
     padding: '40px',
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: '12px',
-    color: '#6b7280',
-    border: '2px dashed #e5e7eb'
+    color: '#666666',
+    border: '2px dashed #cccccc'
   }
 };
 
