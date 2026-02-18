@@ -327,6 +327,6 @@ export const updateUserProfile = async (uid, data) => {
     return true;
   } catch (error) {
     console.error('Error updating user profile:', error);
-    throw error;
+    throw error
   }
 };

@@ -10,24 +10,19 @@ const AdminNavigation = ({ onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      // Clear localStorage first (for hardcoded users)
       localStorage.removeItem('user');
       localStorage.removeItem('userRole');
       
-      // Then try to sign out from Firebase (if it was a Firebase user)
       try {
         await signOut(auth);
       } catch (firebaseError) {
-        // Ignore Firebase errors if user was hardcoded
         console.log('Firebase signOut not needed for hardcoded user');
       }
       
-      // Call the parent onLogout if provided
       if (onLogout) {
         onLogout();
       }
       
-      // Navigate to login page
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -61,14 +56,6 @@ const AdminNavigation = ({ onLogout }) => {
               style={{
                 ...styles.navLink,
                 backgroundColor: isActive(item.path) ? 'rgba(255,255,255,0.2)' : 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive(item.path)) {
-                  e.target.style.backgroundColor = 'transparent';
-                }
               }}
             >
               <span style={styles.navIcon}>{item.icon}</span>
@@ -116,6 +103,37 @@ const AdminNavigation = ({ onLogout }) => {
           </button>
         </div>
       )}
+
+      {/* Add CSS in a style tag */}
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-menu {
+            display: none !important;
+          }
+          .right-section {
+            display: none !important;
+          }
+          .mobile-menu-button {
+            display: block !important;
+          }
+          .mobile-menu {
+            display: flex !important;
+            flex-direction: column;
+            animation: slideDown 0.3s ease;
+          }
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </nav>
   );
 };
@@ -142,11 +160,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    cursor: 'pointer',
-    transition: 'opacity 0.2s',
-    ':hover': {
-      opacity: 0.8
-    }
+    cursor: 'pointer'
   },
   logoIcon: {
     fontSize: '28px'
@@ -172,7 +186,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    transition: 'background-color 0.2s',
     background: 'transparent'
   },
   navIcon: {
@@ -189,8 +202,7 @@ const styles = {
     padding: '4px 12px',
     borderRadius: '20px',
     fontSize: '14px',
-    fontWeight: '600',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    fontWeight: '600'
   },
   logoutButton: {
     padding: '8px 16px',
@@ -203,12 +215,7 @@ const styles = {
     fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    transition: 'all 0.2s',
-    ':hover': {
-      backgroundColor: 'rgba(255,255,255,0.2)',
-      borderColor: 'rgba(255,255,255,0.5)'
-    }
+    gap: '8px'
   },
   logoutIcon: {
     fontSize: '16px'
@@ -221,19 +228,12 @@ const styles = {
     color: 'white',
     cursor: 'pointer',
     padding: '8px',
-    borderRadius: '4px',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: 'rgba(255,255,255,0.1)'
-    }
+    borderRadius: '4px'
   },
   mobileMenu: {
     display: 'none',
     padding: '16px',
-    backgroundColor: '#283593',
-    flexDirection: 'column',
-    gap: '8px',
-    animation: 'slideDown 0.3s ease'
+    backgroundColor: '#283593'
   },
   mobileNavLink: {
     padding: '12px',
@@ -248,10 +248,7 @@ const styles = {
     gap: '12px',
     width: '100%',
     textAlign: 'left',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: 'rgba(255,255,255,0.2)'
-    }
+    marginBottom: '8px'
   },
   mobileLogoutButton: {
     padding: '12px',
@@ -266,43 +263,8 @@ const styles = {
     gap: '12px',
     width: '100%',
     textAlign: 'left',
-    marginTop: '8px',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: '#d32f2f'
-    }
+    marginTop: '8px'
   }
 };
-
-// Add keyframe animation for mobile menu
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .desktop-menu {
-      display: none !important;
-    }
-    .right-section {
-      display: none !important;
-    }
-    .mobile-menu-button {
-      display: block !important;
-    }
-    .mobile-menu {
-      display: flex !important;
-    }
-  }
-`;
-document.head.appendChild(style);
 
 export default AdminNavigation;

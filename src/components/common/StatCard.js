@@ -3,17 +3,19 @@ import React from 'react';
 const StatCard = ({ title, value, icon, color, onClick }) => {
   return (
     <div 
-      style={{...styles.card, cursor: onClick ? 'pointer' : 'default'}} 
+      style={{
+        ...styles.card,
+        borderLeft: `4px solid ${color}`,
+        cursor: onClick ? 'pointer' : 'default'
+      }}
       onClick={onClick}
     >
+      <div style={styles.iconContainer}>
+        <span style={styles.icon}>{icon}</span>
+      </div>
       <div style={styles.content}>
-        <div>
-          <p style={styles.title}>{title}</p>
-          <p style={styles.value}>{value}</p>
-        </div>
-        <div style={{...styles.iconContainer, backgroundColor: color}}>
-          <span style={styles.icon}>{icon}</span>
-        </div>
+        <p style={styles.title}>{title}</p>
+        <p style={styles.value}>{value}</p>
       </div>
     </div>
   );
@@ -22,42 +24,43 @@ const StatCard = ({ title, value, icon, color, onClick }) => {
 const styles = {
   card: {
     backgroundColor: 'white',
-    borderRadius: '12px',
+    borderRadius: '8px',
     padding: '20px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     transition: 'transform 0.2s, box-shadow 0.2s',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.15)'
+      boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
     }
   },
-  content: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  title: {
-    color: '#6b7280',
-    fontSize: '14px',
-    marginBottom: '8px'
-  },
-  value: {
-    color: '#1f2937',
-    fontSize: '28px',
-    fontWeight: 'bold',
-    margin: 0
-  },
   iconContainer: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '12px',
+    width: '60px',
+    height: '60px',
+    backgroundColor: '#f5f5f5',
+    borderRadius: '50%',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   icon: {
-    color: 'white',
-    fontSize: '24px'
+    fontSize: '30px'
+  },
+  content: {
+    flex: 1
+  },
+  title: {
+    margin: '0 0 8px 0',
+    color: '#666',
+    fontSize: '14px'
+  },
+  value: {
+    margin: 0,
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#333'
   }
 };
 
