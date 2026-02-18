@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOffendersByRecommendation, getOffenderById } from '../../utils/database';
+import { getOffenders } from '../../utils/database';
 import { auth } from '../../config/firebase';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -8,35 +8,117 @@ const UserDashboard = () => {
   const [userStats, setUserStats] = useState({
     totalProfiled: 0,
     recommended: 0,
-    pending: 0
+    pending: 0,
+    notRecommended: 0
   });
   const [recentProfiles, setRecentProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUserData();
-  }, []);
-
-  const fetchUserData = async () => {
-    try {
-      // Get offenders created by this user
-      // Note: You'll need to modify getOffenders to filter by vettedBy
-      const allOffenders = await getOffendersByRecommendation(true);
-      const userOffenders = allOffenders.filter(o => o.vettedBy === auth.currentUser?.email);
+    const initializeData = async () => {
+      // Get user email first
+      const email = await getUserEmail();
+      setUserEmail(email);
       
-      setUserStats({
-        totalProfiled: userOffenders.length,
-        recommended: userOffenders.filter(o => o.recommendedForCS).length,
-        pending: userOffenders.filter(o => o.status === 'pending').length
+      // Then fetch data with the email
+      await fetchUserData(email);
+    };
+
+    initializeData();
+  }, []); // Empty dependency array - runs once on mount
+
+  const getUserEmail = () => {
+    return new Promise((resolve) => {
+      // Check Firebase first
+      if (auth.currentUser) {
+        resolve(auth.currentUser.email);
+        return;
+      }
+
+      // Check localStorage
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          resolve(userData.email);
+          return;
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
+        }
+      }
+
+      // Fallback for testing - use a default email if none found
+      console.warn('No user email found, using default for testing');
+      resolve('probation.officer@example.com');
+    });
+  };
+
+  const fetchUserData = async (email) => {
+    setLoading(true);
+    try {
+      console.log('Fetching data for user email:', email);
+      
+      // Get all offenders
+      const allOffenders = await getOffenders();
+      console.log('Total offenders in database:', allOffenders.length);
+      
+      // Filter offenders created by this user
+      // Check both vettedBy and createdBy fields to be safe
+      const userOffenders = allOffenders.filter(o => {
+        const matches = (
+          o.vettedBy === email || 
+          o.createdBy === email || 
+          o.vettedBy === auth.currentUser?.email ||
+          (o.vettedBy && o.vettedBy.toLowerCase() === email?.toLowerCase())
+        );
+        if (matches) {
+          console.log('Found matching offender:', o.firstName, o.lastName, 'vettedBy:', o.vettedBy);
+        }
+        return matches;
+      });
+      
+      console.log('User offenders found:', userOffenders.length);
+
+      // Calculate stats
+      const recommended = userOffenders.filter(o => o.recommendedForCS === true).length;
+      const notRecommended = userOffenders.filter(o => o.recommendedForCS === false).length;
+      const pending = userOffenders.filter(o => o.status === 'pending').length;
+
+      console.log('Stats:', {
+        total: userOffenders.length,
+        recommended,
+        notRecommended,
+        pending
       });
 
-      setRecentProfiles(userOffenders.slice(0, 5));
+      setUserStats({
+        totalProfiled: userOffenders.length,
+        recommended: recommended,
+        notRecommended: notRecommended,
+        pending: pending
+      });
+
+      // Sort by createdAt date (newest first) and take first 5
+      const sorted = [...userOffenders].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+      }).slice(0, 5);
+      
+      setRecentProfiles(sorted);
+      
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    fetchUserData(userEmail);
   };
 
   if (loading) {
@@ -45,7 +127,19 @@ const UserDashboard = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Welcome, {auth.currentUser?.email}</h1>
+      <div style={styles.header}>
+        <h1 style={styles.title}>Welcome, {userEmail || 'User'}</h1>
+        <button onClick={handleRefresh} style={styles.refreshButton}>
+          🔄 Refresh
+        </button>
+      </div>
+
+      {userStats.totalProfiled === 0 && (
+        <div style={styles.infoMessage}>
+          <p>You haven't created any offender profiles yet.</p>
+          <p>Click the button below to create your first profile.</p>
+        </div>
+      )}
 
       <div style={styles.statsGrid}>
         <div style={{...styles.statCard, backgroundColor: '#2196f3'}}>
@@ -53,10 +147,14 @@ const UserDashboard = () => {
           <p style={styles.statValue}>{userStats.totalProfiled}</p>
         </div>
         <div style={{...styles.statCard, backgroundColor: '#4caf50'}}>
-          <p style={styles.statLabel}>Recommended</p>
+          <p style={styles.statLabel}>Recommended (#4)</p>
           <p style={styles.statValue}>{userStats.recommended}</p>
         </div>
         <div style={{...styles.statCard, backgroundColor: '#ff9800'}}>
+          <p style={styles.statLabel}>Not Recommended (#3)</p>
+          <p style={styles.statValue}>{userStats.notRecommended}</p>
+        </div>
+        <div style={{...styles.statCard, backgroundColor: '#9c27b0'}}>
           <p style={styles.statLabel}>Pending Review</p>
           <p style={styles.statValue}>{userStats.pending}</p>
         </div>
@@ -70,7 +168,7 @@ const UserDashboard = () => {
             onClick={() => navigate('/profiling')}
           >
             <span style={styles.actionIcon}>➕</span>
-            Create New Offender Profile
+            Create New Offender Profile (#9)
           </button>
           <button 
             style={styles.actionButton}
@@ -82,7 +180,7 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      {recentProfiles.length > 0 && (
+      {recentProfiles.length > 0 ? (
         <div style={styles.recentProfiles}>
           <h2 style={styles.sectionTitle}>Your Recent Profiles</h2>
           <div style={styles.profileList}>
@@ -96,17 +194,27 @@ const UserDashboard = () => {
                     ...styles.profileStatus,
                     backgroundColor: profile.recommendedForCS ? '#4caf50' : '#ff9800'
                   }}>
-                    {profile.recommendedForCS ? 'Recommended' : 'Pending'}
+                    {profile.recommendedForCS ? 'Recommended' : 'Not Recommended'}
                   </span>
                 </div>
-                <p style={styles.profileDetail}>Offense: {profile.offenseType}</p>
-                <p style={styles.profileDetail}>Risk Level: {profile.riskLevel}</p>
+                <p style={styles.profileDetail}>Offense: {profile.offenseType || 'N/A'}</p>
+                <p style={styles.profileDetail}>Risk Level: {profile.riskLevel || 'N/A'}</p>
+                <p style={styles.profileDetail}>
+                  Status: <span style={{
+                    color: profile.status === 'completed' ? '#4caf50' :
+                           profile.status === 'defaulted' ? '#f44336' : '#ff9800'
+                  }}>{profile.status || 'pending'}</span>
+                </p>
                 <p style={styles.profileDate}>
-                  Created: {new Date(profile.createdAt).toLocaleDateString()}
+                  Created: {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div style={styles.emptyState}>
+          <p>No profiles created yet. Click "Create New Offender Profile" to get started.</p>
         </div>
       )}
     </div>
@@ -115,14 +223,40 @@ const UserDashboard = () => {
 
 const styles = {
   container: {
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
     padding: '20px'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '30px'
   },
   title: {
     fontSize: '28px',
     color: '#1f2937',
-    marginBottom: '30px'
+    margin: 0
+  },
+  refreshButton: {
+    backgroundColor: 'white',
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px',
+    padding: '10px 20px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#4b5563',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s'
+  },
+  infoMessage: {
+    backgroundColor: '#e3f2fd',
+    border: '1px solid #90caf9',
+    borderRadius: '8px',
+    padding: '20px',
+    marginBottom: '30px',
+    textAlign: 'center',
+    color: '#0d47a1'
   },
   statsGrid: {
     display: 'grid',
@@ -177,10 +311,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: '#1565c0'
-    }
+    transition: 'background-color 0.2s'
   },
   actionIcon: {
     fontSize: '20px'
@@ -228,6 +359,14 @@ const styles = {
     marginTop: '8px',
     color: '#6b7280',
     fontSize: '12px'
+  },
+  emptyState: {
+    textAlign: 'center',
+    padding: '40px',
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    color: '#6b7280',
+    border: '2px dashed #e5e7eb'
   }
 };
 

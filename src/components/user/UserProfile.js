@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from '../../config/firebase';
 import { getUserProfile, updateUserProfile } from '../../utils/database';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const UserProfile = () => {
   const [profile, setProfile] = useState({
@@ -11,14 +12,42 @@ const UserProfile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState({ text: '', type: '' });
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    loadProfile();
+    // Get user email
+    if (auth.currentUser) {
+      setUserEmail(auth.currentUser.email);
+      loadProfile();
+    } else {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setUserEmail(userData.email);
+          // For hardcoded users, set default profile
+          setProfile({
+            displayName: userData.displayName || userData.email.split('@')[0],
+            phone: '',
+            department: '',
+            bio: ''
+          });
+          setLoading(false);
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    }
   }, []);
 
   const loadProfile = async () => {
     try {
+      if (!auth.currentUser) return;
+      
       const userProfile = await getUserProfile(auth.currentUser.uid);
       if (userProfile) {
         setProfile({
@@ -30,6 +59,10 @@ const UserProfile = () => {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+      setMessage({ 
+        text: 'Error loading profile: ' + error.message, 
+        type: 'error' 
+      });
     } finally {
       setLoading(false);
     }
@@ -46,33 +79,44 @@ const UserProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setMessage('');
+    setMessage({ text: '', type: '' });
 
     try {
+      if (!auth.currentUser) {
+        // For hardcoded users, just show success message
+        setMessage({ 
+          text: 'Profile updated successfully! (Demo mode - changes not saved to database)', 
+          type: 'success' 
+        });
+        setSaving(false);
+        return;
+      }
+
       await updateUserProfile(auth.currentUser.uid, profile);
-      setMessage('Profile updated successfully!');
+      setMessage({ text: 'Profile updated successfully!', type: 'success' });
     } catch (error) {
-      setMessage('Error updating profile: ' + error.message);
+      setMessage({ text: 'Error updating profile: ' + error.message, type: 'error' });
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) {
-    return <div style={styles.loading}>Loading profile...</div>;
+    return <LoadingSpinner />;
   }
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>My Profile</h2>
       
-      {message && (
+      {message.text && (
         <div style={{
           ...styles.message,
-          backgroundColor: message.includes('Error') ? '#f8d7da' : '#d4edda',
-          color: message.includes('Error') ? '#721c24' : '#155724'
+          backgroundColor: message.type === 'error' ? '#f8d7da' : '#d4edda',
+          color: message.type === 'error' ? '#721c24' : '#155724',
+          border: message.type === 'error' ? '1px solid #f5c6cb' : '1px solid #c3e6cb'
         }}>
-          {message}
+          {message.text}
         </div>
       )}
 
@@ -81,7 +125,7 @@ const UserProfile = () => {
           <label style={styles.label}>Email</label>
           <input
             type="email"
-            value={auth.currentUser?.email || ''}
+            value={userEmail || ''}
             style={{...styles.input, backgroundColor: '#f5f5f5'}}
             disabled
           />
@@ -124,6 +168,7 @@ const UserProfile = () => {
             <option value="Social Services">Social Services</option>
             <option value="Corrections">Corrections</option>
             <option value="Administration">Administration</option>
+            <option value="Court Services">Court Services</option>
           </select>
         </div>
 
@@ -138,7 +183,15 @@ const UserProfile = () => {
           />
         </div>
 
-        <button type="submit" style={styles.button} disabled={saving}>
+        <button 
+          type="submit" 
+          style={{
+            ...styles.button,
+            opacity: saving ? 0.7 : 1,
+            cursor: saving ? 'not-allowed' : 'pointer'
+          }} 
+          disabled={saving}
+        >
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
@@ -187,20 +240,14 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     fontSize: '16px',
-    cursor: 'pointer',
-    width: '100%',
-    fontWeight: '600'
+    fontWeight: '600',
+    width: '100%'
   },
   message: {
     padding: '10px',
     borderRadius: '4px',
     marginBottom: '20px',
     textAlign: 'center'
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '40px',
-    color: '#666'
   }
 };
 
