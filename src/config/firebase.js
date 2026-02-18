@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCwUOSlxF864O7QD2KBNQFe1uhZfx8OpnQ",
@@ -14,7 +13,11 @@ const firebaseConfig = {
   measurementId: "G-FP66LK7HTX"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Initialize services
 export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const db = getDatabase(app);
+
+console.log('Firebase Realtime Database initialized successfully');

@@ -2,20 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { setUserRole } from '../utils/database';
+import { getUserRole, setUserRole } from '../utils/database';
 
 // Hardcoded admin credentials
 const HARDCODED_ADMIN = {
   email: 'admin@csms.com',
   password: 'admin123',
   role: 'admin'
-};
-
-// Hardcoded user credentials (for demo)
-const HARDCODED_USER = {
-  email: 'user@csms.com',
-  password: 'user123',
-  role: 'user'
 };
 
 const Login = () => {
@@ -31,54 +24,34 @@ const Login = () => {
     setError('');
     
     try {
-      // Check for hardcoded admin first
+      // First check if it's the hardcoded admin
       if (email === HARDCODED_ADMIN.email && password === HARDCODED_ADMIN.password) {
-        console.log('✅ Hardcoded admin login successful');
+        console.log('Hardcoded admin login successful');
         
-        // Store user info in localStorage or session storage
-        localStorage.setItem('user', JSON.stringify({
-          email: email,
-          role: 'admin',
-          isHardcoded: true
-        }));
+        // Try to sign in with Firebase (in case user exists)
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          
+          // Ensure the user has admin role in database
+          await setUserRole(userCredential.user.uid, email, 'admin');
+          
+          navigate('/dashboard');
+        } catch (firebaseError) {
+          // If Firebase user doesn't exist, we'll still allow login
+          // but we need to handle it differently
+          console.log('Firebase user not found, but allowing hardcoded admin login');
+          
+          // For demo purposes, we'll still navigate to dashboard
+          // In a real app, you might want to create the user in Firebase
+          navigate('/dashboard');
+        }
+      } else {
+        // Regular Firebase authentication for other users
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const role = await getUserRole(userCredential.user.uid);
         
-        // Navigate to admin dashboard
         navigate('/dashboard');
-        window.location.reload(); // Force reload to update app state
-        return;
       }
-      
-      // Check for hardcoded user
-      if (email === HARDCODED_USER.email && password === HARDCODED_USER.password) {
-        console.log('✅ Hardcoded user login successful');
-        
-        // Store user info in localStorage
-        localStorage.setItem('user', JSON.stringify({
-          email: email,
-          role: 'user',
-          isHardcoded: true
-        }));
-        
-        // Navigate to user dashboard
-        navigate('/dashboard');
-        window.location.reload(); // Force reload to update app state
-        return;
-      }
-      
-      // Regular Firebase authentication for other users
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Store Firebase user info
-      localStorage.setItem('user', JSON.stringify({
-        uid: userCredential.user.uid,
-        email: email,
-        role: 'user', // Default role, you might want to fetch from DB
-        isHardcoded: false
-      }));
-      
-      navigate('/dashboard');
-      window.location.reload();
-      
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid email or password');
@@ -94,8 +67,8 @@ const Login = () => {
   };
 
   const loginAsUser = () => {
-    setEmail(HARDCODED_USER.email);
-    setPassword(HARDCODED_USER.password);
+    setEmail('user@csms.com');
+    setPassword('user123');
   };
 
   return (
@@ -168,7 +141,7 @@ const Login = () => {
             <strong>User:</strong> user@csms.com / user123
           </p>
           <p style={styles.footerNote}>
-            Admin and User logins work even without Firebase setup
+            Note: Admin can login even without Firebase setup
           </p>
         </div>
       </div>
@@ -232,7 +205,12 @@ const styles = {
     border: '1px solid #d1d5db',
     borderRadius: '8px',
     fontSize: '14px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
+    ':focus': {
+      borderColor: '#667eea',
+      outline: 'none'
+    }
   },
   button: {
     backgroundColor: '#667eea',
@@ -242,7 +220,15 @@ const styles = {
     borderRadius: '8px',
     fontSize: '16px',
     fontWeight: '600',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+    ':hover': {
+      backgroundColor: '#5a67d8'
+    },
+    ':disabled': {
+      opacity: 0.5,
+      cursor: 'not-allowed'
+    }
   },
   error: {
     backgroundColor: '#fee2e2',
@@ -279,7 +265,11 @@ const styles = {
     borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+    ':hover': {
+      backgroundColor: '#0284c7'
+    }
   },
   footer: {
     marginTop: '20px',
