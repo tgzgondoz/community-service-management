@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './config/firebase';
-import { getUserRole } from './utils/database';
+import database from './utils/database';
 
 // Import components
 import Login from './components/Login';
@@ -19,9 +19,30 @@ import AdminReports from './components/admin/AdminReports';
 import UserProfile from './components/user/UserProfile';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
+// Destructure database functions
+const { 
+  getUserRole, 
+  getStats, 
+  getActivities,
+  getOffendersByRecommendation,
+  getInterventions,
+  addIntervention,
+  updateOffender,
+  getOffenders,
+  deleteOffender,
+  addAssignment,
+  addActivity,
+  getAssignments,
+  addOffender,
+  getUserProfile,
+  updateUserProfile,
+  getAllUsers,
+  setUserRole
+} = database;
+
 function App() {
   const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState(null);
+  const [userRole, setUserRoleState] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +54,7 @@ function App() {
           const userData = JSON.parse(storedUser);
           console.log('Found stored user:', userData);
           setUser({ email: userData.email });
-          setUserRole(userData.role);
+          setUserRoleState(userData.role);
           setLoading(false);
           return true;
         } catch (error) {
@@ -58,10 +79,10 @@ function App() {
         // Get user role from database
         const role = await getUserRole(firebaseUser.uid);
         console.log('User role from database:', role);
-        setUserRole(role);
+        setUserRoleState(role);
       } else {
         setUser(null);
-        setUserRole(null);
+        setUserRoleState(null);
       }
       
       setLoading(false);
@@ -77,7 +98,7 @@ function App() {
     auth.signOut().then(() => {
       console.log('User signed out');
       setUser(null);
-      setUserRole(null);
+      setUserRoleState(null);
     }).catch((error) => {
       console.error('Error signing out:', error);
     });

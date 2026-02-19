@@ -327,6 +327,31 @@ export const updateUserProfile = async (uid, data) => {
     return true;
   } catch (error) {
     console.error('Error updating user profile:', error);
-    throw error
+    throw error;
   }
+};
+
+// Default export for backward compatibility if needed
+export default {
+  getUserRole,
+  setUserRole,
+  getAllUsers,
+  getOffenders,
+  getOffendersByRecommendation,
+  getOffenderById,
+  addOffender,
+  updateOffender,
+  deleteOffender,
+  getAssignments,
+  getAssignmentsByStatus,
+  addAssignment,
+  updateAssignment,
+  getInterventions,
+  addIntervention,
+  updateIntervention,
+  getActivities,
+  addActivity,
+  getStats,
+  getUserProfile,
+  updateUserProfile
 };

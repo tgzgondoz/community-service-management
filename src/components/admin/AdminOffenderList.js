@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getOffenders, updateOffender, deleteOffender } from '../../utils/database';
 
 const AdminOffenderList = () => {
@@ -14,24 +14,8 @@ const AdminOffenderList = () => {
     fetchOffenders();
   }, []);
 
-  useEffect(() => {
-    filterOffenders();
-  }, [searchTerm, filterStatus, offenders]);
-
-  const fetchOffenders = async () => {
-    setLoading(true);
-    try {
-      const data = await getOffenders();
-      setOffenders(data);
-      setFilteredOffenders(data);
-    } catch (error) {
-      console.error('Error fetching offenders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filterOffenders = () => {
+  // Wrap filterOffenders in useCallback to prevent unnecessary re-renders
+  const filterOffenders = useCallback(() => {
     let filtered = [...offenders];
 
     if (searchTerm) {
@@ -53,6 +37,23 @@ const AdminOffenderList = () => {
     }
 
     setFilteredOffenders(filtered);
+  }, [offenders, searchTerm, filterStatus]); // Add all dependencies here
+
+  useEffect(() => {
+    filterOffenders();
+  }, [searchTerm, filterStatus, offenders, filterOffenders]); // Add filterOffenders to dependency array
+
+  const fetchOffenders = async () => {
+    setLoading(true);
+    try {
+      const data = await getOffenders();
+      setOffenders(data);
+      setFilteredOffenders(data);
+    } catch (error) {
+      console.error('Error fetching offenders:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -278,7 +279,7 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    transition: 'backgroundColor 0.2s'
   },
   stats: {
     display: 'flex',
@@ -361,7 +362,7 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    transition: 'backgroundColor 0.2s'
   },
   deleteButton: {
     padding: '4px 8px',
@@ -370,7 +371,7 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    transition: 'backgroundColor 0.2s'
   },
   loading: {
     textAlign: 'center',
