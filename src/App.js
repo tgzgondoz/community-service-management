@@ -19,26 +19,8 @@ import AdminReports from './components/admin/AdminReports';
 import UserProfile from './components/user/UserProfile';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
-// Destructure database functions
-const { 
-  getUserRole, 
-  getStats, 
-  getActivities,
-  getOffendersByRecommendation,
-  getInterventions,
-  addIntervention,
-  updateOffender,
-  getOffenders,
-  deleteOffender,
-  addAssignment,
-  addActivity,
-  getAssignments,
-  addOffender,
-  getUserProfile,
-  updateUserProfile,
-  getAllUsers,
-  setUserRole
-} = database;
+// Only import the functions you actually use in App.js
+const { getUserRole } = database;
 
 function App() {
   const [user, setUser] = useState(null);
