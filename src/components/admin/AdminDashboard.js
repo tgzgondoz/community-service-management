@@ -56,35 +56,35 @@ const AdminDashboard = () => {
         <StatCard
           title="Not Recommended (#3)"
           value={stats.notRecommended}
-          icon="❌"
+         
           color="#333333"
           onClick={() => navigate('/offenders?filter=not-recommended')}
         />
         <StatCard
           title="Recommended (#4)"
           value={stats.recommended}
-          icon="✅"
+          
           color="#666666"
           onClick={() => navigate('/recommended')}
         />
         <StatCard
           title="Completed (#7)"
           value={stats.completed}
-          icon="🎉"
+          
           color="#999999"
           onClick={() => navigate('/reports?type=completed')}
         />
         <StatCard
           title="Defaulted (#8)"
           value={stats.defaulted}
-          icon="⚠️"
+          
           color="#4d4d4d"
           onClick={() => navigate('/reports?type=defaulted')}
         />
         <StatCard
           title="Active Cases"
           value={stats.active}
-          icon="⚡"
+         
           color="#1a1a1a"
           onClick={() => navigate('/offenders?filter=active')}
         />
@@ -96,8 +96,8 @@ const AdminDashboard = () => {
           {activities.map(activity => (
             <div key={activity.id} style={styles.activityItem}>
               <div style={styles.activityIcon}>
-                {activity.type === 'offender' ? '👤' : 
-                 activity.type === 'assignment' ? '📋' : '🫂'}
+                {activity.type === 'offender' ? '' : 
+                 activity.type === 'assignment' ? '' : ''}
               </div>
               <div style={styles.activityContent}>
                 <p style={styles.activityDescription}>{activity.description}</p>
