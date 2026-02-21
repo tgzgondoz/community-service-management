@@ -331,8 +331,8 @@ export const updateUserProfile = async (uid, data) => {
   }
 };
 
-// Default export for backward compatibility if needed
-export default {
+// Create a database object with all functions
+const database = {
   getUserRole,
   setUserRole,
   getAllUsers,
@@ -355,3 +355,6 @@ export default {
   getUserProfile,
   updateUserProfile
 };
+
+// Default export for backward compatibility if needed
+export default database;
