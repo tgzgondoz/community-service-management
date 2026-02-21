@@ -148,7 +148,7 @@ const AdminInterventions = () => {
 
       {/* Assignment Modal */}
       {showForm && (
-        <div style={styles.modal}>
+        <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowForm(false)}>
           <div style={styles.modalContent}>
             <h3 style={styles.modalTitle}>Assign Intervention</h3>
             <button onClick={() => setShowForm(false)} style={styles.closeButton}>×</button>
@@ -202,6 +202,7 @@ const AdminInterventions = () => {
                   onChange={(e) => setFormData({...formData, provider: e.target.value})}
                   style={styles.input}
                   required
+                  placeholder="Enter provider name"
                 />
               </div>
 
@@ -210,7 +211,8 @@ const AdminInterventions = () => {
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  style={{...styles.input, minHeight: '80px'}}
+                  style={{...styles.input, minHeight: '80px', resize: 'vertical'}}
+                  placeholder="Enter any additional notes"
                 />
               </div>
 
@@ -232,101 +234,180 @@ const AdminInterventions = () => {
 
 const styles = {
   container: {
-    padding: '20px',
+    width: '100%',
+    minHeight: '100vh',
     maxWidth: '1400px',
     margin: '0 auto',
-    backgroundColor: '#ffffff'
+    padding: 'clamp(16px, 4vw, 24px)',
+    backgroundColor: '#ffffff',
+    boxSizing: 'border-box',
   },
   title: {
-    fontSize: '28px',
-    marginBottom: '20px',
-    color: '#000000'
+    fontSize: 'clamp(24px, 5vw, 28px)',
+    marginBottom: 'clamp(16px, 3vw, 24px)',
+    color: '#000000',
+    fontWeight: '600',
+    '@media (max-width: 480px)': {
+      textAlign: 'center',
+    }
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '20px'
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: 'clamp(16px, 3vw, 24px)',
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: '1fr',
+      gap: '20px',
+    }
   },
   column: {
     backgroundColor: '#ffffff',
-    borderRadius: '8px',
-    padding: '20px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0'
+    borderRadius: '12px',
+    padding: 'clamp(16px, 3vw, 24px)',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0',
+    height: 'fit-content',
+    maxHeight: 'calc(100vh - 200px)',
+    display: 'flex',
+    flexDirection: 'column',
+    '@media (max-width: 768px)': {
+      maxHeight: '500px',
+    }
   },
   columnTitle: {
-    marginTop: 0,
-    marginBottom: '20px',
+    margin: '0 0 16px 0',
     color: '#000000',
-    fontSize: '18px'
+    fontSize: 'clamp(16px, 3vw, 18px)',
+    fontWeight: '600',
+    paddingBottom: '12px',
+    borderBottom: '2px solid #e0e0e0',
   },
   cardList: {
-    maxHeight: '600px',
-    overflowY: 'auto'
+    flex: 1,
+    overflowY: 'auto',
+    paddingRight: '8px',
+    // Custom scrollbar styling
+    scrollbarWidth: 'thin',
+    scrollbarColor: '#cccccc #f5f5f5',
+    '&::-webkit-scrollbar': {
+      width: '6px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: '#f5f5f5',
+      borderRadius: '3px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: '#cccccc',
+      borderRadius: '3px',
+      '&:hover': {
+        background: '#999999',
+      },
+    },
   },
   offenderCard: {
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    padding: '15px',
-    marginBottom: '10px',
-    backgroundColor: '#f5f5f5'
+    border: '1px solid #e0e0e0',
+    borderRadius: '10px',
+    padding: 'clamp(12px, 2.5vw, 16px)',
+    marginBottom: '12px',
+    backgroundColor: '#f8f8f8',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+      backgroundColor: '#f0f0f0',
+    },
+    '@media (max-width: 480px)': {
+      padding: '12px',
+    }
   },
   interventionCard: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
-    padding: '15px',
-    marginBottom: '10px',
-    border: '1px solid #cccccc'
+    backgroundColor: '#f8f8f8',
+    borderRadius: '10px',
+    padding: 'clamp(12px, 2.5vw, 16px)',
+    marginBottom: '12px',
+    border: '1px solid #e0e0e0',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+      backgroundColor: '#f0f0f0',
+    },
+    '@media (max-width: 480px)': {
+      padding: '12px',
+    }
   },
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '10px'
+    marginBottom: '12px',
+    flexWrap: 'wrap',
+    gap: '8px',
   },
   offenderName: {
-    color: '#000000'
+    color: '#000000',
+    fontSize: 'clamp(14px, 2.5vw, 16px)',
+    wordBreak: 'break-word',
+    flex: 1,
   },
   riskBadge: {
-    padding: '4px 8px',
-    borderRadius: '12px',
+    padding: '4px 10px',
+    borderRadius: '20px',
     color: '#ffffff',
-    fontSize: '12px'
+    fontSize: 'clamp(11px, 2vw, 12px)',
+    fontWeight: '500',
+    whiteSpace: 'nowrap',
   },
   needs: {
     display: 'flex',
     gap: '8px',
-    marginBottom: '10px',
-    flexWrap: 'wrap'
+    marginBottom: '12px',
+    flexWrap: 'wrap',
   },
   need: {
     backgroundColor: '#e0e0e0',
     color: '#333333',
-    padding: '2px 8px',
-    borderRadius: '12px',
-    fontSize: '11px',
-    border: '1px solid #cccccc'
+    padding: '4px 10px',
+    borderRadius: '20px',
+    fontSize: 'clamp(11px, 2vw, 12px)',
+    border: '1px solid #cccccc',
+    fontWeight: '500',
   },
   assignButton: {
     width: '100%',
-    padding: '8px',
+    padding: 'clamp(8px, 2vw, 10px)',
     backgroundColor: '#000000',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#333333',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
+    },
+    '@media (max-width: 480px)': {
+      padding: '12px',
+    }
   },
   interventionIcon: {
-    fontSize: '20px',
-    marginRight: '10px'
+    fontSize: 'clamp(18px, 3vw, 20px)',
+    marginRight: '10px',
   },
   interventionDetails: {
-    fontSize: '14px',
-    color: '#333333'
+    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    color: '#333333',
   },
   detailItem: {
-    margin: '4px 0'
+    margin: '6px 0',
+    lineHeight: '1.5',
+    wordBreak: 'break-word',
   },
   modal: {
     position: 'fixed',
@@ -338,79 +419,160 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000
+    zIndex: 1000,
+    padding: '16px',
+    animation: 'fadeIn 0.2s ease',
   },
   modalContent: {
     backgroundColor: '#ffffff',
-    padding: '30px',
-    borderRadius: '8px',
-    maxWidth: '500px',
-    width: '90%',
+    padding: 'clamp(20px, 5vw, 30px)',
+    borderRadius: '12px',
+    maxWidth: '550px',
+    width: '100%',
+    maxHeight: '90vh',
+    overflowY: 'auto',
     position: 'relative',
-    border: '1px solid #cccccc'
+    border: '1px solid #e0e0e0',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+    animation: 'slideUp 0.3s ease',
   },
   modalTitle: {
-    marginTop: 0,
-    color: '#000000'
+    margin: '0 0 20px 0',
+    color: '#000000',
+    fontSize: 'clamp(18px, 4vw, 20px)',
+    fontWeight: '600',
+    paddingRight: '30px',
   },
   closeButton: {
     position: 'absolute',
-    top: '10px',
-    right: '10px',
-    fontSize: '24px',
+    top: '15px',
+    right: '15px',
+    fontSize: 'clamp(20px, 4vw, 24px)',
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    color: '#666666'
+    color: '#666666',
+    width: '32px',
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#f0f0f0',
+      color: '#000000',
+    },
+    '@media (max-width: 480px)': {
+      top: '10px',
+      right: '10px',
+    }
   },
   label: {
     color: '#333333',
     fontWeight: '500',
-    marginBottom: '5px'
+    marginBottom: '6px',
+    display: 'block',
+    fontSize: 'clamp(13px, 2.5vw, 14px)',
   },
   formGroup: {
-    marginBottom: '15px',
-    flex: 1
+    marginBottom: '16px',
+    flex: 1,
   },
   formRow: {
     display: 'flex',
-    gap: '15px'
+    gap: 'clamp(12px, 3vw, 16px)',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      gap: '12px',
+    }
   },
   input: {
     width: '100%',
-    padding: '8px',
+    padding: 'clamp(8px, 2vw, 10px)',
     border: '1px solid #cccccc',
-    borderRadius: '4px',
-    marginTop: '5px',
+    borderRadius: '6px',
+    marginTop: '4px',
     boxSizing: 'border-box',
     backgroundColor: '#ffffff',
-    color: '#000000'
+    color: '#000000',
+    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    transition: 'border-color 0.2s ease',
+    ':focus': {
+      outline: 'none',
+      borderColor: '#000000',
+    },
   },
   modalButtons: {
     display: 'flex',
-    gap: '10px',
-    marginTop: '20px'
+    gap: '12px',
+    marginTop: '24px',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      gap: '10px',
+    }
   },
   cancelButton: {
     flex: 1,
-    padding: '10px',
+    padding: 'clamp(10px, 2vw, 12px)',
     backgroundColor: '#666666',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#555555',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
+    },
   },
   submitButton: {
     flex: 1,
-    padding: '10px',
+    padding: 'clamp(10px, 2vw, 12px)',
     backgroundColor: '#000000',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
-  }
+    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#333333',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
+    },
+  },
 };
+
+// Add keyframe animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+document.head.appendChild(style);
 
 export default AdminInterventions;
