@@ -111,16 +111,16 @@ const UserNavigation = ({ onLogout }) => {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { path: '/user-dashboard', label: 'Dashboard', icon: '📊', shortLabel: 'Dash' },
-    { path: '/profiling', label: 'Profiling (#9)', icon: '👤', shortLabel: 'Profile' },
-    { path: '/profile', label: 'My Profile', icon: '⚙️', shortLabel: 'Settings' }
+    { path: '/user-dashboard', label: 'Dashboard' },
+    { path: '/profiling', label: 'Profiling' },
+    { path: '/profile', label: 'My Profile' }
   ];
 
   return (
     <nav style={{
       ...styles.navbar,
       ...(scrolled ? styles.navbarScrolled : {}),
-      boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.3)',
+      boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.1)',
     }}>
       <div style={styles.navContainer}>
         {/* Logo Section */}
@@ -128,7 +128,6 @@ const UserNavigation = ({ onLogout }) => {
           style={styles.logoSection}
           onClick={() => navigate('/user-dashboard')}
         >
-          <span style={styles.logoIcon}>⚖️</span>
           <span style={styles.logoText}>CSMS</span>
           <span style={styles.logoBadge}>User</span>
         </div>
@@ -143,11 +142,8 @@ const UserNavigation = ({ onLogout }) => {
                 ...styles.navLink,
                 ...(isActive(item.path) ? styles.navLinkActive : {}),
               }}
-              title={item.label}
             >
-              <span style={styles.navIcon}>{item.icon}</span>
               <span style={styles.navLabel}>{item.label}</span>
-              <span style={styles.navShortLabel}>{item.shortLabel}</span>
             </button>
           ))}
         </div>
@@ -155,16 +151,15 @@ const UserNavigation = ({ onLogout }) => {
         {/* Desktop Right Section */}
         <div style={styles.rightSection}>
           {userName && (
-            <div style={styles.userInfo} title={userName}>
+            <div style={styles.userInfo}>
               <div style={styles.userAvatar}>
                 {userInitials || 'U'}
               </div>
               <span style={styles.userName}>{userName}</span>
             </div>
           )}
-          <button onClick={handleLogout} style={styles.logoutButton} title="Logout">
-            <span style={styles.logoutIcon}>🚪</span>
-            <span style={styles.logoutText}>Logout</span>
+          <button onClick={handleLogout} style={styles.logoutButton}>
+            <span style={styles.logoutText}>Sign out</span>
           </button>
         </div>
 
@@ -198,7 +193,7 @@ const UserNavigation = ({ onLogout }) => {
               style={styles.mobileCloseButton}
               onClick={() => setMobileMenuOpen(false)}
             >
-              ✕
+              Close
             </button>
           </div>
           
@@ -228,95 +223,39 @@ const UserNavigation = ({ onLogout }) => {
                 ...(isActive(item.path) ? styles.mobileNavLinkActive : {}),
               }}
             >
-              <span style={styles.mobileNavIcon}>{item.icon}</span>
               <span style={styles.mobileNavLabel}>{item.label}</span>
-              {isActive(item.path) && <span style={styles.mobileActiveIndicator}>✓</span>}
+              {isActive(item.path) && <span style={styles.mobileActiveIndicator}>●</span>}
             </button>
           ))}
           
           <div style={styles.mobileMenuDivider} />
           
           <button onClick={handleLogout} style={styles.mobileLogoutButton}>
-            <span style={styles.logoutIcon}>🚪</span>
-            <span>Logout</span>
+            <span>Sign out</span>
           </button>
         </div>
       )}
-
-      {/* Add CSS in a style tag */}
-      <style>{`
-        @media (max-width: 1024px) {
-          .nav-label {
-            display: none;
-          }
-          .nav-short-label {
-            display: inline;
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .desktop-menu {
-            display: none !important;
-          }
-          .right-section {
-            display: none !important;
-          }
-          .mobile-menu-button {
-            display: flex !important;
-          }
-          .mobile-menu {
-            display: block !important;
-            animation: slideIn 0.3s ease;
-          }
-        }
-
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @media (prefers-reduced-motion: reduce) {
-          .mobile-menu {
-            animation: none;
-          }
-        }
-      `}</style>
     </nav>
   );
 };
 
 const styles = {
   navbar: {
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
     padding: 'clamp(8px, 2vw, 12px) 0',
-    color: '#ffffff',
+    color: '#1e293b',
     position: 'sticky',
     top: 0,
     zIndex: 1000,
     transition: 'all 0.3s ease',
     width: '100%',
+    borderBottom: '1px solid #e2e8f0',
   },
   navbarScrolled: {
     padding: 'clamp(4px, 1vw, 8px) 0',
     backdropFilter: 'blur(10px)',
-    backgroundColor: 'rgba(0,0,0,0.95)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderBottomColor: 'transparent',
   },
   navContainer: {
     maxWidth: '1400px',
@@ -337,76 +276,51 @@ const styles = {
       opacity: 0.8,
     },
   },
-  logoIcon: {
-    fontSize: 'clamp(20px, 5vw, 28px)',
-  },
   logoText: {
-    fontSize: 'clamp(16px, 4vw, 20px)',
+    fontSize: 'clamp(18px, 4vw, 22px)',
     fontWeight: '600',
-    letterSpacing: '0.5px',
-    color: '#ffffff',
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
+    letterSpacing: '-0.02em',
+    color: '#0f172a',
   },
   logoBadge: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#10b981',
     color: '#ffffff',
     padding: '2px 8px',
     borderRadius: '12px',
-    fontSize: 'clamp(10px, 2.5vw, 12px)',
+    fontSize: 'clamp(10px, 2.5vw, 11px)',
     fontWeight: '600',
-    marginLeft: '4px',
-    '@media (max-width: 380px)': {
-      display: 'none',
-    },
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
   },
   desktopMenu: {
     display: 'flex',
     gap: 'clamp(4px, 1vw, 8px)',
-    flexWrap: 'wrap',
     '@media (max-width: 768px)': {
       display: 'none',
     },
   },
   navLink: {
-    padding: 'clamp(6px, 1.5vw, 10px) clamp(10px, 2vw, 16px)',
+    padding: 'clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 16px)',
     border: 'none',
-    borderRadius: '8px',
-    color: '#ffffff',
+    borderRadius: '6px',
+    color: '#475569',
     cursor: 'pointer',
-    fontSize: 'clamp(13px, 2vw, 15px)',
+    fontSize: 'clamp(14px, 2vw, 15px)',
     fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(4px, 1vw, 8px)',
     background: 'transparent',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
+      backgroundColor: '#f1f5f9',
+      color: '#0f172a',
     },
   },
   navLinkActive: {
-    backgroundColor: '#333333',
-    borderBottom: '2px solid #4CAF50',
-  },
-  navIcon: {
-    fontSize: 'clamp(14px, 3vw, 18px)',
+    backgroundColor: '#f1f5f9',
+    color: '#0f172a',
+    fontWeight: '600',
   },
   navLabel: {
-    '@media (max-width: 1024px)': {
-      display: 'none',
-    },
-  },
-  navShortLabel: {
-    display: 'none',
-    '@media (min-width: 769px) and (max-width: 1024px)': {
-      display: 'inline',
-    },
+    whiteSpace: 'nowrap',
   },
   rightSection: {
     display: 'flex',
@@ -420,25 +334,25 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    backgroundColor: '#333333',
+    backgroundColor: '#f8fafc',
     padding: '4px 12px 4px 4px',
     borderRadius: '30px',
-    border: '1px solid #666666',
+    border: '1px solid #e2e8f0',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#444444',
+      backgroundColor: '#f1f5f9',
     },
   },
   userAvatar: {
     width: 'clamp(30px, 5vw, 32px)',
     height: 'clamp(30px, 5vw, 32px)',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#10b981',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 'clamp(12px, 2.5vw, 14px)',
+    fontSize: 'clamp(12px, 2.5vw, 13px)',
     fontWeight: '600',
     color: '#ffffff',
     textTransform: 'uppercase',
@@ -446,7 +360,7 @@ const styles = {
   userName: {
     fontSize: 'clamp(13px, 2.5vw, 14px)',
     fontWeight: '500',
-    color: '#ffffff',
+    color: '#1e293b',
     maxWidth: '120px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -454,34 +368,26 @@ const styles = {
   },
   logoutButton: {
     padding: 'clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px)',
-    backgroundColor: '#333333',
-    border: '1px solid #666666',
-    borderRadius: '8px',
-    color: '#ffffff',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '6px',
+    color: '#475569',
     cursor: 'pointer',
     fontSize: 'clamp(13px, 2.5vw, 14px)',
     fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(4px, 1vw, 8px)',
     transition: 'all 0.2s ease',
     whiteSpace: 'nowrap',
     ':hover': {
-      backgroundColor: '#444444',
-      borderColor: '#888888',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
       transform: 'translateY(-1px)',
     },
     ':active': {
       transform: 'translateY(0)',
     },
   },
-  logoutIcon: {
-    fontSize: 'clamp(14px, 3vw, 16px)',
-  },
   logoutText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
+    fontWeight: '500',
   },
   mobileMenuButton: {
     display: 'none',
@@ -500,9 +406,9 @@ const styles = {
   },
   hamburgerLine: {
     width: '30px',
-    height: '3px',
-    backgroundColor: '#ffffff',
-    borderRadius: '10px',
+    height: '2px',
+    backgroundColor: '#475569',
+    borderRadius: '2px',
     transition: 'all 0.3s ease',
   },
   mobileMenu: {
@@ -512,11 +418,12 @@ const styles = {
     right: 0,
     bottom: 0,
     width: 'clamp(280px, 80vw, 320px)',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#ffffff',
     padding: 'clamp(20px, 5vw, 24px)',
-    boxShadow: '-4px 0 20px rgba(0,0,0,0.5)',
+    boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
     zIndex: 1050,
     overflowY: 'auto',
+    borderLeft: '1px solid #e2e8f0',
     '@media (max-width: 768px)': {
       display: 'block',
     },
@@ -527,38 +434,41 @@ const styles = {
     alignItems: 'center',
     marginBottom: '24px',
     paddingBottom: '12px',
-    borderBottom: '1px solid #333333',
+    borderBottom: '1px solid #e2e8f0',
   },
   mobileMenuTitle: {
     fontSize: 'clamp(16px, 4vw, 18px)',
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#0f172a',
   },
   mobileCloseButton: {
     background: 'none',
-    border: 'none',
-    color: '#ffffff',
-    fontSize: 'clamp(20px, 5vw, 24px)',
+    border: '1px solid #e2e8f0',
+    color: '#64748b',
+    fontSize: '14px',
     cursor: 'pointer',
-    padding: '4px 8px',
-    borderRadius: '4px',
+    padding: '6px 12px',
+    borderRadius: '6px',
+    transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#f1f5f9',
+      color: '#0f172a',
     },
   },
   mobileUserInfo: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    backgroundColor: '#222222',
+    backgroundColor: '#f8fafc',
     padding: 'clamp(12px, 3vw, 16px)',
     borderRadius: '12px',
     marginBottom: '16px',
+    border: '1px solid #e2e8f0',
   },
   mobileUserAvatar: {
     width: 'clamp(40px, 10vw, 48px)',
     height: 'clamp(40px, 10vw, 48px)',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#10b981',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -575,78 +485,71 @@ const styles = {
     display: 'block',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
     fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: '4px',
+    color: '#0f172a',
+    marginBottom: '2px',
   },
   mobileUserRole: {
     fontSize: 'clamp(11px, 2.5vw, 12px)',
-    color: '#4CAF50',
+    color: '#10b981',
+    fontWeight: '500',
   },
   mobileMenuDivider: {
     height: '1px',
-    backgroundColor: '#333333',
+    backgroundColor: '#e2e8f0',
     margin: 'clamp(16px, 4vw, 20px) 0',
   },
   mobileNavLink: {
     padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#222222',
-    border: 'none',
-    borderRadius: '10px',
-    color: '#ffffff',
+    backgroundColor: '#ffffff',
+    border: '1px solid #f1f5f9',
+    borderRadius: '8px',
+    color: '#475569',
     cursor: 'pointer',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    justifyContent: 'space-between',
     width: '100%',
     textAlign: 'left',
     marginBottom: '8px',
     transition: 'all 0.2s ease',
-    position: 'relative',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateX(5px)',
-    },
-    ':active': {
-      transform: 'translateX(0)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#cbd5e1',
     },
   },
   mobileNavLinkActive: {
-    backgroundColor: '#333333',
-    borderLeft: '3px solid #4CAF50',
-  },
-  mobileNavIcon: {
-    fontSize: 'clamp(16px, 4vw, 18px)',
-    minWidth: '24px',
+    backgroundColor: '#f1f5f9',
+    borderColor: '#94a3b8',
+    color: '#0f172a',
+    fontWeight: '600',
   },
   mobileNavLabel: {
     flex: 1,
   },
   mobileActiveIndicator: {
-    color: '#4CAF50',
-    fontSize: '16px',
-    marginRight: '8px',
+    color: '#10b981',
+    fontSize: '12px',
+    marginLeft: '8px',
   },
   mobileLogoutButton: {
     padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#f44336',
-    border: 'none',
-    borderRadius: '10px',
-    color: '#ffffff',
+    backgroundColor: '#ffffff',
+    border: '1px solid #ef4444',
+    borderRadius: '8px',
+    color: '#ef4444',
     cursor: 'pointer',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
+    fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    justifyContent: 'center',
     width: '100%',
-    textAlign: 'left',
+    textAlign: 'center',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#d32f2f',
-      transform: 'translateX(5px)',
-    },
-    ':active': {
-      transform: 'translateX(0)',
+      backgroundColor: '#fef2f2',
+      borderColor: '#dc2626',
     },
   },
 };

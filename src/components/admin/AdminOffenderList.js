@@ -152,7 +152,6 @@ const AdminOffenderList = () => {
           <span style={styles.subtitle}>Manage and monitor offender records</span>
         </div>
         <button onClick={fetchOffenders} style={styles.refreshButton}>
-          <span style={styles.refreshIcon}>↻</span>
           <span style={styles.refreshText}>Refresh Data</span>
         </button>
       </div>
@@ -180,7 +179,6 @@ const AdminOffenderList = () => {
       {/* Filters */}
       <div style={styles.filters}>
         <div style={styles.searchWrapper}>
-          <span style={styles.searchIcon}>🔍</span>
           <input
             type="text"
             placeholder="Search by name, email, or offense..."
@@ -193,7 +191,7 @@ const AdminOffenderList = () => {
               style={styles.clearSearch}
               onClick={() => setSearchTerm('')}
             >
-              ✕
+              Clear
             </button>
           )}
         </div>
@@ -213,7 +211,7 @@ const AdminOffenderList = () => {
         </select>
 
         <div style={styles.resultsCount}>
-          {filteredOffenders.length} results found
+          {filteredOffenders.length} results
         </div>
       </div>
 
@@ -319,16 +317,14 @@ const AdminOffenderList = () => {
                         setShowDetails(true);
                       }}
                       style={styles.viewButton}
-                      title="View Details"
                     >
-                      👁️
+                      View
                     </button>
                     <button 
                       onClick={() => handleDelete(offender.id)}
                       style={styles.deleteButton}
-                      title="Delete"
                     >
-                      🗑️
+                      Delete
                     </button>
                   </div>
                 </td>
@@ -362,35 +358,33 @@ const AdminOffenderList = () => {
                     setShowDetails(true);
                   }}
                   style={styles.cardViewButton}
-                  title="View Details"
                 >
-                  👁️
+                  View
                 </button>
                 <button 
                   onClick={() => handleDelete(offender.id)}
                   style={styles.cardDeleteButton}
-                  title="Delete"
                 >
-                  🗑️
+                  Delete
                 </button>
               </div>
             </div>
             
             <div style={styles.cardDetails}>
               <div style={styles.cardDetail}>
-                <span style={styles.cardDetailLabel}>Email:</span>
+                <span style={styles.cardDetailLabel}>Email</span>
                 <span style={styles.cardDetailValue}>{offender.email}</span>
               </div>
               <div style={styles.cardDetail}>
-                <span style={styles.cardDetailLabel}>Phone:</span>
+                <span style={styles.cardDetailLabel}>Phone</span>
                 <span style={styles.cardDetailValue}>{offender.phone}</span>
               </div>
               <div style={styles.cardDetail}>
-                <span style={styles.cardDetailLabel}>Offense:</span>
+                <span style={styles.cardDetailLabel}>Offense</span>
                 <span style={styles.cardDetailValue}>{offender.offenseType}</span>
               </div>
               <div style={styles.cardDetail}>
-                <span style={styles.cardDetailLabel}>Status:</span>
+                <span style={styles.cardDetailLabel}>Status</span>
                 <select
                   value={offender.status || 'pending'}
                   onChange={(e) => handleStatusChange(offender.id, e.target.value)}
@@ -406,7 +400,7 @@ const AdminOffenderList = () => {
                 </select>
               </div>
               <div style={styles.cardDetail}>
-                <span style={styles.cardDetailLabel}>Vetted By:</span>
+                <span style={styles.cardDetailLabel}>Vetted By</span>
                 <span style={styles.cardDetailValue}>{offender.vettedBy || '—'}</span>
               </div>
             </div>
@@ -429,7 +423,7 @@ const AdminOffenderList = () => {
             disabled={currentPage === 1}
             style={styles.pageButton}
           >
-            ←
+            Previous
           </button>
           
           <div style={styles.pageNumbers}>
@@ -452,7 +446,7 @@ const AdminOffenderList = () => {
             disabled={currentPage === totalPages}
             style={styles.pageButton}
           >
-            →
+            Next
           </button>
 
           <div style={styles.itemsPerPage}>
@@ -481,7 +475,9 @@ const AdminOffenderList = () => {
                   {selectedOffender.firstName} {selectedOffender.lastName}
                 </p>
               </div>
-              <button onClick={() => setShowDetails(false)} style={styles.closeButton}>×</button>
+              <button onClick={() => setShowDetails(false)} style={styles.closeButton}>
+                Close
+              </button>
             </div>
             
             <div style={styles.details}>
@@ -656,13 +652,10 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#1e293b',
     border: '1px solid #e2e8f0',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     transition: 'all 0.2s ease',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     ':hover': {
@@ -678,12 +671,8 @@ const styles = {
       justifyContent: 'center',
     }
   },
-  refreshIcon: {
-    fontSize: '16px',
-    transition: 'transform 0.3s ease',
-    ':hover': {
-      transform: 'rotate(180deg)',
-    }
+  refreshText: {
+    fontWeight: '500',
   },
   statsGrid: {
     display: 'grid',
@@ -735,19 +724,11 @@ const styles = {
     position: 'relative',
     minWidth: '250px',
   },
-  searchIcon: {
-    position: 'absolute',
-    left: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: '#94a3b8',
-    fontSize: '16px',
-  },
   searchInput: {
     width: '100%',
-    padding: '12px 40px 12px 40px',
+    padding: '12px 16px',
     border: '1px solid #e2e8f0',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '14px',
     backgroundColor: '#ffffff',
     color: '#0f172a',
@@ -761,26 +742,24 @@ const styles = {
   },
   clearSearch: {
     position: 'absolute',
-    right: '12px',
+    right: '8px',
     top: '50%',
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
-    color: '#94a3b8',
+    color: '#64748b',
     cursor: 'pointer',
-    fontSize: '16px',
+    fontSize: '13px',
     padding: '4px 8px',
-    borderRadius: '4px',
     ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#475569',
+      color: '#0f172a',
     },
   },
   filterSelect: {
     flex: 1,
     padding: '12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '14px',
     minWidth: '180px',
     backgroundColor: '#ffffff',
@@ -913,16 +892,13 @@ const styles = {
     color: '#334155',
     border: '1px solid #e2e8f0',
     borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#e2e8f0',
       borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
     },
   },
   deleteButton: {
@@ -931,16 +907,12 @@ const styles = {
     color: '#c62828',
     border: '1px solid #ffcdd2',
     borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#ffcdd2',
-      borderColor: '#ef9a9a',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
     },
   },
   mobileCardContainer: {
@@ -993,26 +965,28 @@ const styles = {
     gap: '8px',
   },
   cardViewButton: {
-    padding: '8px 12px',
+    padding: '6px 12px',
     backgroundColor: '#f1f5f9',
     color: '#334155',
     border: '1px solid #e2e8f0',
     borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#e2e8f0',
     },
   },
   cardDeleteButton: {
-    padding: '8px 12px',
+    padding: '6px 12px',
     backgroundColor: '#ffebee',
     color: '#c62828',
     border: '1px solid #ffcdd2',
     borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: '500',
     cursor: 'pointer',
-    fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#ffcdd2',
@@ -1088,6 +1062,7 @@ const styles = {
     color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: '500',
     transition: 'all 0.2s ease',
     ':hover:not(:disabled)': {
       backgroundColor: '#f8fafc',
@@ -1115,6 +1090,7 @@ const styles = {
     color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: '500',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f8fafc',
@@ -1210,16 +1186,16 @@ const styles = {
   },
   closeButton: {
     background: 'none',
-    border: 'none',
-    fontSize: '24px',
+    border: '1px solid #e2e8f0',
+    fontSize: '14px',
     cursor: 'pointer',
-    color: '#94a3b8',
-    padding: '4px 8px',
+    color: '#64748b',
+    padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f1f5f9',
-      color: '#475569',
+      color: '#0f172a',
     },
   },
   details: {

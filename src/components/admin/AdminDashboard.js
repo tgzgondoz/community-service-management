@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStats, getActivities } from '../../utils/database';
-import StatCard from '../common/StatCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 const AdminDashboard = () => {
@@ -37,74 +36,90 @@ const AdminDashboard = () => {
 
   return (
     <div style={styles.container}>
+      {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>Dashboard</h1>
-          <span style={styles.subtitle}>Admin Overview</span>
+          <span style={styles.subtitle}>Welcome back, Administrator</span>
         </div>
         <button onClick={fetchDashboardData} style={styles.refreshButton}>
-          <span style={styles.refreshIcon}>↻</span>
           <span style={styles.refreshText}>Refresh Data</span>
         </button>
       </div>
 
+      {/* Stats Grid */}
       <div style={styles.statsGrid}>
-        <StatCard
-          title="Total Vetted"
-          value={stats.totalVetted}
-          icon="👥"
-          color="#2563eb"
-          onClick={() => navigate('/offenders')}
-        />
-        <StatCard
-          title="Not Recommended"
-          value={stats.notRecommended}
-          icon="❌"
-          color="#dc2626"
-          onClick={() => navigate('/offenders?filter=not-recommended')}
-        />
-        <StatCard
-          title="Recommended"
-          value={stats.recommended}
-          icon="✅"
-          color="#16a34a"
-          onClick={() => navigate('/recommended')}
-        />
-        <StatCard
-          title="Completed"
-          value={stats.completed}
-          icon="🎉"
-          color="#9333ea"
-          onClick={() => navigate('/reports?type=completed')}
-        />
-        <StatCard
-          title="Defaulted"
-          value={stats.defaulted}
-          icon="⚠️"
-          color="#ea580c"
-          onClick={() => navigate('/reports?type=defaulted')}
-        />
-        <StatCard
-          title="Active Cases"
-          value={stats.active}
-          icon="📋"
-          color="#0891b2"
-          onClick={() => navigate('/offenders?filter=active')}
-        />
+        <div style={styles.statCard} onClick={() => navigate('/offenders')}>
+          <div style={styles.statHeader}>
+            <span style={styles.statTitle}>Total Vetted</span>
+            <span style={styles.statValue}>{stats.totalVetted}</span>
+          </div>
+          <div style={styles.statFooter}>
+            <span style={styles.statLink}>View offenders →</span>
+          </div>
+        </div>
+
+        <div style={styles.statCard} onClick={() => navigate('/offenders?filter=not-recommended')}>
+          <div style={styles.statHeader}>
+            <span style={styles.statTitle}>Not Recommended</span>
+            <span style={styles.statValue}>{stats.notRecommended}</span>
+          </div>
+          <div style={styles.statFooter}>
+            <span style={styles.statLink}>View details →</span>
+          </div>
+        </div>
+
+        <div style={styles.statCard} onClick={() => navigate('/recommended')}>
+          <div style={styles.statHeader}>
+            <span style={styles.statTitle}>Recommended</span>
+            <span style={styles.statValue}>{stats.recommended}</span>
+          </div>
+          <div style={styles.statFooter}>
+            <span style={styles.statLink}>View recommended →</span>
+          </div>
+        </div>
+
+        <div style={styles.statCard} onClick={() => navigate('/reports?type=completed')}>
+          <div style={styles.statHeader}>
+            <span style={styles.statTitle}>Completed</span>
+            <span style={styles.statValue}>{stats.completed}</span>
+          </div>
+          <div style={styles.statFooter}>
+            <span style={styles.statLink}>View reports →</span>
+          </div>
+        </div>
+
+        <div style={styles.statCard} onClick={() => navigate('/reports?type=defaulted')}>
+          <div style={styles.statHeader}>
+            <span style={styles.statTitle}>Defaulted</span>
+            <span style={styles.statValue}>{stats.defaulted}</span>
+          </div>
+          <div style={styles.statFooter}>
+            <span style={styles.statLink}>View reports →</span>
+          </div>
+        </div>
+
+        <div style={styles.statCard} onClick={() => navigate('/offenders?filter=active')}>
+          <div style={styles.statHeader}>
+            <span style={styles.statTitle}>Active Cases</span>
+            <span style={styles.statValue}>{stats.active}</span>
+          </div>
+          <div style={styles.statFooter}>
+            <span style={styles.statLink}>View cases →</span>
+          </div>
+        </div>
       </div>
 
+      {/* Recent Activity */}
       <div style={styles.recentActivity}>
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionTitle}>Recent Activity</h2>
           <span style={styles.activityBadge}>{activities.length} items</span>
         </div>
+        
         <div style={styles.activityList}>
           {activities.map(activity => (
             <div key={activity.id} style={styles.activityItem}>
-              <div style={styles.activityIcon}>
-                {activity.type === 'offender' ? '👤' : 
-                 activity.type === 'assignment' ? '📝' : '📊'}
-              </div>
               <div style={styles.activityContent}>
                 <p style={styles.activityDescription}>{activity.description}</p>
                 <div style={styles.activityMeta}>
@@ -119,9 +134,9 @@ const AdminDashboard = () => {
               </div>
             </div>
           ))}
+          
           {activities.length === 0 && (
             <div style={styles.noActivity}>
-              <span style={styles.noActivityIcon}>📭</span>
               <p>No recent activity to display</p>
             </div>
           )}
@@ -140,6 +155,7 @@ const styles = {
     padding: '32px 24px',
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     '@media (max-width: 768px)': {
       padding: '24px 16px',
     },
@@ -191,7 +207,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
     transition: 'all 0.2s ease',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     ':hover': {
@@ -209,18 +224,8 @@ const styles = {
       padding: '14px',
     }
   },
-  refreshIcon: {
-    fontSize: '18px',
-    display: 'inline-block',
-    transition: 'transform 0.3s ease',
-    ':hover': {
-      transform: 'rotate(180deg)',
-    }
-  },
   refreshText: {
-    '@media (max-width: 320px)': {
-      display: 'none',
-    }
+    fontWeight: '500',
   },
   statsGrid: {
     display: 'grid',
@@ -235,6 +240,52 @@ const styles = {
       gap: '12px',
       gridTemplateColumns: '1fr',
     }
+  },
+  statCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+    border: '1px solid #e2e8f0',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    ':hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+      borderColor: '#cbd5e1',
+    },
+  },
+  statHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  statTitle: {
+    fontSize: '16px',
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  statValue: {
+    fontSize: '32px',
+    fontWeight: '600',
+    color: '#0f172a',
+    lineHeight: 1,
+  },
+  statFooter: {
+    borderTop: '1px solid #f1f5f9',
+    paddingTop: '16px',
+  },
+  statLink: {
+    fontSize: '14px',
+    color: '#2563eb',
+    fontWeight: '500',
+    transition: 'color 0.2s ease',
+    ':hover': {
+      color: '#1d4ed8',
+    },
   },
   recentActivity: {
     backgroundColor: '#ffffff',
@@ -288,27 +339,10 @@ const styles = {
       boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     '@media (max-width: 480px)': {
-      flexDirection: 'row',
       padding: '14px',
       ':hover': {
         transform: 'translateY(-2px)',
       }
-    }
-  },
-  activityIcon: {
-    width: '44px',
-    height: '44px',
-    backgroundColor: '#f1f5f9',
-    borderRadius: '12px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontSize: '20px',
-    border: '1px solid #e2e8f0',
-    flexShrink: 0,
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#e2e8f0',
     }
   },
   activityContent: {
@@ -351,15 +385,7 @@ const styles = {
     borderRadius: '12px',
     border: '1px dashed #cbd5e1',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '12px',
   },
-  noActivityIcon: {
-    fontSize: '32px',
-    opacity: 0.7,
-  }
 };
 
 export default AdminDashboard;

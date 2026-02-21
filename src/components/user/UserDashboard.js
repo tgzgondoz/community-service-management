@@ -144,20 +144,20 @@ const UserDashboard = () => {
 
   const getRiskColor = (risk) => {
     switch (risk) {
-      case 'High': return '#f44336';
-      case 'Medium': return '#FF9800';
-      case 'Low': return '#4CAF50';
-      default: return '#999999';
+      case 'High': return '#dc2626';
+      case 'Medium': return '#f59e0b';
+      case 'Low': return '#10b981';
+      default: return '#6b7280';
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed': return '#4CAF50';
-      case 'active': return '#2196F3';
-      case 'defaulted': return '#f44336';
-      case 'pending': return '#FF9800';
-      default: return '#999999';
+      case 'completed': return '#10b981';
+      case 'active': return '#3b82f6';
+      case 'defaulted': return '#dc2626';
+      case 'pending': return '#f59e0b';
+      default: return '#6b7280';
     }
   };
 
@@ -170,7 +170,6 @@ const UserDashboard = () => {
       {/* Welcome Banner */}
       {showWelcome && (
         <div style={styles.welcomeBanner}>
-          <span style={styles.welcomeIcon}>👋</span>
           <div style={styles.welcomeContent}>
             <h3 style={styles.welcomeTitle}>
               {greeting}, {userName}!
@@ -183,31 +182,29 @@ const UserDashboard = () => {
             style={styles.welcomeClose}
             onClick={() => setShowWelcome(false)}
           >
-            ×
+            Dismiss
           </button>
         </div>
       )}
 
       <div style={styles.header}>
         <div style={styles.headerContent}>
-          <h1 style={styles.title}>User Dashboard</h1>
+          <h1 style={styles.title}>Dashboard</h1>
           <p style={styles.subtitle}>
             {userEmail || 'Loading...'}
           </p>
         </div>
         <button onClick={handleRefresh} style={styles.refreshButton}>
-          <span style={styles.refreshIcon}>🔄</span>
           <span style={styles.refreshText}>Refresh</span>
         </button>
       </div>
 
       {userStats.totalProfiled === 0 && (
         <div style={styles.infoMessage}>
-          <span style={styles.infoIcon}>ℹ️</span>
           <div style={styles.infoContent}>
-            <p style={styles.infoTitle}>Welcome to your dashboard!</p>
+            <p style={styles.infoTitle}>Welcome to your dashboard</p>
             <p style={styles.infoText}>
-              You haven't created any offender profiles yet. Click the button below to create your first profile and start tracking cases.
+              You haven't created any offender profiles yet. Click the button below to create your first profile.
             </p>
           </div>
         </div>
@@ -215,45 +212,39 @@ const UserDashboard = () => {
 
       <div style={styles.statsGrid}>
         <div style={styles.statCard}>
-          <div style={styles.statIcon}>📋</div>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Total Profiles</p>
-            <p style={styles.statValue}>{userStats.totalProfiled}</p>
+            <span style={styles.statValue}>{userStats.totalProfiled}</span>
+            <span style={styles.statLabel}>Total Profiles</span>
           </div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statIcon}>✅</div>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Recommended (#4)</p>
-            <p style={styles.statValue}>{userStats.recommended}</p>
+            <span style={styles.statValue}>{userStats.recommended}</span>
+            <span style={styles.statLabel}>Recommended</span>
           </div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statIcon}>❌</div>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Not Recommended (#3)</p>
-            <p style={styles.statValue}>{userStats.notRecommended}</p>
+            <span style={styles.statValue}>{userStats.notRecommended}</span>
+            <span style={styles.statLabel}>Not Recommended</span>
           </div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statIcon}>⏳</div>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Pending Review</p>
-            <p style={styles.statValue}>{userStats.pending}</p>
+            <span style={styles.statValue}>{userStats.pending}</span>
+            <span style={styles.statLabel}>Pending Review</span>
           </div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statIcon}>📊</div>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Active Cases</p>
-            <p style={styles.statValue}>{userStats.active}</p>
+            <span style={styles.statValue}>{userStats.active}</span>
+            <span style={styles.statLabel}>Active Cases</span>
           </div>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statIcon}>🎉</div>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Completed</p>
-            <p style={styles.statValue}>{userStats.completed}</p>
+            <span style={styles.statValue}>{userStats.completed}</span>
+            <span style={styles.statLabel}>Completed</span>
           </div>
         </div>
       </div>
@@ -265,14 +256,12 @@ const UserDashboard = () => {
             style={styles.primaryActionButton}
             onClick={() => navigate('/profiling')}
           >
-            <span style={styles.actionIcon}>➕</span>
-            <span style={styles.actionText}>Create New Offender Profile (#9)</span>
+            <span style={styles.actionText}>Create New Offender Profile</span>
           </button>
           <button 
             style={styles.secondaryActionButton}
             onClick={() => navigate('/profile')}
           >
-            <span style={styles.actionIcon}>👤</span>
             <span style={styles.actionText}>View My Profile</span>
           </button>
         </div>
@@ -281,12 +270,12 @@ const UserDashboard = () => {
       {recentProfiles.length > 0 ? (
         <div style={styles.recentProfiles}>
           <div style={styles.sectionHeader}>
-            <h2 style={styles.sectionTitle}>Your Recent Profiles</h2>
+            <h2 style={styles.sectionTitle}>Recent Profiles</h2>
             <button 
               style={styles.viewAllButton}
               onClick={() => navigate('/profiles')}
             >
-              View All →
+              View All
             </button>
           </div>
           
@@ -303,7 +292,7 @@ const UserDashboard = () => {
                     </span>
                     <span style={{
                       ...styles.profileStatus,
-                      backgroundColor: profile.recommendedForCS ? '#4CAF50' : '#f44336'
+                      backgroundColor: profile.recommendedForCS ? '#10b981' : '#dc2626'
                     }}>
                       {profile.recommendedForCS ? 'Recommended' : 'Not Recommended'}
                     </span>
@@ -312,11 +301,11 @@ const UserDashboard = () => {
                 
                 <div style={styles.profileDetails}>
                   <div style={styles.profileDetail}>
-                    <span style={styles.detailLabel}>Offense:</span>
+                    <span style={styles.detailLabel}>Offense</span>
                     <span style={styles.detailValue}>{profile.offenseType || 'N/A'}</span>
                   </div>
                   <div style={styles.profileDetail}>
-                    <span style={styles.detailLabel}>Risk:</span>
+                    <span style={styles.detailLabel}>Risk</span>
                     <span style={{
                       ...styles.riskBadge,
                       backgroundColor: getRiskColor(profile.riskLevel)
@@ -325,7 +314,7 @@ const UserDashboard = () => {
                     </span>
                   </div>
                   <div style={styles.profileDetail}>
-                    <span style={styles.detailLabel}>Status:</span>
+                    <span style={styles.detailLabel}>Status</span>
                     <span style={{
                       ...styles.statusBadge,
                       backgroundColor: getStatusColor(profile.status)
@@ -337,13 +326,13 @@ const UserDashboard = () => {
                 
                 <div style={styles.profileFooter}>
                   <span style={styles.profileDate}>
-                    📅 {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
+                    {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A'}
                   </span>
                   <button 
                     style={styles.viewProfileButton}
                     onClick={() => navigate(`/profile/${profile.id}`)}
                   >
-                    View Details →
+                    View Details
                   </button>
                 </div>
               </div>
@@ -352,10 +341,9 @@ const UserDashboard = () => {
         </div>
       ) : (
         <div style={styles.emptyState}>
-          <span style={styles.emptyIcon}>📭</span>
           <h3 style={styles.emptyTitle}>No Profiles Yet</h3>
           <p style={styles.emptyText}>
-            You haven't created any offender profiles. Click the "Create New Offender Profile" button to get started.
+            Create your first offender profile to get started.
           </p>
         </div>
       )}
@@ -366,7 +354,7 @@ const UserDashboard = () => {
           <h3 style={styles.summaryTitle}>Summary</h3>
           <div style={styles.summaryGrid}>
             <div style={styles.summaryItem}>
-              <span style={styles.summaryLabel}>Completion Rate:</span>
+              <span style={styles.summaryLabel}>Completion Rate</span>
               <span style={styles.summaryValue}>
                 {userStats.totalProfiled > 0 
                   ? Math.round((userStats.completed / userStats.totalProfiled) * 100) 
@@ -374,7 +362,7 @@ const UserDashboard = () => {
               </span>
             </div>
             <div style={styles.summaryItem}>
-              <span style={styles.summaryLabel}>Recommendation Rate:</span>
+              <span style={styles.summaryLabel}>Recommendation Rate</span>
               <span style={styles.summaryValue}>
                 {userStats.totalProfiled > 0 
                   ? Math.round((userStats.recommended / userStats.totalProfiled) * 100) 
@@ -394,20 +382,27 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: 'clamp(16px, 4vw, 24px)',
-    backgroundColor: '#f8f9fa',
+    padding: '32px 24px',
+    backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    '@media (max-width: 768px)': {
+      padding: '24px 16px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px 12px',
+    }
   },
   welcomeBanner: {
-    backgroundColor: '#000000',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
-    padding: 'clamp(16px, 3vw, 20px)',
-    borderRadius: '16px',
-    marginBottom: 'clamp(20px, 4vw, 24px)',
+    padding: '20px 24px',
+    borderRadius: '12px',
+    marginBottom: '24px',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: '16px',
-    position: 'relative',
     animation: 'slideDown 0.3s ease',
     '@media (max-width: 480px)': {
       flexDirection: 'column',
@@ -415,44 +410,37 @@ const styles = {
       padding: '16px',
     },
   },
-  welcomeIcon: {
-    fontSize: 'clamp(32px, 6vw, 40px)',
-  },
   welcomeContent: {
     flex: 1,
   },
   welcomeTitle: {
     margin: '0 0 4px 0',
-    fontSize: 'clamp(16px, 3.5vw, 18px)',
+    fontSize: '18px',
     fontWeight: '600',
   },
   welcomeText: {
     margin: 0,
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    fontSize: '14px',
     opacity: 0.9,
   },
   welcomeClose: {
-    background: 'rgba(255,255,255,0.2)',
-    border: 'none',
+    background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)',
     color: '#ffffff',
-    fontSize: '20px',
+    fontSize: '14px',
     cursor: 'pointer',
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: '8px 16px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: 'rgba(255,255,255,0.3)',
+      backgroundColor: 'rgba(255,255,255,0.2)',
     },
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 'clamp(20px, 4vw, 24px)',
+    marginBottom: '24px',
     flexWrap: 'wrap',
     gap: '16px',
     '@media (max-width: 480px)': {
@@ -464,134 +452,114 @@ const styles = {
     flex: 1,
   },
   title: {
-    fontSize: 'clamp(24px, 5vw, 28px)',
-    color: '#000000',
+    fontSize: 'clamp(28px, 5vw, 32px)',
+    color: '#0f172a',
     margin: '0 0 4px 0',
     fontWeight: '600',
+    letterSpacing: '-0.02em',
   },
   subtitle: {
     margin: 0,
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#666666',
+    fontSize: '14px',
+    color: '#64748b',
   },
   refreshButton: {
     backgroundColor: '#ffffff',
-    border: '1px solid #e0e0e0',
-    borderRadius: '10px',
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(16px, 3vw, 20px)',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    padding: '10px 20px',
+    fontSize: '14px',
     fontWeight: '500',
-    color: '#333333',
+    color: '#475569',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f5f5f5',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      transform: 'translateY(-1px)',
     },
     ':active': {
       transform: 'translateY(0)',
     },
   },
-  refreshIcon: {
-    fontSize: '16px',
-  },
   refreshText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
+    fontWeight: '500',
   },
   infoMessage: {
-    backgroundColor: '#e3f2fd',
-    border: '1px solid #90caf9',
+    backgroundColor: '#eff6ff',
+    border: '1px solid #bfdbfe',
     borderRadius: '12px',
-    padding: 'clamp(16px, 3vw, 20px)',
-    marginBottom: 'clamp(20px, 4vw, 24px)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      textAlign: 'center',
-    },
-  },
-  infoIcon: {
-    fontSize: '24px',
+    padding: '20px',
+    marginBottom: '24px',
   },
   infoContent: {
     flex: 1,
   },
   infoTitle: {
     margin: '0 0 4px 0',
-    fontSize: 'clamp(15px, 3vw, 16px)',
+    fontSize: '16px',
     fontWeight: '600',
-    color: '#0d47a1',
+    color: '#1e40af',
   },
   infoText: {
     margin: 0,
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#1565c0',
+    fontSize: '14px',
+    color: '#3b82f6',
   },
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-    gap: 'clamp(12px, 2.5vw, 16px)',
-    marginBottom: 'clamp(24px, 5vw, 32px)',
+    gap: '16px',
+    marginBottom: '32px',
   },
   statCard: {
     backgroundColor: '#ffffff',
-    padding: 'clamp(16px, 3vw, 20px)',
+    padding: '20px',
     borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(12px, 2.5vw, 16px)',
-    transition: 'transform 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    border: '1px solid #e2e8f0',
+    transition: 'all 0.2s ease',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+      borderColor: '#cbd5e1',
     },
   },
-  statIcon: {
-    fontSize: 'clamp(24px, 5vw, 32px)',
-  },
   statContent: {
-    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
   },
   statLabel: {
-    margin: '0 0 4px 0',
-    fontSize: 'clamp(12px, 2.5vw, 13px)',
-    color: '#666666',
+    fontSize: '13px',
+    color: '#64748b',
     fontWeight: '500',
+    textAlign: 'center',
   },
   statValue: {
-    margin: 0,
-    fontSize: 'clamp(20px, 4vw, 24px)',
-    fontWeight: 'bold',
-    color: '#000000',
+    fontSize: '28px',
+    fontWeight: '600',
+    color: '#0f172a',
     lineHeight: 1.2,
   },
   quickActions: {
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    padding: 'clamp(20px, 4vw, 24px)',
-    marginBottom: 'clamp(24px, 5vw, 32px)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
+    borderRadius: '12px',
+    padding: '24px',
+    marginBottom: '32px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    border: '1px solid #e2e8f0',
   },
   sectionTitle: {
-    fontSize: 'clamp(18px, 4vw, 20px)',
-    color: '#000000',
-    margin: '0 0 16px 0',
+    fontSize: '18px',
+    color: '#0f172a',
+    margin: '0 0 20px 0',
     fontWeight: '600',
   },
   actionButtons: {
     display: 'flex',
-    gap: 'clamp(12px, 3vw, 16px)',
+    gap: '16px',
     flexWrap: 'wrap',
     '@media (max-width: 480px)': {
       flexDirection: 'column',
@@ -599,23 +567,19 @@ const styles = {
   },
   primaryActionButton: {
     flex: 2,
-    backgroundColor: '#000000',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '12px',
-    padding: 'clamp(12px, 3vw, 16px)',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    fontWeight: '600',
+    borderRadius: '8px',
+    padding: '14px 24px',
+    fontSize: '15px',
+    fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+      backgroundColor: '#1e293b',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
@@ -624,79 +588,72 @@ const styles = {
   secondaryActionButton: {
     flex: 1,
     backgroundColor: '#ffffff',
-    color: '#000000',
-    border: '2px solid #000000',
-    borderRadius: '12px',
-    padding: 'clamp(12px, 3vw, 16px)',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    fontWeight: '600',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    padding: '14px 24px',
+    fontSize: '15px',
+    fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f5f5f5',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      transform: 'translateY(-1px)',
     },
     ':active': {
       transform: 'translateY(0)',
     },
   },
-  actionIcon: {
-    fontSize: 'clamp(18px, 4vw, 20px)',
-  },
   actionText: {
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
+    fontWeight: '500',
   },
   sectionHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '16px',
+    marginBottom: '20px',
     flexWrap: 'wrap',
     gap: '12px',
   },
   viewAllButton: {
     background: 'none',
-    border: 'none',
-    color: '#000000',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    border: '1px solid #e2e8f0',
+    color: '#475569',
+    fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
     padding: '8px 16px',
-    borderRadius: '8px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f0f0f0',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
     },
   },
   recentProfiles: {
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    padding: 'clamp(20px, 4vw, 24px)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
-    marginBottom: 'clamp(20px, 4vw, 24px)',
+    borderRadius: '12px',
+    padding: '24px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    border: '1px solid #e2e8f0',
+    marginBottom: '24px',
   },
   profileList: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: 'clamp(12px, 3vw, 16px)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gap: '16px',
   },
   profileCard: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: '12px',
-    padding: 'clamp(16px, 3vw, 20px)',
-    border: '1px solid #e0e0e0',
+    backgroundColor: '#ffffff',
+    borderRadius: '10px',
+    padding: '16px',
+    border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+      borderColor: '#cbd5e1',
     },
   },
   profileHeader: {
@@ -706,15 +663,15 @@ const styles = {
     marginBottom: '12px',
   },
   profileAvatar: {
-    width: 'clamp(40px, 8vw, 48px)',
-    height: 'clamp(40px, 8vw, 48px)',
-    backgroundColor: '#000000',
+    width: '44px',
+    height: '44px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
-    borderRadius: '50%',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 'clamp(16px, 3.5vw, 18px)',
+    fontSize: '16px',
     fontWeight: '600',
     textTransform: 'uppercase',
   },
@@ -723,14 +680,14 @@ const styles = {
   },
   profileName: {
     display: 'block',
-    fontSize: 'clamp(15px, 3vw, 16px)',
+    fontSize: '15px',
     fontWeight: '600',
-    color: '#000000',
+    color: '#0f172a',
     marginBottom: '4px',
   },
   profileStatus: {
     display: 'inline-block',
-    fontSize: 'clamp(11px, 2.5vw, 12px)',
+    fontSize: '11px',
     padding: '4px 10px',
     borderRadius: '20px',
     color: '#ffffff',
@@ -743,30 +700,31 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '4px 0',
-    borderBottom: '1px solid #e0e0e0',
+    padding: '6px 0',
+    borderBottom: '1px solid #f1f5f9',
   },
   detailLabel: {
-    color: '#666666',
-    fontSize: 'clamp(12px, 2.5vw, 13px)',
+    color: '#64748b',
+    fontSize: '13px',
     fontWeight: '500',
   },
   detailValue: {
-    color: '#000000',
-    fontSize: 'clamp(12px, 2.5vw, 13px)',
+    color: '#0f172a',
+    fontSize: '13px',
+    fontWeight: '500',
   },
   riskBadge: {
     padding: '4px 10px',
     borderRadius: '20px',
     color: '#ffffff',
-    fontSize: 'clamp(11px, 2.5vw, 12px)',
+    fontSize: '11px',
     fontWeight: '500',
   },
   statusBadge: {
     padding: '4px 10px',
     borderRadius: '20px',
     color: '#ffffff',
-    fontSize: 'clamp(11px, 2.5vw, 12px)',
+    fontSize: '11px',
     fontWeight: '500',
   },
   profileFooter: {
@@ -775,84 +733,82 @@ const styles = {
     alignItems: 'center',
     marginTop: '12px',
     paddingTop: '12px',
-    borderTop: '1px solid #e0e0e0',
+    borderTop: '1px solid #f1f5f9',
   },
   profileDate: {
-    color: '#999999',
-    fontSize: 'clamp(11px, 2.5vw, 12px)',
+    color: '#94a3b8',
+    fontSize: '12px',
   },
   viewProfileButton: {
     background: 'none',
-    border: 'none',
-    color: '#000000',
-    fontSize: 'clamp(12px, 2.5vw, 13px)',
+    border: '1px solid #e2e8f0',
+    color: '#475569',
+    fontSize: '12px',
     fontWeight: '500',
     cursor: 'pointer',
-    padding: '4px 8px',
-    borderRadius: '4px',
+    padding: '6px 12px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f0f0f0',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
     },
   },
   emptyState: {
     textAlign: 'center',
-    padding: 'clamp(30px, 8vw, 40px)',
+    padding: '48px 24px',
     backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    color: '#666666',
-    border: '2px dashed #cccccc',
-  },
-  emptyIcon: {
-    fontSize: 'clamp(40px, 10vw, 48px)',
-    display: 'block',
-    marginBottom: '16px',
+    borderRadius: '12px',
+    border: '1px dashed #cbd5e1',
+    color: '#64748b',
   },
   emptyTitle: {
-    fontSize: 'clamp(18px, 4vw, 20px)',
-    color: '#000000',
+    fontSize: '18px',
+    color: '#0f172a',
     marginBottom: '8px',
     fontWeight: '600',
   },
   emptyText: {
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#666666',
+    fontSize: '14px',
+    color: '#64748b',
     maxWidth: '400px',
     margin: '0 auto',
   },
   statsSummary: {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    padding: 'clamp(16px, 3vw, 20px)',
-    border: '1px solid #e0e0e0',
+    padding: '20px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
   summaryTitle: {
-    fontSize: 'clamp(15px, 3vw, 16px)',
-    margin: '0 0 12px 0',
-    color: '#000000',
+    fontSize: '16px',
+    margin: '0 0 16px 0',
+    color: '#0f172a',
     fontWeight: '600',
   },
   summaryGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: 'clamp(12px, 2.5vw, 16px)',
+    gap: '12px',
   },
   summaryItem: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '8px 12px',
-    backgroundColor: '#f8f9fa',
+    padding: '10px 16px',
+    backgroundColor: '#f8fafc',
     borderRadius: '8px',
+    border: '1px solid #f1f5f9',
   },
   summaryLabel: {
-    color: '#666666',
-    fontSize: 'clamp(12px, 2.5vw, 13px)',
+    color: '#64748b',
+    fontSize: '13px',
     fontWeight: '500',
   },
   summaryValue: {
-    color: '#000000',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    color: '#0f172a',
+    fontSize: '15px',
     fontWeight: '600',
   },
 };
@@ -863,7 +819,7 @@ style.textContent = `
   @keyframes slideDown {
     from {
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateY(-10px);
     }
     to {
       opacity: 1;

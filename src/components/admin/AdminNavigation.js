@@ -4,13 +4,12 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
 const AdminNavigation = ({ onLogout }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle scroll effect
+  // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -19,29 +18,14 @@ const AdminNavigation = ({ onLogout }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Handle window resize
+  // Close nav on route change
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setIsExpanded(false);
-      } else if (window.innerWidth >= 1024) {
-        setIsExpanded(true);
-      }
-    };
-
-    handleResize(); // Set initial state
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsMobileOpen(false);
+    setIsNavOpen(false);
   }, [location.pathname]);
 
-  // Prevent body scroll when mobile menu is open
+  // Prevent body scroll when nav is open
   useEffect(() => {
-    if (isMobileOpen) {
+    if (isNavOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -49,7 +33,7 @@ const AdminNavigation = ({ onLogout }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isMobileOpen]);
+  }, [isNavOpen]);
 
   const handleLogout = async () => {
     try {
@@ -82,189 +66,137 @@ const AdminNavigation = ({ onLogout }) => {
     { path: '/reports', label: 'Reports' }
   ];
 
-  const toggleSidebar = () => {
-    setIsExpanded(!isExpanded);
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
   };
 
   return (
     <>
-      {/* Mobile Header */}
-      <div style={styles.mobileHeader}>
-        <div style={styles.mobileHeaderLeft}>
+      {/* Top Header Bar */}
+      <header style={{
+        ...styles.header,
+        ...(scrolled ? styles.headerScrolled : {}),
+        boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.1)' : 'none',
+      }}>
+        <div style={styles.headerLeft}>
           <button 
-            style={styles.mobileMenuButton}
-            onClick={() => setIsMobileOpen(true)}
+            style={styles.menuButton}
+            onClick={toggleNav}
+            aria-label="Toggle navigation menu"
           >
-            <div style={styles.hamburgerLine} />
-            <div style={styles.hamburgerLine} />
-            <div style={styles.hamburgerLine} />
+            <div style={{
+              ...styles.menuBar,
+              transform: isNavOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none',
+            }} />
+            <div style={{
+              ...styles.menuBar,
+              opacity: isNavOpen ? 0 : 1,
+            }} />
+            <div style={{
+              ...styles.menuBar,
+              transform: isNavOpen ? 'rotate(-45deg) translate(7px, -7px)' : 'none',
+            }} />
           </button>
-          <span style={styles.mobileLogo}>CSMS Admin</span>
+          <span style={styles.logo}>CSMS</span>
+          <span style={styles.logoBadge}>Admin</span>
         </div>
-        <div style={styles.mobileHeaderRight}>
-          <button onClick={handleLogout} style={styles.mobileLogoutButton}>
-            Logout
+        
+        <div style={styles.headerRight}>
+          <button onClick={handleLogout} style={styles.logoutButton}>
+            <span style={styles.logoutIcon}>→</span>
+            <span style={styles.logoutText}>Sign out</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileOpen && (
+      {/* Navigation Overlay */}
+      {isNavOpen && (
         <div 
-          style={styles.mobileOverlay}
-          onClick={() => setIsMobileOpen(false)}
+          style={styles.overlay}
+          onClick={() => setIsNavOpen(false)}
         />
       )}
 
-      {/* Mobile Side Navigation */}
-      <div style={{
-        ...styles.mobileNav,
-        transform: isMobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+      {/* Side Navigation */}
+      <nav style={{
+        ...styles.nav,
+        transform: isNavOpen ? 'translateX(0)' : 'translateX(-100%)',
       }}>
-        <div style={styles.mobileNavHeader}>
-          <span style={styles.mobileNavLogo}>CSMS Admin</span>
-          <button 
-            style={styles.mobileCloseButton}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            ✕
-          </button>
+        <div style={styles.navHeader}>
+          <span style={styles.navLogo}>CSMS</span>
+          <span style={styles.navLogoBadge}>Admin</span>
         </div>
 
-        <div style={styles.mobileNavContent}>
+        <div style={styles.navContent}>
           {menuItems.map(item => (
             <button
               key={item.path}
               onClick={() => {
                 navigate(item.path);
-                setIsMobileOpen(false);
+                setIsNavOpen(false);
               }}
-              style={{
-                ...styles.mobileNavItem,
-                ...(isActive(item.path) ? styles.mobileNavItemActive : {}),
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <div style={styles.mobileNavFooter}>
-          <div style={styles.mobileUserInfo}>
-            Admin User
-          </div>
-          <button onClick={handleLogout} style={styles.mobileNavLogout}>
-            Logout
-          </button>
-        </div>
-      </div>
-
-      {/* Desktop Side Navigation */}
-      <div style={{
-        ...styles.sideNav,
-        width: isExpanded ? '260px' : '80px',
-      }}>
-        {/* Logo Section */}
-        <div style={styles.logoSection}>
-          <span style={styles.logoText}>CSMS</span>
-          {isExpanded && <span style={styles.logoBadge}>Admin</span>}
-        </div>
-
-        {/* Toggle Button */}
-        <button 
-          style={styles.toggleButton}
-          onClick={toggleSidebar}
-          title={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-        >
-          {isExpanded ? '◀' : '▶'}
-        </button>
-
-        {/* Navigation Items */}
-        <div style={styles.navItems}>
-          {menuItems.map(item => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
               style={{
                 ...styles.navItem,
                 ...(isActive(item.path) ? styles.navItemActive : {}),
-                justifyContent: isExpanded ? 'flex-start' : 'center',
               }}
-              title={!isExpanded ? item.label : ''}
             >
-              <span style={styles.navIndicator} />
-              <span style={styles.navLabel}>
-                {item.label}
-              </span>
+              <span style={styles.navItemLabel}>{item.label}</span>
+              {isActive(item.path) && <span style={styles.navItemIndicator} />}
             </button>
           ))}
         </div>
 
-        {/* Bottom Section */}
-        <div style={styles.bottomSection}>
-          <div style={{
-            ...styles.userInfo,
-            justifyContent: isExpanded ? 'flex-start' : 'center',
-          }}>
+        <div style={styles.navFooter}>
+          <div style={styles.userInfo}>
             <div style={styles.userAvatar}>
               A
             </div>
-            {isExpanded && (
-              <div style={styles.userDetails}>
-                <span style={styles.userName}>Admin User</span>
-                <span style={styles.userRole}>Administrator</span>
-              </div>
-            )}
+            <div style={styles.userDetails}>
+              <span style={styles.userName}>Admin User</span>
+              <span style={styles.userEmail}>admin@csms.com</span>
+            </div>
           </div>
-
-          <button 
-            onClick={handleLogout} 
-            style={{
-              ...styles.logoutButton,
-              justifyContent: isExpanded ? 'flex-start' : 'center',
-            }}
-            title={!isExpanded ? 'Logout' : ''}
-          >
-            <span style={styles.logoutIcon}>→</span>
-            {isExpanded && <span>Logout</span>}
+          <button onClick={handleLogout} style={styles.navLogoutButton}>
+            <span style={styles.navLogoutIcon}>→</span>
+            <span>Sign out</span>
           </button>
         </div>
-      </div>
+      </nav>
 
       {/* Main Content Spacer */}
-      <div style={{
-        ...styles.mainContentSpacer,
-        marginLeft: window.innerWidth < 768 ? '0' : (isExpanded ? '260px' : '80px'),
-      }} />
+      <div style={styles.spacer} />
     </>
   );
 };
 
 const styles = {
-  // Mobile Header
-  mobileHeader: {
-    display: 'none',
+  // Header Styles
+  header: {
     position: 'fixed',
     top: 0,
     left: 0,
     right: 0,
-    height: '60px',
-    backgroundColor: '#1a1a1a',
-    borderBottom: '1px solid #333333',
-    padding: '0 16px',
+    height: '64px',
+    backgroundColor: '#ffffff',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: '0 24px',
     zIndex: 900,
-    '@media (max-width: 768px)': {
-      display: 'flex',
-    },
+    transition: 'all 0.2s ease',
   },
-  mobileHeaderLeft: {
+  headerScrolled: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(10px)',
+    borderBottomColor: 'transparent',
+  },
+  headerLeft: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
   },
-  mobileMenuButton: {
+  menuButton: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-around',
@@ -274,38 +206,70 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     padding: 0,
+    marginRight: '8px',
   },
-  hamburgerLine: {
+  menuBar: {
     width: '24px',
     height: '2px',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1e293b',
+    borderRadius: '2px',
+    transition: 'all 0.3s ease',
     margin: '2px 0',
   },
-  mobileLogo: {
-    fontSize: '16px',
+  logo: {
+    fontSize: '20px',
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#0f172a',
+    letterSpacing: '-0.02em',
   },
-  mobileHeaderRight: {
+  logoBadge: {
+    padding: '2px 8px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  headerRight: {
     display: 'flex',
     alignItems: 'center',
   },
-  mobileLogoutButton: {
-    padding: '6px 12px',
-    backgroundColor: '#333333',
-    border: '1px solid #444444',
-    borderRadius: '4px',
-    color: '#ffffff',
-    fontSize: '13px',
+  logoutButton: {
+    padding: '8px 16px',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    color: '#475569',
+    fontSize: '14px',
+    fontWeight: '500',
     cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#444444',
+      backgroundColor: '#f1f5f9',
+      borderColor: '#cbd5e1',
+      transform: 'translateY(-1px)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
+    },
+  },
+  logoutIcon: {
+    fontSize: '14px',
+    transform: 'rotate(180deg)',
+  },
+  logoutText: {
+    '@media (max-width: 480px)': {
+      display: 'none',
     },
   },
 
-  // Mobile Overlay
-  mobileOverlay: {
-    display: 'none',
+  // Overlay
+  overlay: {
     position: 'fixed',
     top: 0,
     left: 0,
@@ -313,211 +277,111 @@ const styles = {
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 950,
-    '@media (max-width: 768px)': {
-      display: 'block',
-    },
+    animation: 'fadeIn 0.2s ease',
+    backdropFilter: 'blur(4px)',
   },
 
-  // Mobile Navigation
-  mobileNav: {
-    display: 'none',
+  // Navigation Styles
+  nav: {
     position: 'fixed',
     top: 0,
     left: 0,
     bottom: 0,
-    width: '280px',
-    backgroundColor: '#1a1a1a',
+    width: '300px',
+    backgroundColor: '#ffffff',
+    boxShadow: '4px 0 20px rgba(0, 0, 0, 0.1)',
     zIndex: 1000,
-    transition: 'transform 0.3s ease',
-    flexDirection: 'column',
-    '@media (max-width: 768px)': {
-      display: 'flex',
-    },
-  },
-  mobileNavHeader: {
-    padding: '20px 16px',
-    borderBottom: '1px solid #333333',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  mobileNavLogo: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  mobileCloseButton: {
-    background: 'none',
-    border: 'none',
-    color: '#ffffff',
-    fontSize: '20px',
-    cursor: 'pointer',
-    padding: '4px 8px',
-  },
-  mobileNavContent: {
-    flex: 1,
-    padding: '16px',
-    overflowY: 'auto',
-  },
-  mobileNavItem: {
-    width: '100%',
-    padding: '12px 16px',
-    marginBottom: '8px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    borderRadius: '6px',
-    color: '#ffffff',
-    fontSize: '15px',
-    textAlign: 'left',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#333333',
-    },
-  },
-  mobileNavItemActive: {
-    backgroundColor: '#333333',
-    borderLeft: '3px solid #ffffff',
-  },
-  mobileNavFooter: {
-    padding: '16px',
-    borderTop: '1px solid #333333',
-  },
-  mobileUserInfo: {
-    padding: '8px 0',
-    marginBottom: '8px',
-    color: '#ffffff',
-    fontSize: '14px',
-  },
-  mobileNavLogout: {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#333333',
-    border: 'none',
-    borderRadius: '6px',
-    color: '#ffffff',
-    fontSize: '14px',
-    cursor: 'pointer',
-    ':hover': {
-      backgroundColor: '#444444',
-    },
-  },
-
-  // Desktop Side Navigation
-  sideNav: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a1a',
-    borderRight: '1px solid #333333',
-    transition: 'width 0.3s ease',
+    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     display: 'flex',
     flexDirection: 'column',
-    zIndex: 800,
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
+    borderRight: '1px solid #e2e8f0',
   },
-  logoSection: {
-    padding: '24px 20px',
-    borderBottom: '1px solid #333333',
+  navHeader: {
+    padding: '28px 24px',
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
   },
-  logoText: {
-    fontSize: '20px',
+  navLogo: {
+    fontSize: '22px',
     fontWeight: '600',
-    color: '#ffffff',
-    letterSpacing: '0.5px',
+    color: '#0f172a',
+    letterSpacing: '-0.02em',
   },
-  logoBadge: {
+  navLogoBadge: {
     padding: '2px 8px',
-    backgroundColor: '#ffffff',
-    color: '#1a1a1a',
+    backgroundColor: '#0f172a',
+    color: '#ffffff',
     borderRadius: '12px',
     fontSize: '11px',
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
   },
-  toggleButton: {
-    position: 'absolute',
-    top: '20px',
-    right: '-12px',
-    width: '24px',
-    height: '24px',
-    backgroundColor: '#333333',
-    border: '1px solid #444444',
-    borderRadius: '50%',
-    color: '#ffffff',
-    fontSize: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    zIndex: 850,
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#444444',
-    },
-  },
-  navItems: {
+  navContent: {
     flex: 1,
-    padding: '20px 12px',
+    padding: '24px 16px',
     overflowY: 'auto',
   },
   navItem: {
     width: '100%',
-    padding: '12px 16px',
+    padding: '14px 20px',
     marginBottom: '4px',
     backgroundColor: 'transparent',
     border: 'none',
-    borderRadius: '6px',
-    color: '#ffffff',
-    fontSize: '14px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
+    borderRadius: '10px',
+    color: '#475569',
+    fontSize: '15px',
+    fontWeight: '500',
+    textAlign: 'left',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     position: 'relative',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#f8fafc',
+      color: '#0f172a',
     },
   },
   navItemActive: {
-    backgroundColor: '#333333',
+    backgroundColor: '#f1f5f9',
+    color: '#0f172a',
+    fontWeight: '600',
   },
-  navIndicator: {
+  navItemLabel: {
+    display: 'block',
+  },
+  navItemIndicator: {
+    position: 'absolute',
+    left: '0',
+    top: '50%',
+    transform: 'translateY(-50%)',
     width: '3px',
     height: '20px',
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    left: '-12px',
-    opacity: 0,
-    transition: 'opacity 0.2s ease',
+    backgroundColor: '#0f172a',
+    borderRadius: '0 3px 3px 0',
+    animation: 'slideIn 0.2s ease',
   },
-  navLabel: {
-    flex: 1,
-    textAlign: 'left',
-  },
-  bottomSection: {
-    padding: '20px 12px',
-    borderTop: '1px solid #333333',
+  navFooter: {
+    padding: '20px 16px',
+    borderTop: '1px solid #e2e8f0',
+    backgroundColor: '#f8fafc',
   },
   userInfo: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    marginBottom: '12px',
-    padding: '8px',
-    borderRadius: '6px',
+    marginBottom: '16px',
+    padding: '8px 12px',
+    backgroundColor: '#ffffff',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0',
   },
   userAvatar: {
-    width: '36px',
-    height: '36px',
-    backgroundColor: '#333333',
-    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    backgroundColor: '#0f172a',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -526,54 +390,79 @@ const styles = {
     fontWeight: '600',
   },
   userDetails: {
-    display: 'flex',
-    flexDirection: 'column',
+    flex: 1,
   },
   userName: {
+    display: 'block',
     fontSize: '14px',
-    fontWeight: '500',
-    color: '#ffffff',
+    fontWeight: '600',
+    color: '#0f172a',
+    marginBottom: '2px',
   },
-  userRole: {
+  userEmail: {
+    display: 'block',
     fontSize: '12px',
-    color: '#888888',
+    color: '#64748b',
   },
-  logoutButton: {
+  navLogoutButton: {
     width: '100%',
     padding: '12px 16px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    borderRadius: '6px',
-    color: '#ffffff',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    color: '#475569',
     fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#f1f5f9',
+      borderColor: '#cbd5e1',
+      transform: 'translateY(-1px)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
     },
   },
-  logoutIcon: {
-    fontSize: '16px',
+  navLogoutIcon: {
+    fontSize: '14px',
     transform: 'rotate(180deg)',
   },
-  mainContentSpacer: {
-    transition: 'margin-left 0.3s ease',
-    '@media (max-width: 768px)': {
-      marginLeft: '0',
-    },
+  spacer: {
+    height: '64px', // Height of the header
   },
 };
 
-// Add global styles
+// Add global animations and styles
 const style = document.createElement('style');
 style.textContent = `
-  @media (max-width: 768px) {
-    body {
-      padding-top: 60px;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
     }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   * {

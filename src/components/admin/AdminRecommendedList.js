@@ -221,7 +221,6 @@ const AdminRecommendedList = () => {
         </div>
         {currentUser && (
           <div style={styles.userBadge}>
-            <span style={styles.userBadgeIcon}>👤</span>
             <span style={styles.userBadgeText}>{currentUser.email}</span>
           </div>
         )}
@@ -230,14 +229,12 @@ const AdminRecommendedList = () => {
       {/* Stats Cards */}
       <div style={styles.statsGrid}>
         <div style={styles.statCard}>
-          <span style={styles.statIcon}>📋</span>
           <div style={styles.statContent}>
             <span style={styles.statValue}>{recommendedOffenders.length}</span>
             <span style={styles.statLabel}>Total Recommended</span>
           </div>
         </div>
         <div style={styles.statCard}>
-          <span style={styles.statIcon}>⏳</span>
           <div style={styles.statContent}>
             <span style={styles.statValue}>
               {recommendedOffenders.filter(o => o.status !== 'assigned').length}
@@ -246,7 +243,6 @@ const AdminRecommendedList = () => {
           </div>
         </div>
         <div style={styles.statCard}>
-          <span style={styles.statIcon}>✅</span>
           <div style={styles.statContent}>
             <span style={styles.statValue}>
               {recommendedOffenders.filter(o => o.status === 'assigned').length}
@@ -259,7 +255,6 @@ const AdminRecommendedList = () => {
       {/* Filters */}
       <div style={styles.filters}>
         <div style={styles.searchWrapper}>
-          <span style={styles.searchIcon}>🔍</span>
           <input
             type="text"
             placeholder="Search by name or offense..."
@@ -272,7 +267,7 @@ const AdminRecommendedList = () => {
               style={styles.clearSearch}
               onClick={() => setSearchTerm('')}
             >
-              ✕
+              Clear
             </button>
           )}
         </div>
@@ -308,8 +303,7 @@ const AdminRecommendedList = () => {
           <option value="sentence">Sort by Sentence Length</option>
         </select>
 
-        <button onClick={fetchRecommendedOffenders} style={styles.refreshButton} title="Refresh">
-          <span style={styles.refreshIcon}>↻</span>
+        <button onClick={fetchRecommendedOffenders} style={styles.refreshButton}>
           <span style={styles.refreshText}>Refresh</span>
         </button>
       </div>
@@ -324,7 +318,6 @@ const AdminRecommendedList = () => {
       {/* Offender Cards Grid */}
       {filteredOffenders.length === 0 ? (
         <div style={styles.emptyState}>
-          <span style={styles.emptyIcon}>📭</span>
           <p style={styles.emptyText}>No recommended offenders found matching your criteria.</p>
           <button onClick={() => {
             setSearchTerm('');
@@ -360,18 +353,18 @@ const AdminRecommendedList = () => {
 
               <div style={styles.cardBody}>
                 <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Offense:</span>
+                  <span style={styles.detailLabel}>Offense</span>
                   <span style={styles.detailValue}>{offender.offenseType || 'N/A'}</span>
                 </div>
                 
                 <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Sentence:</span>
+                  <span style={styles.detailLabel}>Sentence</span>
                   <span style={styles.detailValue}>{offender.sentenceLength || '0'} months</span>
                 </div>
                 
                 {offender.assignedTo && (
                   <div style={styles.detailItem}>
-                    <span style={styles.detailLabel}>Assigned to:</span>
+                    <span style={styles.detailLabel}>Assigned to</span>
                     <span style={styles.detailValue}>{offender.assignedTo}</span>
                   </div>
                 )}
@@ -379,12 +372,12 @@ const AdminRecommendedList = () => {
                 <div style={styles.needs}>
                   {offender.substanceAbuse && (
                     <span style={styles.needTag}>
-                      <span style={styles.needDot} /> Substance Abuse
+                      Substance Abuse
                     </span>
                   )}
                   {offender.mentalHealthIssues && (
                     <span style={styles.needTag}>
-                      <span style={styles.needDot} /> Mental Health
+                      Mental Health
                     </span>
                   )}
                 </div>
@@ -395,13 +388,12 @@ const AdminRecommendedList = () => {
                   onClick={() => handleAssign(offender)}
                   style={styles.assignButton}
                 >
-                  Assign to Institution →
+                  Assign to Institution
                 </button>
               ) : (
                 <div style={styles.assignmentInfo}>
-                  <span style={styles.assignmentIcon}>📅</span>
                   <span style={styles.assignmentDate}>
-                    Assigned on: {new Date(offender.assignmentDate).toLocaleDateString()}
+                    Assigned: {new Date(offender.assignmentDate).toLocaleDateString()}
                   </span>
                 </div>
               )}
@@ -421,16 +413,18 @@ const AdminRecommendedList = () => {
                   {selectedOffender.firstName} {selectedOffender.lastName}
                 </p>
               </div>
-              <button onClick={() => setShowAssignment(false)} style={styles.closeButton}>×</button>
+              <button onClick={() => setShowAssignment(false)} style={styles.closeButton}>
+                Close
+              </button>
             </div>
             
             <div style={styles.modalRiskInfo}>
-              <span style={styles.modalRiskLabel}>Risk Level:</span>
+              <span style={styles.modalRiskLabel}>Risk Level</span>
               <span style={{
                 ...styles.modalRiskBadge,
                 backgroundColor: getRiskColor(selectedOffender.riskLevel)
               }}>
-                {selectedOffender.riskLevel} Risk
+                {selectedOffender.riskLevel}
               </span>
             </div>
             
@@ -565,17 +559,11 @@ const styles = {
     color: '#64748b',
   },
   userBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     padding: '8px 16px',
     backgroundColor: '#ffffff',
     border: '1px solid #e2e8f0',
     borderRadius: '40px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-  },
-  userBadgeIcon: {
-    fontSize: '16px',
   },
   userBadgeText: {
     fontSize: '14px',
@@ -596,7 +584,7 @@ const styles = {
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
+    justifyContent: 'center',
     transition: 'all 0.2s ease',
     ':hover': {
       transform: 'translateY(-2px)',
@@ -604,12 +592,10 @@ const styles = {
       borderColor: '#cbd5e1',
     },
   },
-  statIcon: {
-    fontSize: '32px',
-  },
   statContent: {
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
     gap: '4px',
   },
   statValue: {
@@ -636,19 +622,11 @@ const styles = {
     position: 'relative',
     minWidth: '250px',
   },
-  searchIcon: {
-    position: 'absolute',
-    left: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: '#94a3b8',
-    fontSize: '16px',
-  },
   searchInput: {
     width: '100%',
-    padding: '12px 40px 12px 40px',
+    padding: '12px 16px',
     border: '1px solid #e2e8f0',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '14px',
     backgroundColor: '#ffffff',
     color: '#0f172a',
@@ -662,26 +640,24 @@ const styles = {
   },
   clearSearch: {
     position: 'absolute',
-    right: '12px',
+    right: '8px',
     top: '50%',
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
-    color: '#94a3b8',
+    color: '#64748b',
     cursor: 'pointer',
-    fontSize: '16px',
+    fontSize: '13px',
     padding: '4px 8px',
-    borderRadius: '4px',
     ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#475569',
+      color: '#0f172a',
     },
   },
   filterSelect: {
     flex: 1,
     padding: '12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '14px',
     minWidth: '140px',
     backgroundColor: '#ffffff',
@@ -699,13 +675,10 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#1e293b',
     border: '1px solid #e2e8f0',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     transition: 'all 0.2s ease',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     ':hover': {
@@ -721,17 +694,8 @@ const styles = {
       justifyContent: 'center',
     },
   },
-  refreshIcon: {
-    fontSize: '16px',
-    transition: 'transform 0.3s ease',
-    ':hover': {
-      transform: 'rotate(180deg)',
-    },
-  },
   refreshText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
+    fontWeight: '500',
   },
   resultsInfo: {
     marginBottom: '20px',
@@ -754,11 +718,6 @@ const styles = {
     border: '1px dashed #cbd5e1',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
-  emptyIcon: {
-    fontSize: '48px',
-    display: 'block',
-    marginBottom: '16px',
-  },
   emptyText: {
     color: '#64748b',
     fontSize: '16px',
@@ -769,7 +728,7 @@ const styles = {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
@@ -870,9 +829,6 @@ const styles = {
     flexWrap: 'wrap',
   },
   needTag: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
     padding: '4px 10px',
     backgroundColor: '#f1f5f9',
     color: '#475569',
@@ -880,27 +836,17 @@ const styles = {
     fontSize: '12px',
     fontWeight: '500',
   },
-  needDot: {
-    width: '6px',
-    height: '6px',
-    backgroundColor: '#94a3b8',
-    borderRadius: '50%',
-  },
   assignButton: {
     margin: '0 16px 16px 16px',
     padding: '12px',
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
     ':hover': {
       backgroundColor: '#1e293b',
       transform: 'translateY(-1px)',
@@ -914,15 +860,9 @@ const styles = {
     margin: '0 16px 16px 16px',
     padding: '10px',
     backgroundColor: '#f8fafc',
-    borderRadius: '8px',
+    borderRadius: '6px',
     border: '1px solid #e2e8f0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-  },
-  assignmentIcon: {
-    fontSize: '14px',
+    textAlign: 'center',
   },
   assignmentDate: {
     fontSize: '13px',
@@ -993,16 +933,16 @@ const styles = {
   },
   closeButton: {
     background: 'none',
-    border: 'none',
-    fontSize: '24px',
+    border: '1px solid #e2e8f0',
+    fontSize: '14px',
     cursor: 'pointer',
-    color: '#94a3b8',
-    padding: '4px 8px',
+    color: '#64748b',
+    padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f1f5f9',
-      color: '#475569',
+      color: '#0f172a',
     },
   },
   modalRiskInfo: {
@@ -1050,7 +990,7 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     color: '#0f172a',
     transition: 'all 0.2s ease',
@@ -1073,7 +1013,7 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#475569',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
@@ -1088,7 +1028,7 @@ const styles = {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',

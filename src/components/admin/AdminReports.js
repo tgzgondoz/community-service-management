@@ -179,9 +179,9 @@ const AdminReports = () => {
             }}
             style={styles.select}
           >
-            <option value="summary">📊 Summary Report</option>
-            <option value="offenders">👥 Offenders Report</option>
-            <option value="assignments">📋 Assignments Report</option>
+            <option value="summary">Summary Report</option>
+            <option value="offenders">Offenders Report</option>
+            <option value="assignments">Assignments Report</option>
           </select>
         </div>
 
@@ -204,16 +204,13 @@ const AdminReports = () => {
         </div>
 
         <div style={styles.actionButtons}>
-          <button onClick={exportToCSV} style={styles.exportButton} title="Export as CSV">
-            <span style={styles.buttonIcon}>📥</span>
-            <span style={styles.buttonText}>Export</span>
+          <button onClick={exportToCSV} style={styles.exportButton}>
+            <span style={styles.buttonText}>Export CSV</span>
           </button>
-          <button onClick={printReport} style={styles.printButton} title="Print Report">
-            <span style={styles.buttonIcon}>🖨️</span>
+          <button onClick={printReport} style={styles.printButton}>
             <span style={styles.buttonText}>Print</span>
           </button>
-          <button onClick={fetchData} style={styles.refreshButton} title="Refresh">
-            <span style={styles.buttonIcon}>↻</span>
+          <button onClick={fetchData} style={styles.refreshButton}>
             <span style={styles.buttonText}>Refresh</span>
           </button>
         </div>
@@ -231,9 +228,6 @@ const AdminReports = () => {
           
           <div style={styles.statsGrid}>
             <div style={styles.statCard}>
-              <div style={styles.statIconWrapper}>
-                <span style={styles.statIcon}>👥</span>
-              </div>
               <div style={styles.statContent}>
                 <span style={styles.statValue}>{stats.totalVetted}</span>
                 <span style={styles.statLabel}>Total Vetted</span>
@@ -241,9 +235,6 @@ const AdminReports = () => {
             </div>
             
             <div style={styles.statCard}>
-              <div style={styles.statIconWrapper}>
-                <span style={styles.statIcon}>❌</span>
-              </div>
               <div style={styles.statContent}>
                 <span style={styles.statValue}>{stats.notRecommended}</span>
                 <span style={styles.statLabel}>Not Recommended</span>
@@ -251,9 +242,6 @@ const AdminReports = () => {
             </div>
             
             <div style={styles.statCard}>
-              <div style={styles.statIconWrapper}>
-                <span style={styles.statIcon}>✅</span>
-              </div>
               <div style={styles.statContent}>
                 <span style={styles.statValue}>{stats.recommended}</span>
                 <span style={styles.statLabel}>Recommended</span>
@@ -261,9 +249,6 @@ const AdminReports = () => {
             </div>
             
             <div style={styles.statCard}>
-              <div style={styles.statIconWrapper}>
-                <span style={styles.statIcon}>🎉</span>
-              </div>
               <div style={styles.statContent}>
                 <span style={styles.statValue}>{stats.completed}</span>
                 <span style={styles.statLabel}>Completed</span>
@@ -271,9 +256,6 @@ const AdminReports = () => {
             </div>
             
             <div style={styles.statCard}>
-              <div style={styles.statIconWrapper}>
-                <span style={styles.statIcon}>⚠️</span>
-              </div>
               <div style={styles.statContent}>
                 <span style={styles.statValue}>{stats.defaulted}</span>
                 <span style={styles.statLabel}>Defaulted</span>
@@ -281,9 +263,6 @@ const AdminReports = () => {
             </div>
             
             <div style={styles.statCard}>
-              <div style={styles.statIconWrapper}>
-                <span style={styles.statIcon}>📋</span>
-              </div>
               <div style={styles.statContent}>
                 <span style={styles.statValue}>{stats.active}</span>
                 <span style={styles.statLabel}>Active Cases</span>
@@ -357,7 +336,7 @@ const AdminReports = () => {
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Offenders Report</h2>
             <span style={styles.resultCount}>
-              {filteredData.length} records found
+              {filteredData.length} records
             </span>
           </div>
           
@@ -506,15 +485,15 @@ const AdminReports = () => {
                 
                 <div style={styles.cardBody}>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Email:</span>
+                    <span style={styles.cardLabel}>Email</span>
                     <span style={styles.cardValue}>{o.email}</span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Offense:</span>
+                    <span style={styles.cardLabel}>Offense</span>
                     <span style={styles.cardValue}>{o.offenseType}</span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Risk:</span>
+                    <span style={styles.cardLabel}>Risk</span>
                     <span style={{
                       ...styles.cardRisk,
                       backgroundColor: o.riskLevel === 'High' ? '#dc2626' :
@@ -524,17 +503,17 @@ const AdminReports = () => {
                     </span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Recommended:</span>
+                    <span style={styles.cardLabel}>Recommended</span>
                     <span style={o.recommendedForCS ? styles.yesBadge : styles.noBadge}>
                       {o.recommendedForCS ? 'Yes' : 'No'}
                     </span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Vetted By:</span>
+                    <span style={styles.cardLabel}>Vetted By</span>
                     <span style={styles.cardValue}>{o.vettedBy || '—'}</span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Created:</span>
+                    <span style={styles.cardLabel}>Created</span>
                     <span style={styles.cardValue}>{new Date(o.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -550,7 +529,7 @@ const AdminReports = () => {
                 disabled={currentPage === 1}
                 style={styles.pageButton}
               >
-                ←
+                Previous
               </button>
               
               <div style={styles.pageNumbers}>
@@ -586,7 +565,7 @@ const AdminReports = () => {
                 disabled={currentPage === totalPages}
                 style={styles.pageButton}
               >
-                →
+                Next
               </button>
 
               <div style={styles.itemsPerPage}>
@@ -615,7 +594,7 @@ const AdminReports = () => {
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>Assignments Report</h2>
             <span style={styles.resultCount}>
-              {filteredData.length} records found
+              {filteredData.length} records
             </span>
           </div>
           
@@ -748,25 +727,25 @@ const AdminReports = () => {
                 
                 <div style={styles.cardBody}>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Institution:</span>
+                    <span style={styles.cardLabel}>Institution</span>
                     <span style={styles.cardValue}>{a.institution}</span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Period:</span>
+                    <span style={styles.cardLabel}>Period</span>
                     <span style={styles.cardValue}>
                       {new Date(a.startDate).toLocaleDateString()} - {a.endDate ? new Date(a.endDate).toLocaleDateString() : 'Present'}
                     </span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Hours:</span>
+                    <span style={styles.cardLabel}>Hours</span>
                     <span style={styles.cardValue}>{a.hoursRequired}</span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Supervisor:</span>
+                    <span style={styles.cardLabel}>Supervisor</span>
                     <span style={styles.cardValue}>{a.supervisor}</span>
                   </div>
                   <div style={styles.cardRow}>
-                    <span style={styles.cardLabel}>Assigned By:</span>
+                    <span style={styles.cardLabel}>Assigned By</span>
                     <span style={styles.cardValue}>{a.assignedBy}</span>
                   </div>
                 </div>
@@ -782,7 +761,7 @@ const AdminReports = () => {
                 disabled={currentPage === 1}
                 style={styles.pageButton}
               >
-                ←
+                Previous
               </button>
               
               <div style={styles.pageNumbers}>
@@ -818,7 +797,7 @@ const AdminReports = () => {
                 disabled={currentPage === totalPages}
                 style={styles.pageButton}
               >
-                →
+                Next
               </button>
 
               <div style={styles.itemsPerPage}>
@@ -848,30 +827,30 @@ const AdminReports = () => {
 const getStatusStyle = (status) => {
   switch (status) {
     case 'active':
-      return { backgroundColor: '#e8f5e8', color: '#2e7d32', borderColor: '#a5d6a5' };
+      return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
     case 'completed':
-      return { backgroundColor: '#e3f2fd', color: '#1565c0', borderColor: '#90caf9' };
+      return { backgroundColor: '#e3f2fd', color: '#1565c0' };
     case 'defaulted':
-      return { backgroundColor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a' };
+      return { backgroundColor: '#ffebee', color: '#c62828' };
     case 'pending':
-      return { backgroundColor: '#fff3e0', color: '#ef6c00', borderColor: '#ffb74d' };
+      return { backgroundColor: '#fff3e0', color: '#ef6c00' };
     default:
-      return { backgroundColor: '#f5f5f5', color: '#616161', borderColor: '#e0e0e0' };
+      return { backgroundColor: '#f5f5f5', color: '#616161' };
   }
 };
 
 const getAssignmentStatusStyle = (status) => {
   switch (status) {
     case 'completed':
-      return { backgroundColor: '#e8f5e8', color: '#2e7d32', borderColor: '#a5d6a5' };
+      return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
     case 'active':
-      return { backgroundColor: '#e3f2fd', color: '#1565c0', borderColor: '#90caf9' };
+      return { backgroundColor: '#e3f2fd', color: '#1565c0' };
     case 'defaulted':
-      return { backgroundColor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a' };
+      return { backgroundColor: '#ffebee', color: '#c62828' };
     case 'new':
-      return { backgroundColor: '#fff3e0', color: '#ef6c00', borderColor: '#ffb74d' };
+      return { backgroundColor: '#fff3e0', color: '#ef6c00' };
     default:
-      return { backgroundColor: '#f5f5f5', color: '#616161', borderColor: '#e0e0e0' };
+      return { backgroundColor: '#f5f5f5', color: '#616161' };
   }
 };
 
@@ -949,7 +928,7 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     backgroundColor: '#ffffff',
     color: '#0f172a',
@@ -979,13 +958,10 @@ const styles = {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#1e293b',
@@ -1001,13 +977,10 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#475569',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f8fafc',
@@ -1023,13 +996,10 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#475569',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f8fafc',
@@ -1040,13 +1010,8 @@ const styles = {
       transform: 'translateY(0)',
     },
   },
-  buttonIcon: {
-    fontSize: '16px',
-  },
   buttonText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
+    fontWeight: '500',
   },
   summary: {
     backgroundColor: '#ffffff',
@@ -1084,48 +1049,32 @@ const styles = {
     marginBottom: '24px',
   },
   statCard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    padding: '16px',
+    padding: '20px',
     backgroundColor: '#f8fafc',
     borderRadius: '10px',
     border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
+    textAlign: 'center',
     ':hover': {
       transform: 'translateY(-2px)',
       boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
       borderColor: '#cbd5e1',
     },
   },
-  statIconWrapper: {
-    width: '48px',
-    height: '48px',
-    backgroundColor: '#ffffff',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '1px solid #e2e8f0',
-  },
-  statIcon: {
-    fontSize: '24px',
-  },
   statContent: {
-    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
   },
   statValue: {
-    display: 'block',
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: '600',
     color: '#0f172a',
     lineHeight: 1.2,
   },
   statLabel: {
-    display: 'block',
-    fontSize: '13px',
+    fontSize: '14px',
     color: '#64748b',
-    marginTop: '2px',
   },
   analyticsGrid: {
     display: 'grid',
@@ -1262,7 +1211,6 @@ const styles = {
     fontSize: '12px',
     fontWeight: '500',
     display: 'inline-block',
-    border: '1px solid transparent',
   },
   yesBadge: {
     padding: '4px 10px',
@@ -1315,7 +1263,6 @@ const styles = {
     borderRadius: '20px',
     fontSize: '12px',
     fontWeight: '500',
-    border: '1px solid transparent',
   },
   cardBody: {
     display: 'flex',
@@ -1357,10 +1304,11 @@ const styles = {
     padding: '8px 16px',
     backgroundColor: '#ffffff',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: '500',
     transition: 'all 0.2s ease',
     ':hover:not(:disabled)': {
       backgroundColor: '#f8fafc',
@@ -1384,10 +1332,11 @@ const styles = {
     padding: '0 8px',
     backgroundColor: '#ffffff',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: '500',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f8fafc',
@@ -1408,7 +1357,7 @@ const styles = {
   itemsPerPageSelect: {
     padding: '8px 12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     backgroundColor: '#ffffff',
     color: '#334155',
     cursor: 'pointer',

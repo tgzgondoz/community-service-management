@@ -158,7 +158,8 @@ const OffenderProfiling = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.title}>Offender Profiling (#9)</h2>
+        <h1 style={styles.title}>Offender Profiling</h1>
+        <p style={styles.subtitle}>Create a new offender profile</p>
         <div style={styles.progressContainer}>
           <div style={styles.progressBar}>
             <div style={{
@@ -175,22 +176,18 @@ const OffenderProfiling = () => {
           ...styles.message,
           ...(messageType === 'error' ? styles.errorMessage : styles.successMessage)
         }}>
-          <span style={styles.messageIcon}>
-            {messageType === 'error' ? '⚠️' : '✅'}
-          </span>
-          {message}
+          <span>{message}</span>
           <button 
             style={styles.messageClose}
             onClick={() => setMessage('')}
           >
-            ×
+            Dismiss
           </button>
         </div>
       )}
       
       {currentUser && (
         <div style={styles.userInfo}>
-          <span style={styles.userIcon}>👤</span>
           <span>Logged in as: <strong>{currentUser.email}</strong></span>
         </div>
       )}
@@ -204,7 +201,7 @@ const OffenderProfiling = () => {
               ...(step === currentStep ? styles.stepCircleActive : {}),
               ...(step < currentStep ? styles.stepCircleCompleted : {})
             }}>
-              {step < currentStep ? '✓' : step}
+              {step}
             </div>
             <span style={styles.stepLabel}>
               {step === 1 ? 'Personal' : step === 2 ? 'Offense' : 'Assessment'}
@@ -217,7 +214,7 @@ const OffenderProfiling = () => {
         {/* Step 1: Personal Information */}
         {currentStep === 1 && (
           <div style={styles.formSection}>
-            <h3 style={styles.sectionTitle}>Personal Information</h3>
+            <h2 style={styles.sectionTitle}>Personal Information</h2>
             
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
@@ -307,7 +304,7 @@ const OffenderProfiling = () => {
         {/* Step 2: Offense Details */}
         {currentStep === 2 && (
           <div style={styles.formSection}>
-            <h3 style={styles.sectionTitle}>Offense Details</h3>
+            <h2 style={styles.sectionTitle}>Offense Details</h2>
             
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
@@ -375,7 +372,7 @@ const OffenderProfiling = () => {
         {/* Step 3: Risk Assessment */}
         {currentStep === 3 && (
           <div style={styles.formSection}>
-            <h3 style={styles.sectionTitle}>Risk Assessment</h3>
+            <h2 style={styles.sectionTitle}>Risk Assessment</h2>
             
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
@@ -493,7 +490,7 @@ const OffenderProfiling = () => {
               style={styles.secondaryButton}
               disabled={loading}
             >
-              ← Previous
+              Previous
             </button>
           )}
           
@@ -504,7 +501,7 @@ const OffenderProfiling = () => {
               style={styles.primaryButton}
               disabled={loading}
             >
-              Next →
+              Next
             </button>
           ) : (
             <button 
@@ -534,21 +531,31 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '900px',
     margin: '0 auto',
-    padding: 'clamp(16px, 4vw, 24px)',
-    backgroundColor: '#ffffff',
+    padding: '32px 24px',
+    backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    '@media (max-width: 768px)': {
+      padding: '24px 16px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px 12px',
+    }
   },
   header: {
-    marginBottom: 'clamp(20px, 4vw, 24px)',
+    marginBottom: '24px',
   },
   title: {
-    fontSize: 'clamp(24px, 5vw, 28px)',
-    marginBottom: 'clamp(16px, 3vw, 20px)',
-    color: '#000000',
+    fontSize: 'clamp(28px, 5vw, 32px)',
+    marginBottom: '4px',
+    color: '#0f172a',
     fontWeight: '600',
-    '@media (max-width: 480px)': {
-      textAlign: 'center',
-    }
+    letterSpacing: '-0.02em',
+  },
+  subtitle: {
+    fontSize: '16px',
+    color: '#64748b',
+    marginBottom: '20px',
   },
   progressContainer: {
     display: 'flex',
@@ -558,43 +565,38 @@ const styles = {
   },
   progressBar: {
     flex: 1,
-    height: '8px',
-    backgroundColor: '#f0f0f0',
-    borderRadius: '4px',
+    height: '6px',
+    backgroundColor: '#e2e8f0',
+    borderRadius: '3px',
     overflow: 'hidden',
     minWidth: '200px',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#000000',
+    backgroundColor: '#0f172a',
     transition: 'width 0.3s ease',
-    borderRadius: '4px',
+    borderRadius: '3px',
   },
   progressText: {
-    fontSize: 'clamp(12px, 2.5vw, 14px)',
-    color: '#666666',
+    fontSize: '13px',
+    color: '#64748b',
     fontWeight: '500',
   },
   userInfo: {
-    backgroundColor: '#f8f8f8',
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 16px)',
-    borderRadius: '10px',
-    marginBottom: 'clamp(20px, 4vw, 24px)',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#333333',
-    border: '1px solid #e0e0e0',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  userIcon: {
-    fontSize: '16px',
+    backgroundColor: '#ffffff',
+    padding: '12px 16px',
+    borderRadius: '8px',
+    marginBottom: '24px',
+    fontSize: '14px',
+    color: '#1e293b',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
   stepIndicator: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 'clamp(24px, 5vw, 30px)',
+    marginBottom: '30px',
     position: 'relative',
     padding: '0 10px',
   },
@@ -608,98 +610,100 @@ const styles = {
     zIndex: 1,
   },
   stepCircle: {
-    width: 'clamp(30px, 6vw, 36px)',
-    height: 'clamp(30px, 6vw, 36px)',
+    width: '36px',
+    height: '36px',
     borderRadius: '50%',
-    backgroundColor: '#f0f0f0',
-    border: '2px solid #cccccc',
+    backgroundColor: '#f1f5f9',
+    border: '2px solid #cbd5e1',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 'clamp(13px, 3vw, 14px)',
+    fontSize: '14px',
     fontWeight: '600',
-    color: '#666666',
+    color: '#64748b',
     transition: 'all 0.3s ease',
   },
   stepCircleActive: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
+    backgroundColor: '#0f172a',
+    borderColor: '#0f172a',
     color: '#ffffff',
     transform: 'scale(1.1)',
   },
   stepCircleCompleted: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: '#10b981',
+    borderColor: '#10b981',
     color: '#ffffff',
   },
   stepLabel: {
-    fontSize: 'clamp(11px, 2.5vw, 12px)',
-    color: '#666666',
+    fontSize: '12px',
+    color: '#64748b',
     fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: '0.5px',
+    letterSpacing: '0.05em',
   },
   form: {
     backgroundColor: '#ffffff',
-    padding: 'clamp(20px, 4vw, 30px)',
+    padding: '30px',
     borderRadius: '16px',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+    border: '1px solid #e2e8f0',
+    '@media (max-width: 640px)': {
+      padding: '20px',
+    },
   },
   formSection: {
-    marginBottom: 'clamp(20px, 4vw, 24px)',
+    marginBottom: '24px',
     animation: 'fadeIn 0.3s ease',
   },
   sectionTitle: {
-    fontSize: 'clamp(16px, 3.5vw, 18px)',
-    marginBottom: 'clamp(16px, 3vw, 20px)',
-    color: '#000000',
+    fontSize: '18px',
+    marginBottom: '20px',
+    color: '#0f172a',
     fontWeight: '600',
     paddingBottom: '10px',
-    borderBottom: '2px solid #f0f0f0',
+    borderBottom: '1px solid #e2e8f0',
   },
   formRow: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 'clamp(12px, 3vw, 16px)',
-    marginBottom: 'clamp(12px, 3vw, 16px)',
+    gap: '16px',
+    marginBottom: '16px',
     '@media (max-width: 640px)': {
       gridTemplateColumns: '1fr',
       gap: '12px',
     },
   },
   formGroup: {
-    marginBottom: 'clamp(12px, 3vw, 16px)',
+    marginBottom: '16px',
   },
   label: {
     display: 'block',
     marginBottom: '6px',
-    color: '#333333',
+    color: '#334155',
     fontWeight: '500',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    fontSize: '14px',
   },
   required: {
-    color: '#ff4444',
+    color: '#ef4444',
     marginLeft: '4px',
   },
   input: {
     width: '100%',
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    border: '2px solid #e0e0e0',
-    borderRadius: '10px',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    padding: '10px 12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '14px',
     boxSizing: 'border-box',
-    backgroundColor: '#fafafa',
-    color: '#000000',
+    backgroundColor: '#ffffff',
+    color: '#0f172a',
     transition: 'all 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
-      backgroundColor: '#ffffff',
-      boxShadow: '0 0 0 3px rgba(0,0,0,0.1)',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
     ':hover': {
-      borderColor: '#999999',
+      borderColor: '#94a3b8',
     },
   },
   checkboxGroup: {
@@ -709,43 +713,43 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    color: '#333333',
+    color: '#334155',
     cursor: 'pointer',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    fontSize: '14px',
     padding: '6px 0',
   },
   checkbox: {
-    width: '18px',
-    height: '18px',
+    width: '16px',
+    height: '16px',
     cursor: 'pointer',
-    accentColor: '#000000',
+    accentColor: '#0f172a',
   },
   checkboxText: {
     userSelect: 'none',
   },
   buttonGroup: {
     display: 'flex',
-    gap: 'clamp(12px, 3vw, 16px)',
-    marginTop: 'clamp(20px, 4vw, 24px)',
+    gap: '16px',
+    marginTop: '24px',
     '@media (max-width: 480px)': {
       flexDirection: 'column',
     },
   },
   primaryButton: {
     flex: 1,
-    padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#000000',
+    padding: '12px 24px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '10px',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    fontWeight: '600',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+      backgroundColor: '#1e293b',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
@@ -758,19 +762,19 @@ const styles = {
   },
   secondaryButton: {
     flex: 1,
-    padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    fontWeight: '600',
+    padding: '12px 24px',
+    backgroundColor: '#ffffff',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#777777',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      transform: 'translateY(-1px)',
     },
     ':active': {
       transform: 'translateY(0)',
@@ -783,23 +787,23 @@ const styles = {
   },
   submitButton: {
     flex: 2,
-    padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#000000',
+    padding: '12px 24px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '10px',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
-    fontWeight: '600',
+    borderRadius: '8px',
+    fontSize: '15px',
+    fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
+    gap: '8px',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+      backgroundColor: '#1e293b',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
@@ -811,45 +815,41 @@ const styles = {
     },
   },
   buttonText: {
-    marginLeft: '8px',
+    marginLeft: '4px',
   },
   message: {
-    padding: 'clamp(12px, 3vw, 16px)',
-    borderRadius: '10px',
+    padding: '14px 16px',
+    borderRadius: '8px',
     marginBottom: '20px',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: '10px',
-    position: 'relative',
     animation: 'slideIn 0.3s ease',
-  },
-  messageIcon: {
-    fontSize: '20px',
+    fontSize: '14px',
   },
   messageClose: {
-    position: 'absolute',
-    right: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
     background: 'none',
-    border: 'none',
-    fontSize: '20px',
+    border: '1px solid currentColor',
+    fontSize: '12px',
     cursor: 'pointer',
-    color: 'inherit',
+    padding: '4px 10px',
+    borderRadius: '4px',
     opacity: 0.7,
+    transition: 'opacity 0.2s ease',
     ':hover': {
       opacity: 1,
     },
   },
   successMessage: {
-    backgroundColor: '#e8f5e8',
-    color: '#2e7d32',
-    border: '1px solid #a5d6a5',
+    backgroundColor: '#f0fdf4',
+    color: '#166534',
+    border: '1px solid #bbf7d0',
   },
   errorMessage: {
-    backgroundColor: '#ffebee',
-    color: '#c62828',
-    border: '1px solid #ffcdd2',
+    backgroundColor: '#fef2f2',
+    color: '#991b1b',
+    border: '1px solid #fecaca',
   },
 };
 
@@ -870,7 +870,7 @@ style.textContent = `
   @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateX(-20px);
+      transform: translateX(-10px);
     }
     to {
       opacity: 1;

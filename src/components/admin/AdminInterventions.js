@@ -60,16 +60,6 @@ const AdminInterventions = () => {
     }
   };
 
-  const getInterventionIcon = (type) => {
-    switch (type) {
-      case 'counseling': return '🧠';
-      case 'detox': return '🏥';
-      case 'education': return '📚';
-      case 'vocational': return '💼';
-      default: return '❤️';
-    }
-  };
-
   const getRiskColor = (risk) => {
     switch (risk) {
       case 'High': return '#dc2626';
@@ -87,6 +77,17 @@ const AdminInterventions = () => {
       case 'vocational': return '#f59e0b';
       case 'mental': return '#ec4899';
       default: return '#6b7280';
+    }
+  };
+
+  const getInterventionTypeLabel = (type) => {
+    switch (type) {
+      case 'counseling': return 'Counseling';
+      case 'detox': return 'Detoxification';
+      case 'education': return 'Education';
+      case 'vocational': return 'Vocational Training';
+      case 'mental': return 'Mental Health Support';
+      default: return type;
     }
   };
 
@@ -142,12 +143,12 @@ const AdminInterventions = () => {
                 <div style={styles.needs}>
                   {offender.substanceAbuse && (
                     <span style={styles.need}>
-                      <span style={styles.needDot} /> Substance Abuse
+                      Substance Abuse
                     </span>
                   )}
                   {offender.mentalHealthIssues && (
                     <span style={styles.need}>
-                      <span style={styles.needDot} /> Mental Health
+                      Mental Health
                     </span>
                   )}
                 </div>
@@ -160,14 +161,13 @@ const AdminInterventions = () => {
                     onClick={() => handleAssign(offender)}
                     style={styles.assignButton}
                   >
-                    Assign Program →
+                    Assign Program
                   </button>
                 </div>
               </div>
             ))}
             {offenders.filter(o => !o.hasIntervention).length === 0 && (
               <div style={styles.emptyState}>
-                <span style={styles.emptyStateIcon}>✅</span>
                 <p style={styles.emptyStateText}>No offenders need intervention</p>
               </div>
             )}
@@ -187,16 +187,13 @@ const AdminInterventions = () => {
               <div key={intervention.id} style={styles.interventionCard}>
                 <div style={styles.cardHeader}>
                   <div style={styles.interventionType}>
-                    <span style={{
-                      ...styles.interventionIcon,
-                      backgroundColor: getInterventionTypeColor(intervention.type)
-                    }}>
-                      {getInterventionIcon(intervention.type)}
-                    </span>
                     <div style={styles.interventionInfo}>
                       <span style={styles.offenderName}>{intervention.offenderName}</span>
-                      <span style={styles.interventionTypeText}>
-                        {intervention.type.charAt(0).toUpperCase() + intervention.type.slice(1)}
+                      <span style={{
+                        ...styles.interventionTypeBadge,
+                        backgroundColor: getInterventionTypeColor(intervention.type)
+                      }}>
+                        {getInterventionTypeLabel(intervention.type)}
                       </span>
                     </div>
                   </div>
@@ -226,7 +223,7 @@ const AdminInterventions = () => {
                   
                   {intervention.notes && (
                     <div style={styles.notes}>
-                      <span style={styles.notesLabel}>Notes:</span>
+                      <span style={styles.notesLabel}>Notes</span>
                       <p style={styles.notesText}>{intervention.notes}</p>
                     </div>
                   )}
@@ -239,7 +236,6 @@ const AdminInterventions = () => {
             ))}
             {interventions.filter(i => i.status === 'active').length === 0 && (
               <div style={styles.emptyState}>
-                <span style={styles.emptyStateIcon}>📋</span>
                 <p style={styles.emptyStateText}>No active intervention programs</p>
               </div>
             )}
@@ -258,7 +254,9 @@ const AdminInterventions = () => {
                   For: {selectedOffender?.firstName} {selectedOffender?.lastName}
                 </p>
               </div>
-              <button onClick={() => setShowForm(false)} style={styles.closeButton}>×</button>
+              <button onClick={() => setShowForm(false)} style={styles.closeButton}>
+                Close
+              </button>
             </div>
             
             <form onSubmit={handleSubmit}>
@@ -271,11 +269,11 @@ const AdminInterventions = () => {
                   required
                 >
                   <option value="">Select program type...</option>
-                  <option value="counseling">🧠 Counseling</option>
-                  <option value="detox">🏥 Detoxification</option>
-                  <option value="education">📚 Education</option>
-                  <option value="vocational">💼 Vocational Training</option>
-                  <option value="mental">❤️ Mental Health Support</option>
+                  <option value="counseling">Counseling</option>
+                  <option value="detox">Detoxification</option>
+                  <option value="education">Education</option>
+                  <option value="vocational">Vocational Training</option>
+                  <option value="mental">Mental Health Support</option>
                 </select>
               </div>
 
@@ -537,21 +535,12 @@ const styles = {
     flexWrap: 'wrap',
   },
   need: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
     padding: '4px 10px',
     backgroundColor: '#f1f5f9',
     color: '#475569',
     borderRadius: '20px',
     fontSize: '12px',
     fontWeight: '500',
-  },
-  needDot: {
-    width: '6px',
-    height: '6px',
-    backgroundColor: '#94a3b8',
-    borderRadius: '50%',
   },
   cardFooter: {
     display: 'flex',
@@ -569,7 +558,7 @@ const styles = {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '13px',
     fontWeight: '500',
     cursor: 'pointer',
@@ -588,24 +577,20 @@ const styles = {
     alignItems: 'center',
     gap: '12px',
   },
-  interventionIcon: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '10px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '20px',
-    color: '#ffffff',
-  },
   interventionInfo: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '2px',
+    gap: '4px',
+    width: '100%',
   },
-  interventionTypeText: {
-    fontSize: '13px',
-    color: '#64748b',
+  interventionTypeBadge: {
+    display: 'inline-block',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    color: '#ffffff',
+    fontSize: '11px',
+    fontWeight: '500',
+    alignSelf: 'flex-start',
   },
   interventionDetails: {
     marginBottom: '12px',
@@ -635,7 +620,7 @@ const styles = {
   notes: {
     padding: '10px',
     backgroundColor: '#f8fafc',
-    borderRadius: '8px',
+    borderRadius: '6px',
     border: '1px solid #f1f5f9',
   },
   notesLabel: {
@@ -643,6 +628,7 @@ const styles = {
     color: '#64748b',
     display: 'block',
     marginBottom: '4px',
+    fontWeight: '500',
   },
   notesText: {
     margin: 0,
@@ -668,11 +654,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     borderRadius: '12px',
     border: '1px dashed #cbd5e1',
-  },
-  emptyStateIcon: {
-    fontSize: '32px',
-    marginBottom: '12px',
-    display: 'block',
   },
   emptyStateText: {
     margin: 0,
@@ -724,16 +705,16 @@ const styles = {
   },
   closeButton: {
     background: 'none',
-    border: 'none',
-    fontSize: '24px',
+    border: '1px solid #e2e8f0',
+    fontSize: '14px',
     cursor: 'pointer',
-    color: '#94a3b8',
-    padding: '4px 8px',
+    color: '#64748b',
+    padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#f1f5f9',
-      color: '#475569',
+      color: '#0f172a',
     },
   },
   formGroup: {
@@ -761,7 +742,7 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     color: '#0f172a',
     transition: 'all 0.2s ease',
@@ -776,7 +757,7 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     color: '#0f172a',
     backgroundColor: '#ffffff',
@@ -791,7 +772,7 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     color: '#0f172a',
     fontFamily: 'inherit',
@@ -815,7 +796,7 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#475569',
     border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
@@ -830,7 +811,7 @@ const styles = {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
