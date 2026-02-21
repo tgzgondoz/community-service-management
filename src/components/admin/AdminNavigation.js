@@ -4,7 +4,8 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
 const AdminNavigation = ({ onLogout }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,21 +19,37 @@ const AdminNavigation = ({ onLogout }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
-  // Close mobile menu on window resize (if screen becomes larger)
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 768 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
+      if (window.innerWidth < 768) {
+        setIsExpanded(false);
+      } else if (window.innerWidth >= 1024) {
+        setIsExpanded(true);
       }
     };
+
+    handleResize(); // Set initial state
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [mobileMenuOpen]);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileOpen]);
 
   const handleLogout = async () => {
     try {
@@ -58,333 +75,273 @@ const AdminNavigation = ({ onLogout }) => {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: '📊', shortLabel: 'Dash' },
-    { path: '/offenders', label: 'Offenders (#2)', icon: '👥', shortLabel: 'Offenders' },
-    { path: '/recommended', label: 'Recommended (#4)', icon: '✅', shortLabel: 'Rec.' },
-    { path: '/interventions', label: 'Interventions (#5)', icon: '🫂', shortLabel: 'Inter.' },
-    { path: '/reports', label: 'Reports (#7, #8)', icon: '📈', shortLabel: 'Reports' }
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/offenders', label: 'Offenders' },
+    { path: '/recommended', label: 'Recommended' },
+    { path: '/interventions', label: 'Interventions' },
+    { path: '/reports', label: 'Reports' }
   ];
 
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <nav style={{
-      ...styles.navbar,
-      ...(scrolled ? styles.navbarScrolled : {}),
-      boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.3)',
-    }}>
-      <div style={styles.navContainer}>
-        {/* Logo Section */}
-        <div style={styles.logoSection} onClick={() => navigate('/dashboard')}>
-          <span style={styles.logoIcon}>⚖️</span>
-          <span style={styles.logoText}>CSMS</span>
-          <span style={styles.logoBadge}>Admin</span>
+    <>
+      {/* Mobile Header */}
+      <div style={styles.mobileHeader}>
+        <div style={styles.mobileHeaderLeft}>
+          <button 
+            style={styles.mobileMenuButton}
+            onClick={() => setIsMobileOpen(true)}
+          >
+            <div style={styles.hamburgerLine} />
+            <div style={styles.hamburgerLine} />
+            <div style={styles.hamburgerLine} />
+          </button>
+          <span style={styles.mobileLogo}>CSMS Admin</span>
         </div>
-
-        {/* Desktop Menu */}
-        <div style={styles.desktopMenu}>
-          {menuItems.map(item => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              style={{
-                ...styles.navLink,
-                ...(isActive(item.path) ? styles.navLinkActive : {}),
-              }}
-              title={item.label}
-            >
-              <span style={styles.navIcon}>{item.icon}</span>
-              <span style={styles.navLabel}>{item.label}</span>
-              <span style={styles.navShortLabel}>{item.shortLabel}</span>
-            </button>
-          ))}
+        <div style={styles.mobileHeaderRight}>
+          <button onClick={handleLogout} style={styles.mobileLogoutButton}>
+            Logout
+          </button>
         </div>
+      </div>
 
-        {/* Desktop Right Section */}
-        <div style={styles.rightSection}>
-          <div style={styles.adminInfo}>
-            <span style={styles.adminBadge}>Admin</span>
-          </div>
-          <button onClick={handleLogout} style={styles.logoutButton} title="Logout">
-            <span style={styles.logoutIcon}>🚪</span>
-            <span style={styles.logoutText}>Logout</span>
+      {/* Mobile Menu Overlay */}
+      {isMobileOpen && (
+        <div 
+          style={styles.mobileOverlay}
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile Side Navigation */}
+      <div style={{
+        ...styles.mobileNav,
+        transform: isMobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+      }}>
+        <div style={styles.mobileNavHeader}>
+          <span style={styles.mobileNavLogo}>CSMS Admin</span>
+          <button 
+            style={styles.mobileCloseButton}
+            onClick={() => setIsMobileOpen(false)}
+          >
+            ✕
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button 
-          style={styles.mobileMenuButton}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <div style={{
-            ...styles.hamburgerLine,
-            transform: mobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none',
-          }} />
-          <div style={{
-            ...styles.hamburgerLine,
-            opacity: mobileMenuOpen ? 0 : 1,
-          }} />
-          <div style={{
-            ...styles.hamburgerLine,
-            transform: mobileMenuOpen ? 'rotate(-45deg) translate(7px, -7px)' : 'none',
-          }} />
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div style={styles.mobileMenu}>
-          <div style={styles.mobileMenuHeader}>
-            <span style={styles.mobileMenuTitle}>Menu</span>
-            <button 
-              style={styles.mobileCloseButton}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              ✕
-            </button>
-          </div>
-          
+        <div style={styles.mobileNavContent}>
           {menuItems.map(item => (
             <button
               key={item.path}
               onClick={() => {
                 navigate(item.path);
-                setMobileMenuOpen(false);
+                setIsMobileOpen(false);
               }}
               style={{
-                ...styles.mobileNavLink,
-                ...(isActive(item.path) ? styles.mobileNavLinkActive : {}),
+                ...styles.mobileNavItem,
+                ...(isActive(item.path) ? styles.mobileNavItemActive : {}),
               }}
             >
-              <span style={styles.mobileNavIcon}>{item.icon}</span>
-              <span style={styles.mobileNavLabel}>{item.label}</span>
-              {isActive(item.path) && <span style={styles.mobileActiveIndicator}>✓</span>}
+              {item.label}
             </button>
           ))}
-          
-          <div style={styles.mobileDivider} />
-          
+        </div>
+
+        <div style={styles.mobileNavFooter}>
           <div style={styles.mobileUserInfo}>
-            <span style={styles.mobileAdminBadge}>Admin</span>
+            Admin User
           </div>
-          
-          <button onClick={handleLogout} style={styles.mobileLogoutButton}>
-            <span style={styles.logoutIcon}>🚪</span>
-            <span>Logout</span>
+          <button onClick={handleLogout} style={styles.mobileNavLogout}>
+            Logout
           </button>
         </div>
-      )}
-    </nav>
+      </div>
+
+      {/* Desktop Side Navigation */}
+      <div style={{
+        ...styles.sideNav,
+        width: isExpanded ? '260px' : '80px',
+      }}>
+        {/* Logo Section */}
+        <div style={styles.logoSection}>
+          <span style={styles.logoText}>CSMS</span>
+          {isExpanded && <span style={styles.logoBadge}>Admin</span>}
+        </div>
+
+        {/* Toggle Button */}
+        <button 
+          style={styles.toggleButton}
+          onClick={toggleSidebar}
+          title={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+        >
+          {isExpanded ? '◀' : '▶'}
+        </button>
+
+        {/* Navigation Items */}
+        <div style={styles.navItems}>
+          {menuItems.map(item => (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                ...styles.navItem,
+                ...(isActive(item.path) ? styles.navItemActive : {}),
+                justifyContent: isExpanded ? 'flex-start' : 'center',
+              }}
+              title={!isExpanded ? item.label : ''}
+            >
+              <span style={styles.navIndicator} />
+              <span style={styles.navLabel}>
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Bottom Section */}
+        <div style={styles.bottomSection}>
+          <div style={{
+            ...styles.userInfo,
+            justifyContent: isExpanded ? 'flex-start' : 'center',
+          }}>
+            <div style={styles.userAvatar}>
+              A
+            </div>
+            {isExpanded && (
+              <div style={styles.userDetails}>
+                <span style={styles.userName}>Admin User</span>
+                <span style={styles.userRole}>Administrator</span>
+              </div>
+            )}
+          </div>
+
+          <button 
+            onClick={handleLogout} 
+            style={{
+              ...styles.logoutButton,
+              justifyContent: isExpanded ? 'flex-start' : 'center',
+            }}
+            title={!isExpanded ? 'Logout' : ''}
+          >
+            <span style={styles.logoutIcon}>→</span>
+            {isExpanded && <span>Logout</span>}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Spacer */}
+      <div style={{
+        ...styles.mainContentSpacer,
+        marginLeft: window.innerWidth < 768 ? '0' : (isExpanded ? '260px' : '80px'),
+      }} />
+    </>
   );
 };
 
 const styles = {
-  navbar: {
-    backgroundColor: '#000000',
-    padding: 'clamp(8px, 2vw, 12px) 0',
-    color: '#ffffff',
-    position: 'sticky',
+  // Mobile Header
+  mobileHeader: {
+    display: 'none',
+    position: 'fixed',
     top: 0,
-    zIndex: 1000,
-    transition: 'all 0.3s ease',
-    width: '100%',
-  },
-  navbarScrolled: {
-    padding: 'clamp(4px, 1vw, 8px) 0',
-    backdropFilter: 'blur(10px)',
-    backgroundColor: 'rgba(0,0,0,0.95)',
-  },
-  navContainer: {
-    maxWidth: '1400px',
-    margin: '0 auto',
-    display: 'flex',
+    left: 0,
+    right: 0,
+    height: '60px',
+    backgroundColor: '#1a1a1a',
+    borderBottom: '1px solid #333333',
+    padding: '0 16px',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0 clamp(16px, 4vw, 24px)',
-    position: 'relative',
-  },
-  logoSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(4px, 1vw, 8px)',
-    cursor: 'pointer',
-    transition: 'opacity 0.2s',
-    ':hover': {
-      opacity: 0.8,
-    },
-  },
-  logoIcon: {
-    fontSize: 'clamp(20px, 5vw, 28px)',
-  },
-  logoText: {
-    fontSize: 'clamp(16px, 4vw, 20px)',
-    fontWeight: '600',
-    letterSpacing: '0.5px',
-    color: '#ffffff',
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
-  },
-  logoBadge: {
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    padding: '2px 8px',
-    borderRadius: '12px',
-    fontSize: 'clamp(10px, 2.5vw, 12px)',
-    fontWeight: '600',
-    marginLeft: '4px',
-    '@media (max-width: 380px)': {
-      display: 'none',
-    },
-  },
-  desktopMenu: {
-    display: 'flex',
-    gap: 'clamp(4px, 1vw, 8px)',
-    flexWrap: 'wrap',
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
-  },
-  navLink: {
-    padding: 'clamp(6px, 1.5vw, 10px) clamp(10px, 2vw, 16px)',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#ffffff',
-    cursor: 'pointer',
-    fontSize: 'clamp(13px, 2vw, 15px)',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(4px, 1vw, 8px)',
-    background: 'transparent',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-  },
-  navLinkActive: {
-    backgroundColor: '#333333',
-    borderBottom: '2px solid #ffffff',
-  },
-  navIcon: {
-    fontSize: 'clamp(14px, 3vw, 18px)',
-  },
-  navLabel: {
-    '@media (max-width: 1024px)': {
-      display: 'none',
-    },
-  },
-  navShortLabel: {
-    display: 'none',
-    '@media (min-width: 769px) and (max-width: 1024px)': {
-      display: 'inline',
-    },
-  },
-  rightSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(8px, 2vw, 16px)',
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
-  },
-  adminInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  adminBadge: {
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    padding: '4px 12px',
-    borderRadius: '20px',
-    fontSize: 'clamp(12px, 2.5vw, 14px)',
-    fontWeight: '600',
-    border: '1px solid #cccccc',
-    whiteSpace: 'nowrap',
-  },
-  logoutButton: {
-    padding: 'clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px)',
-    backgroundColor: '#333333',
-    border: '1px solid #666666',
-    borderRadius: '8px',
-    color: '#ffffff',
-    cursor: 'pointer',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(4px, 1vw, 8px)',
-    transition: 'all 0.2s ease',
-    whiteSpace: 'nowrap',
-    ':hover': {
-      backgroundColor: '#444444',
-      borderColor: '#888888',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-  },
-  logoutIcon: {
-    fontSize: 'clamp(14px, 3vw, 16px)',
-  },
-  logoutText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
-  },
-  mobileMenuButton: {
-    display: 'none',
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    width: '30px',
-    height: '30px',
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '0',
-    zIndex: 1100,
+    zIndex: 900,
     '@media (max-width: 768px)': {
       display: 'flex',
     },
   },
-  hamburgerLine: {
-    width: '30px',
-    height: '3px',
-    backgroundColor: '#ffffff',
-    borderRadius: '10px',
-    transition: 'all 0.3s ease',
+  mobileHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
   },
-  mobileMenu: {
+  mobileMenuButton: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    width: '24px',
+    height: '24px',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 0,
+  },
+  hamburgerLine: {
+    width: '24px',
+    height: '2px',
+    backgroundColor: '#ffffff',
+    margin: '2px 0',
+  },
+  mobileLogo: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  mobileHeaderRight: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  mobileLogoutButton: {
+    padding: '6px 12px',
+    backgroundColor: '#333333',
+    border: '1px solid #444444',
+    borderRadius: '4px',
+    color: '#ffffff',
+    fontSize: '13px',
+    cursor: 'pointer',
+    ':hover': {
+      backgroundColor: '#444444',
+    },
+  },
+
+  // Mobile Overlay
+  mobileOverlay: {
     display: 'none',
     position: 'fixed',
     top: 0,
+    left: 0,
     right: 0,
     bottom: 0,
-    width: 'clamp(250px, 70vw, 300px)',
-    backgroundColor: '#1a1a1a',
-    padding: 'clamp(16px, 4vw, 20px)',
-    boxShadow: '-4px 0 20px rgba(0,0,0,0.5)',
-    animation: 'slideIn 0.3s ease',
-    zIndex: 1050,
-    overflowY: 'auto',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 950,
     '@media (max-width: 768px)': {
       display: 'block',
     },
   },
-  mobileMenuHeader: {
+
+  // Mobile Navigation
+  mobileNav: {
+    display: 'none',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: '280px',
+    backgroundColor: '#1a1a1a',
+    zIndex: 1000,
+    transition: 'transform 0.3s ease',
+    flexDirection: 'column',
+    '@media (max-width: 768px)': {
+      display: 'flex',
+    },
+  },
+  mobileNavHeader: {
+    padding: '20px 16px',
+    borderBottom: '1px solid #333333',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
-    paddingBottom: '12px',
-    borderBottom: '1px solid #333333',
   },
-  mobileMenuTitle: {
+  mobileNavLogo: {
     fontSize: '18px',
     fontWeight: '600',
     color: '#ffffff',
@@ -396,113 +353,235 @@ const styles = {
     fontSize: '20px',
     cursor: 'pointer',
     padding: '4px 8px',
-    borderRadius: '4px',
+  },
+  mobileNavContent: {
+    flex: 1,
+    padding: '16px',
+    overflowY: 'auto',
+  },
+  mobileNavItem: {
+    width: '100%',
+    padding: '12px 16px',
+    marginBottom: '8px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '6px',
+    color: '#ffffff',
+    fontSize: '15px',
+    textAlign: 'left',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
     ':hover': {
       backgroundColor: '#333333',
     },
   },
-  mobileNavLink: {
-    padding: 'clamp(12px, 3vw, 14px)',
+  mobileNavItemActive: {
+    backgroundColor: '#333333',
+    borderLeft: '3px solid #ffffff',
+  },
+  mobileNavFooter: {
+    padding: '16px',
+    borderTop: '1px solid #333333',
+  },
+  mobileUserInfo: {
+    padding: '8px 0',
+    marginBottom: '8px',
+    color: '#ffffff',
+    fontSize: '14px',
+  },
+  mobileNavLogout: {
+    width: '100%',
+    padding: '12px',
     backgroundColor: '#333333',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     color: '#ffffff',
+    fontSize: '14px',
     cursor: 'pointer',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
+    ':hover': {
+      backgroundColor: '#444444',
+    },
+  },
+
+  // Desktop Side Navigation
+  sideNav: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    backgroundColor: '#1a1a1a',
+    borderRight: '1px solid #333333',
+    transition: 'width 0.3s ease',
+    display: 'flex',
+    flexDirection: 'column',
+    zIndex: 800,
+    '@media (max-width: 768px)': {
+      display: 'none',
+    },
+  },
+  logoSection: {
+    padding: '24px 20px',
+    borderBottom: '1px solid #333333',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  logoText: {
+    fontSize: '20px',
+    fontWeight: '600',
+    color: '#ffffff',
+    letterSpacing: '0.5px',
+  },
+  logoBadge: {
+    padding: '2px 8px',
+    backgroundColor: '#ffffff',
+    color: '#1a1a1a',
+    borderRadius: '12px',
+    fontSize: '11px',
+    fontWeight: '600',
+  },
+  toggleButton: {
+    position: 'absolute',
+    top: '20px',
+    right: '-12px',
+    width: '24px',
+    height: '24px',
+    backgroundColor: '#333333',
+    border: '1px solid #444444',
+    borderRadius: '50%',
+    color: '#ffffff',
+    fontSize: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    zIndex: 850,
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#444444',
+    },
+  },
+  navItems: {
+    flex: 1,
+    padding: '20px 12px',
+    overflowY: 'auto',
+  },
+  navItem: {
+    width: '100%',
+    padding: '12px 16px',
+    marginBottom: '4px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '6px',
+    color: '#ffffff',
+    fontSize: '14px',
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    width: '100%',
-    textAlign: 'left',
-    marginBottom: '8px',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     position: 'relative',
     ':hover': {
-      backgroundColor: '#444444',
-      transform: 'translateX(5px)',
-    },
-    ':active': {
-      transform: 'translateX(0)',
+      backgroundColor: '#333333',
     },
   },
-  mobileNavLinkActive: {
-    backgroundColor: '#444444',
-    borderLeft: '3px solid #ffffff',
-  },
-  mobileNavIcon: {
-    fontSize: 'clamp(16px, 4vw, 18px)',
-    minWidth: '24px',
-  },
-  mobileNavLabel: {
-    flex: 1,
-  },
-  mobileActiveIndicator: {
-    color: '#4CAF50',
-    fontSize: '18px',
-    marginRight: '8px',
-  },
-  mobileDivider: {
-    height: '1px',
+  navItemActive: {
     backgroundColor: '#333333',
-    margin: '16px 0',
   },
-  mobileUserInfo: {
-    padding: '12px',
-    backgroundColor: '#222222',
-    borderRadius: '8px',
-    marginBottom: '12px',
-  },
-  mobileAdminBadge: {
+  navIndicator: {
+    width: '3px',
+    height: '20px',
     backgroundColor: '#ffffff',
-    color: '#000000',
-    padding: '4px 12px',
-    borderRadius: '20px',
-    fontSize: '14px',
-    fontWeight: '600',
-    display: 'inline-block',
+    position: 'absolute',
+    left: '-12px',
+    opacity: 0,
+    transition: 'opacity 0.2s ease',
   },
-  mobileLogoutButton: {
-    padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#666666',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#ffffff',
-    cursor: 'pointer',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
+  navLabel: {
+    flex: 1,
+    textAlign: 'left',
+  },
+  bottomSection: {
+    padding: '20px 12px',
+    borderTop: '1px solid #333333',
+  },
+  userInfo: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    marginBottom: '12px',
+    padding: '8px',
+    borderRadius: '6px',
+  },
+  userAvatar: {
+    width: '36px',
+    height: '36px',
+    backgroundColor: '#333333',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#ffffff',
+    fontSize: '16px',
+    fontWeight: '600',
+  },
+  userDetails: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  userName: {
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#ffffff',
+  },
+  userRole: {
+    fontSize: '12px',
+    color: '#888888',
+  },
+  logoutButton: {
     width: '100%',
-    textAlign: 'left',
+    padding: '12px 16px',
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: '6px',
+    color: '#ffffff',
+    fontSize: '14px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#777777',
-      transform: 'translateX(5px)',
+      backgroundColor: '#333333',
     },
-    ':active': {
-      transform: 'translateX(0)',
+  },
+  logoutIcon: {
+    fontSize: '16px',
+    transform: 'rotate(180deg)',
+  },
+  mainContentSpacer: {
+    transition: 'margin-left 0.3s ease',
+    '@media (max-width: 768px)': {
+      marginLeft: '0',
     },
   },
 };
 
-// Add global styles for animations
+// Add global styles
 const style = document.createElement('style');
 style.textContent = `
-  @keyframes slideIn {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
+  @media (max-width: 768px) {
+    body {
+      padding-top: 60px;
     }
   }
 
-  @media (max-width: 768px) {
-    body.menu-open {
-      overflow: hidden;
-    }
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    cursor: pointer;
   }
 `;
 document.head.appendChild(style);

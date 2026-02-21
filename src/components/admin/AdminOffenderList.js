@@ -119,10 +119,10 @@ const AdminOffenderList = () => {
 
   const getRiskColor = (risk) => {
     switch (risk) {
-      case 'High': return '#666666';
-      case 'Medium': return '#999999';
-      case 'Low': return '#333333';
-      default: return '#cccccc';
+      case 'High': return '#dc2626';
+      case 'Medium': return '#f59e0b';
+      case 'Low': return '#10b981';
+      default: return '#6b7280';
     }
   };
 
@@ -135,13 +135,49 @@ const AdminOffenderList = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loading) {
-    return <div style={styles.loading}>Loading offenders...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <div style={styles.loadingSpinner} />
+        <p style={styles.loadingText}>Loading offenders...</p>
+      </div>
+    );
   }
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Offender Management (#2)</h2>
+      {/* Header */}
+      <div style={styles.header}>
+        <div style={styles.headerLeft}>
+          <h1 style={styles.title}>Offender Management</h1>
+          <span style={styles.subtitle}>Manage and monitor offender records</span>
+        </div>
+        <button onClick={fetchOffenders} style={styles.refreshButton}>
+          <span style={styles.refreshIcon}>↻</span>
+          <span style={styles.refreshText}>Refresh Data</span>
+        </button>
+      </div>
 
+      {/* Stats Cards */}
+      <div style={styles.statsGrid}>
+        <div style={styles.statCard}>
+          <span style={styles.statValue}>{offenders.length}</span>
+          <span style={styles.statLabel}>Total Offenders</span>
+        </div>
+        <div style={styles.statCard}>
+          <span style={styles.statValue}>{offenders.filter(o => o.recommendedForCS).length}</span>
+          <span style={styles.statLabel}>Recommended</span>
+        </div>
+        <div style={styles.statCard}>
+          <span style={styles.statValue}>{offenders.filter(o => !o.recommendedForCS).length}</span>
+          <span style={styles.statLabel}>Not Recommended</span>
+        </div>
+        <div style={styles.statCard}>
+          <span style={styles.statValue}>{offenders.filter(o => o.status === 'active').length}</span>
+          <span style={styles.statLabel}>Active Cases</span>
+        </div>
+      </div>
+
+      {/* Filters */}
       <div style={styles.filters}>
         <div style={styles.searchWrapper}>
           <span style={styles.searchIcon}>🔍</span>
@@ -168,36 +204,16 @@ const AdminOffenderList = () => {
           style={styles.filterSelect}
         >
           <option value="all">All Offenders</option>
-          <option value="recommended">Recommended (#4)</option>
-          <option value="not-recommended">Not Recommended (#3)</option>
+          <option value="recommended">Recommended for CS</option>
+          <option value="not-recommended">Not Recommended</option>
           <option value="active">Active Cases</option>
           <option value="pending">Pending</option>
           <option value="completed">Completed</option>
           <option value="defaulted">Defaulted</option>
         </select>
 
-        <button onClick={fetchOffenders} style={styles.refreshButton} title="Refresh">
-          <span style={styles.refreshIcon}>🔄</span>
-          <span style={styles.refreshText}>Refresh</span>
-        </button>
-      </div>
-
-      <div style={styles.stats}>
-        <div style={styles.statItem}>
-          <span style={styles.statLabel}>Total:</span>
-          <span style={styles.statValue}>{offenders.length}</span>
-        </div>
-        <div style={styles.statItem}>
-          <span style={styles.statLabel}>Recommended:</span>
-          <span style={styles.statValue}>{offenders.filter(o => o.recommendedForCS).length}</span>
-        </div>
-        <div style={styles.statItem}>
-          <span style={styles.statLabel}>Not Recommended:</span>
-          <span style={styles.statValue}>{offenders.filter(o => !o.recommendedForCS).length}</span>
-        </div>
-        <div style={styles.statItem}>
-          <span style={styles.statLabel}>Active:</span>
-          <span style={styles.statValue}>{offenders.filter(o => o.status === 'active').length}</span>
+        <div style={styles.resultsCount}>
+          {filteredOffenders.length} results found
         </div>
       </div>
 
@@ -207,17 +223,45 @@ const AdminOffenderList = () => {
           <thead>
             <tr style={styles.tableHeader}>
               <th style={styles.th} onClick={() => handleSort('name')}>
-                Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <div style={styles.thContent}>
+                  Name 
+                  {sortConfig.key === 'name' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
               </th>
               <th style={styles.th}>Contact</th>
               <th style={styles.th} onClick={() => handleSort('offenseType')}>
-                Offense {sortConfig.key === 'offenseType' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <div style={styles.thContent}>
+                  Offense
+                  {sortConfig.key === 'offenseType' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
               </th>
               <th style={styles.th} onClick={() => handleSort('riskLevel')}>
-                Risk {sortConfig.key === 'riskLevel' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <div style={styles.thContent}>
+                  Risk
+                  {sortConfig.key === 'riskLevel' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
               </th>
               <th style={styles.th} onClick={() => handleSort('status')}>
-                Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                <div style={styles.thContent}>
+                  Status
+                  {sortConfig.key === 'status' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
               </th>
               <th style={styles.th}>Vetted By</th>
               <th style={styles.th}>Actions</th>
@@ -227,19 +271,24 @@ const AdminOffenderList = () => {
             {currentItems.map(offender => (
               <tr key={offender.id} style={styles.tableRow}>
                 <td style={styles.td}>
-                  <strong>{offender.firstName} {offender.lastName}</strong>
+                  <span style={styles.nameCell}>
+                    {offender.firstName} {offender.lastName}
+                  </span>
                 </td>
                 <td style={styles.td}>
                   <div style={styles.contactInfo}>
-                    <div style={styles.contactEmail}>{offender.email}</div>
-                    <small style={styles.contactPhone}>{offender.phone}</small>
+                    <span style={styles.contactEmail}>{offender.email}</span>
+                    <span style={styles.contactPhone}>{offender.phone}</span>
                   </div>
                 </td>
-                <td style={styles.td}>{offender.offenseType}</td>
+                <td style={styles.td}>
+                  <span style={styles.offenseType}>{offender.offenseType}</span>
+                </td>
                 <td style={styles.td}>
                   <span style={{
                     ...styles.riskBadge,
-                    backgroundColor: getRiskColor(offender.riskLevel)
+                    backgroundColor: getRiskColor(offender.riskLevel),
+                    color: '#ffffff'
                   }}>
                     {offender.riskLevel}
                   </span>
@@ -259,7 +308,9 @@ const AdminOffenderList = () => {
                     <option value="defaulted">Defaulted</option>
                   </select>
                 </td>
-                <td style={styles.td}>{offender.vettedBy || 'N/A'}</td>
+                <td style={styles.td}>
+                  <span style={styles.vettedBy}>{offender.vettedBy || '—'}</span>
+                </td>
                 <td style={styles.td}>
                   <div style={styles.actionButtons}>
                     <button 
@@ -293,10 +344,13 @@ const AdminOffenderList = () => {
           <div key={offender.id} style={styles.offenderCard}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <strong>{offender.firstName} {offender.lastName}</strong>
+                <span style={styles.cardName}>
+                  {offender.firstName} {offender.lastName}
+                </span>
                 <span style={{
                   ...styles.cardRiskBadge,
-                  backgroundColor: getRiskColor(offender.riskLevel)
+                  backgroundColor: getRiskColor(offender.riskLevel),
+                  color: '#ffffff'
                 }}>
                   {offender.riskLevel}
                 </span>
@@ -353,8 +407,15 @@ const AdminOffenderList = () => {
               </div>
               <div style={styles.cardDetail}>
                 <span style={styles.cardDetailLabel}>Vetted By:</span>
-                <span style={styles.cardDetailValue}>{offender.vettedBy || 'N/A'}</span>
+                <span style={styles.cardDetailValue}>{offender.vettedBy || '—'}</span>
               </div>
+            </div>
+
+            <div style={styles.cardFooter}>
+              <span style={styles.cardFooterLabel}>Recommended:</span>
+              <span style={offender.recommendedForCS ? styles.recommendedYes : styles.recommendedNo}>
+                {offender.recommendedForCS ? 'Yes' : 'No'}
+              </span>
             </div>
           </div>
         ))}
@@ -393,54 +454,131 @@ const AdminOffenderList = () => {
           >
             →
           </button>
+
+          <div style={styles.itemsPerPage}>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              style={styles.itemsPerPageSelect}
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={25}>25 per page</option>
+              <option value={50}>50 per page</option>
+            </select>
+          </div>
         </div>
       )}
-
-      {/* Items Per Page Selector */}
-      <div style={styles.itemsPerPage}>
-        <label htmlFor="itemsPerPage">Show:</label>
-        <select
-          id="itemsPerPage"
-          value={itemsPerPage}
-          onChange={(e) => setItemsPerPage(Number(e.target.value))}
-          style={styles.itemsPerPageSelect}
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-        </select>
-        <span>entries</span>
-      </div>
 
       {/* Details Modal */}
       {showDetails && selectedOffender && (
         <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowDetails(false)}>
           <div style={styles.modalContent}>
-            <h3 style={styles.modalTitle}>Offender Details</h3>
-            <button onClick={() => setShowDetails(false)} style={styles.closeButton}>×</button>
+            <div style={styles.modalHeader}>
+              <div>
+                <h3 style={styles.modalTitle}>Offender Details</h3>
+                <p style={styles.modalSubtitle}>
+                  {selectedOffender.firstName} {selectedOffender.lastName}
+                </p>
+              </div>
+              <button onClick={() => setShowDetails(false)} style={styles.closeButton}>×</button>
+            </div>
             
             <div style={styles.details}>
               <div style={styles.detailGrid}>
-                <p style={styles.detailItem}><strong>Name:</strong> {selectedOffender.firstName} {selectedOffender.lastName}</p>
-                <p style={styles.detailItem}><strong>Date of Birth:</strong> {selectedOffender.dateOfBirth}</p>
-                <p style={styles.detailItem}><strong>Email:</strong> {selectedOffender.email}</p>
-                <p style={styles.detailItem}><strong>Phone:</strong> {selectedOffender.phone}</p>
-                <p style={styles.detailItem}><strong>Address:</strong> {selectedOffender.address}</p>
-                <p style={styles.detailItem}><strong>Offense Type:</strong> {selectedOffender.offenseType}</p>
-                <p style={styles.detailItem}><strong>Offense Date:</strong> {selectedOffender.offenseDate}</p>
-                <p style={styles.detailItem}><strong>Sentence Length:</strong> {selectedOffender.sentenceLength} months</p>
-                <p style={styles.detailItem}><strong>Risk Level:</strong> {selectedOffender.riskLevel}</p>
-                <p style={styles.detailItem}><strong>Previous Offenses:</strong> {selectedOffender.previousOffenses}</p>
-                <p style={styles.detailItem}><strong>Employment Status:</strong> {selectedOffender.employmentStatus}</p>
-                <p style={styles.detailItem}><strong>Education Level:</strong> {selectedOffender.educationLevel}</p>
-                <p style={styles.detailItem}><strong>Substance Abuse:</strong> {selectedOffender.substanceAbuse ? 'Yes' : 'No'}</p>
-                <p style={styles.detailItem}><strong>Mental Health Issues:</strong> {selectedOffender.mentalHealthIssues ? 'Yes' : 'No'}</p>
-                <p style={styles.detailItem}><strong>Family Support:</strong> {selectedOffender.familySupport}</p>
-                <p style={styles.detailItem}><strong>Recommended for CS:</strong> {selectedOffender.recommendedForCS ? 'Yes' : 'No'}</p>
-                <p style={styles.detailItem}><strong>Status:</strong> {selectedOffender.status}</p>
-                <p style={styles.detailItem}><strong>Vetted By:</strong> {selectedOffender.vettedBy}</p>
-                <p style={styles.detailItem}><strong>Created:</strong> {new Date(selectedOffender.createdAt).toLocaleString()}</p>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Date of Birth</span>
+                  <span style={styles.detailValue}>{selectedOffender.dateOfBirth}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Email</span>
+                  <span style={styles.detailValue}>{selectedOffender.email}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Phone</span>
+                  <span style={styles.detailValue}>{selectedOffender.phone}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Address</span>
+                  <span style={styles.detailValue}>{selectedOffender.address}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Offense Type</span>
+                  <span style={styles.detailValue}>{selectedOffender.offenseType}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Offense Date</span>
+                  <span style={styles.detailValue}>{selectedOffender.offenseDate}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Sentence Length</span>
+                  <span style={styles.detailValue}>{selectedOffender.sentenceLength} months</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Risk Level</span>
+                  <span style={{
+                    ...styles.riskBadge,
+                    backgroundColor: getRiskColor(selectedOffender.riskLevel),
+                    color: '#ffffff',
+                    display: 'inline-block',
+                    marginTop: '4px'
+                  }}>
+                    {selectedOffender.riskLevel}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Previous Offenses</span>
+                  <span style={styles.detailValue}>{selectedOffender.previousOffenses}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Employment</span>
+                  <span style={styles.detailValue}>{selectedOffender.employmentStatus}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Education</span>
+                  <span style={styles.detailValue}>{selectedOffender.educationLevel}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Substance Abuse</span>
+                  <span style={selectedOffender.substanceAbuse ? styles.yesBadge : styles.noBadge}>
+                    {selectedOffender.substanceAbuse ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Mental Health</span>
+                  <span style={selectedOffender.mentalHealthIssues ? styles.yesBadge : styles.noBadge}>
+                    {selectedOffender.mentalHealthIssues ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Family Support</span>
+                  <span style={styles.detailValue}>{selectedOffender.familySupport}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Recommended for CS</span>
+                  <span style={selectedOffender.recommendedForCS ? styles.recommendedYes : styles.recommendedNo}>
+                    {selectedOffender.recommendedForCS ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Status</span>
+                  <span style={{
+                    ...styles.statusBadge,
+                    ...getStatusStyle(selectedOffender.status)
+                  }}>
+                    {selectedOffender.status}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Vetted By</span>
+                  <span style={styles.detailValue}>{selectedOffender.vettedBy || '—'}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Created</span>
+                  <span style={styles.detailValue}>
+                    {new Date(selectedOffender.createdAt).toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -454,15 +592,15 @@ const AdminOffenderList = () => {
 const getStatusStyle = (status) => {
   switch (status) {
     case 'active':
-      return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
+      return { backgroundColor: '#e8f5e8', color: '#2e7d32', borderColor: '#a5d6a5' };
     case 'completed':
-      return { backgroundColor: '#e3f2fd', color: '#1565c0' };
+      return { backgroundColor: '#e3f2fd', color: '#1565c0', borderColor: '#90caf9' };
     case 'defaulted':
-      return { backgroundColor: '#ffebee', color: '#c62828' };
+      return { backgroundColor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a' };
     case 'pending':
-      return { backgroundColor: '#fff3e0', color: '#ef6c00' };
+      return { backgroundColor: '#fff3e0', color: '#ef6c00', borderColor: '#ffb74d' };
     default:
-      return {};
+      return { backgroundColor: '#f5f5f5', color: '#616161', borderColor: '#e0e0e0' };
   }
 };
 
@@ -472,54 +610,153 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: 'clamp(16px, 4vw, 24px)',
-    backgroundColor: '#ffffff',
+    padding: '32px 24px',
+    backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    '@media (max-width: 768px)': {
+      padding: '24px 16px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px 12px',
+    }
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '24px',
+    flexWrap: 'wrap',
+    gap: '16px',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    }
+  },
+  headerLeft: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
   },
   title: {
-    fontSize: 'clamp(24px, 5vw, 28px)',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
-    color: '#000000',
+    fontSize: 'clamp(28px, 5vw, 32px)',
+    color: '#0f172a',
+    margin: 0,
     fontWeight: '600',
+    letterSpacing: '-0.02em',
+    lineHeight: 1.2,
+  },
+  subtitle: {
+    fontSize: 'clamp(14px, 3vw, 16px)',
+    color: '#64748b',
+    fontWeight: '400',
+  },
+  refreshButton: {
+    padding: '10px 20px',
+    backgroundColor: '#ffffff',
+    color: '#1e293b',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    ':hover': {
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
+    },
     '@media (max-width: 480px)': {
-      textAlign: 'center',
+      justifyContent: 'center',
     }
+  },
+  refreshIcon: {
+    fontSize: '16px',
+    transition: 'transform 0.3s ease',
+    ':hover': {
+      transform: 'rotate(180deg)',
+    }
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '16px',
+    marginBottom: '24px',
+  },
+  statCard: {
+    backgroundColor: '#ffffff',
+    padding: '20px',
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+      borderColor: '#cbd5e1',
+    },
+  },
+  statValue: {
+    fontSize: '32px',
+    fontWeight: '600',
+    color: '#0f172a',
+    lineHeight: 1,
+  },
+  statLabel: {
+    fontSize: '14px',
+    color: '#64748b',
+    fontWeight: '500',
   },
   filters: {
     display: 'flex',
-    gap: 'clamp(8px, 2vw, 12px)',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
+    gap: '12px',
+    marginBottom: '24px',
     flexWrap: 'wrap',
+    alignItems: 'center',
     '@media (max-width: 768px)': {
       flexDirection: 'column',
+      alignItems: 'stretch',
     }
   },
   searchWrapper: {
     flex: 2,
     position: 'relative',
-    minWidth: '200px',
+    minWidth: '250px',
   },
   searchIcon: {
     position: 'absolute',
     left: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
-    color: '#999999',
+    color: '#94a3b8',
     fontSize: '16px',
   },
   searchInput: {
     width: '100%',
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(10px, 2.5vw, 12px) clamp(10px, 2.5vw, 12px) 40px',
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    padding: '12px 40px 12px 40px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '14px',
     backgroundColor: '#ffffff',
-    color: '#000000',
+    color: '#0f172a',
     boxSizing: 'border-box',
-    transition: 'border-color 0.2s ease',
+    transition: 'all 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
   },
   clearSearch: {
@@ -529,101 +766,49 @@ const styles = {
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
-    color: '#999999',
+    color: '#94a3b8',
     cursor: 'pointer',
     fontSize: '16px',
-    padding: '4px',
+    padding: '4px 8px',
+    borderRadius: '4px',
     ':hover': {
-      color: '#000000',
+      backgroundColor: '#f1f5f9',
+      color: '#475569',
     },
   },
   filterSelect: {
     flex: 1,
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    fontSize: 'clamp(14px, 3vw, 16px)',
-    minWidth: '150px',
+    padding: '12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '14px',
+    minWidth: '180px',
     backgroundColor: '#ffffff',
-    color: '#000000',
+    color: '#0f172a',
     cursor: 'pointer',
-    transition: 'border-color 0.2s ease',
+    transition: 'all 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
   },
-  refreshButton: {
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(16px, 3vw, 20px)',
-    backgroundColor: '#000000',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+  resultsCount: {
+    padding: '8px 16px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    borderRadius: '20px',
+    fontSize: '14px',
     fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    '@media (max-width: 768px)': {
-      justifyContent: 'center',
-    },
-  },
-  refreshIcon: {
-    fontSize: '16px',
-  },
-  refreshText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
-  },
-  stats: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-    gap: 'clamp(12px, 2vw, 16px)',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
-    padding: 'clamp(12px, 2.5vw, 16px)',
-    backgroundColor: '#f8f8f8',
-    borderRadius: '12px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-    border: '1px solid #e0e0e0',
-  },
-  statItem: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '4px',
-    padding: 'clamp(8px, 2vw, 12px)',
-    backgroundColor: '#ffffff',
-    borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-  },
-  statLabel: {
-    fontSize: 'clamp(12px, 2.5vw, 14px)',
-    color: '#666666',
-    fontWeight: '500',
-  },
-  statValue: {
-    fontSize: 'clamp(18px, 4vw, 20px)',
-    fontWeight: '700',
-    color: '#000000',
+    whiteSpace: 'nowrap',
   },
   tableContainer: {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+    border: '1px solid #e2e8f0',
     overflow: 'auto',
-    border: '1px solid #e0e0e0',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
+    marginBottom: '24px',
     '@media (max-width: 768px)': {
       display: 'none',
     },
@@ -631,37 +816,49 @@ const styles = {
   table: {
     width: '100%',
     borderCollapse: 'collapse',
-    minWidth: '800px',
+    minWidth: '900px',
   },
   tableHeader: {
-    backgroundColor: '#f5f5f5',
-    borderBottom: '2px solid #e0e0e0',
+    backgroundColor: '#f8fafc',
+    borderBottom: '2px solid #e2e8f0',
   },
   th: {
-    padding: 'clamp(10px, 2vw, 12px)',
+    padding: '16px',
     textAlign: 'left',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    fontSize: '14px',
     fontWeight: '600',
-    color: '#000000',
-    borderBottom: '1px solid #e0e0e0',
+    color: '#475569',
     cursor: 'pointer',
     userSelect: 'none',
-    ':hover': {
-      backgroundColor: '#e8e8e8',
-    },
-  },
-  tableRow: {
-    borderBottom: '1px solid #f0f0f0',
     transition: 'background-color 0.2s ease',
     ':hover': {
-      backgroundColor: '#f8f8f8',
+      backgroundColor: '#f1f5f9',
+    },
+  },
+  thContent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+  },
+  sortIcon: {
+    color: '#0f172a',
+    fontSize: '14px',
+  },
+  tableRow: {
+    borderBottom: '1px solid #f1f5f9',
+    transition: 'background-color 0.2s ease',
+    ':hover': {
+      backgroundColor: '#f8fafc',
     },
   },
   td: {
-    padding: 'clamp(10px, 2vw, 12px)',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#333333',
-    borderBottom: '1px solid #f0f0f0',
+    padding: '16px',
+    fontSize: '14px',
+    color: '#334155',
+  },
+  nameCell: {
+    fontWeight: '500',
+    color: '#0f172a',
   },
   contactInfo: {
     display: 'flex',
@@ -669,53 +866,59 @@ const styles = {
     gap: '4px',
   },
   contactEmail: {
-    color: '#000000',
+    color: '#0f172a',
     wordBreak: 'break-all',
+    fontSize: '13px',
   },
   contactPhone: {
-    color: '#666666',
+    color: '#64748b',
+    fontSize: '12px',
+  },
+  offenseType: {
+    color: '#334155',
   },
   riskBadge: {
-    padding: '4px 12px',
+    padding: '4px 10px',
     borderRadius: '20px',
-    color: '#ffffff',
-    fontSize: 'clamp(11px, 2vw, 12px)',
+    fontSize: '12px',
     fontWeight: '500',
     display: 'inline-block',
     whiteSpace: 'nowrap',
   },
   statusSelect: {
     padding: '6px 10px',
-    border: '1px solid #e0e0e0',
+    border: '1px solid #e2e8f0',
     borderRadius: '6px',
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    fontSize: 'clamp(12px, 2.5vw, 13px)',
+    fontSize: '13px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     width: '100%',
+    maxWidth: '120px',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
     },
+  },
+  vettedBy: {
+    color: '#64748b',
+    fontSize: '13px',
   },
   actionButtons: {
     display: 'flex',
     gap: '8px',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
   },
   viewButton: {
     padding: '6px 12px',
-    backgroundColor: '#333333',
-    color: '#ffffff',
-    border: 'none',
+    backgroundColor: '#f1f5f9',
+    color: '#334155',
+    border: '1px solid #e2e8f0',
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#444444',
+      backgroundColor: '#e2e8f0',
+      borderColor: '#94a3b8',
       transform: 'translateY(-1px)',
     },
     ':active': {
@@ -724,15 +927,16 @@ const styles = {
   },
   deleteButton: {
     padding: '6px 12px',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+    border: '1px solid #ffcdd2',
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#777777',
+      backgroundColor: '#ffcdd2',
+      borderColor: '#ef9a9a',
       transform: 'translateY(-1px)',
     },
     ':active': {
@@ -744,35 +948,45 @@ const styles = {
     '@media (max-width: 768px)': {
       display: 'flex',
       flexDirection: 'column',
-      gap: '12px',
-      marginBottom: '20px',
+      gap: '16px',
+      marginBottom: '24px',
     },
   },
   offenderCard: {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
     padding: '16px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    border: '1px solid #e2e8f0',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+      borderColor: '#cbd5e1',
+    },
   },
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: '12px',
   },
   cardTitle: {
     display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  cardName: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#0f172a',
   },
   cardRiskBadge: {
     padding: '4px 10px',
     borderRadius: '20px',
-    color: '#ffffff',
     fontSize: '12px',
     fontWeight: '500',
+    alignSelf: 'flex-start',
   },
   cardActions: {
     display: 'flex',
@@ -780,41 +994,50 @@ const styles = {
   },
   cardViewButton: {
     padding: '8px 12px',
-    backgroundColor: '#333333',
-    color: '#ffffff',
-    border: 'none',
+    backgroundColor: '#f1f5f9',
+    color: '#334155',
+    border: '1px solid #e2e8f0',
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#e2e8f0',
+    },
   },
   cardDeleteButton: {
     padding: '8px 12px',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+    border: '1px solid #ffcdd2',
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#ffcdd2',
+    },
   },
   cardDetails: {
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',
+    marginBottom: '12px',
   },
   cardDetail: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '4px 0',
-    borderBottom: '1px solid #f0f0f0',
+    borderBottom: '1px solid #f1f5f9',
   },
   cardDetailLabel: {
-    color: '#666666',
+    color: '#64748b',
     fontSize: '13px',
     fontWeight: '500',
   },
   cardDetailValue: {
-    color: '#000000',
+    color: '#0f172a',
     fontSize: '13px',
     textAlign: 'right',
     wordBreak: 'break-word',
@@ -822,32 +1045,54 @@ const styles = {
   },
   cardStatusSelect: {
     padding: '4px 8px',
-    border: '1px solid #e0e0e0',
+    border: '1px solid #e2e8f0',
     borderRadius: '4px',
-    backgroundColor: '#ffffff',
-    color: '#000000',
     fontSize: '13px',
     width: '120px',
+    cursor: 'pointer',
+  },
+  cardFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: '8px',
+    borderTop: '1px solid #f1f5f9',
+  },
+  cardFooterLabel: {
+    color: '#64748b',
+    fontSize: '13px',
+  },
+  recommendedYes: {
+    color: '#10b981',
+    fontWeight: '600',
+    fontSize: '13px',
+  },
+  recommendedNo: {
+    color: '#ef4444',
+    fontWeight: '600',
+    fontSize: '13px',
   },
   pagination: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 'clamp(8px, 2vw, 16px)',
-    marginTop: 'clamp(16px, 3vw, 24px)',
+    gap: '16px',
+    marginTop: '24px',
     flexWrap: 'wrap',
   },
   pageButton: {
     padding: '8px 16px',
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #e0e0e0',
-    borderRadius: '6px',
-    color: '#000000',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover:not(:disabled)': {
-      backgroundColor: '#e0e0e0',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      transform: 'translateY(-1px)',
     },
     ':disabled': {
       opacity: 0.5,
@@ -865,47 +1110,60 @@ const styles = {
     height: '36px',
     padding: '0 8px',
     backgroundColor: '#ffffff',
-    border: '1px solid #e0e0e0',
-    borderRadius: '6px',
-    color: '#000000',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f0f0f0',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
     },
   },
   activePage: {
-    backgroundColor: '#000000',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
-    borderColor: '#000000',
+    borderColor: '#0f172a',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#1e293b',
     },
   },
   itemsPerPage: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    gap: '8px',
-    marginTop: '16px',
-    fontSize: '14px',
-    color: '#666666',
+    marginLeft: 'auto',
   },
   itemsPerPageSelect: {
-    padding: '4px 8px',
-    border: '1px solid #e0e0e0',
-    borderRadius: '4px',
+    padding: '8px 12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
     backgroundColor: '#ffffff',
-    color: '#000000',
+    color: '#334155',
     cursor: 'pointer',
+    fontSize: '14px',
+    ':focus': {
+      outline: 'none',
+      borderColor: '#0f172a',
+    },
   },
-  loading: {
-    textAlign: 'center',
-    padding: 'clamp(30px, 8vw, 40px)',
-    color: '#666666',
-    backgroundColor: '#ffffff',
-    fontSize: 'clamp(16px, 4vw, 18px)',
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '400px',
+    gap: '16px',
+  },
+  loadingSpinner: {
+    width: '40px',
+    height: '40px',
+    border: '3px solid #f1f5f9',
+    borderTopColor: '#0f172a',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+  },
+  loadingText: {
+    color: '#64748b',
+    fontSize: '16px',
   },
   modal: {
     position: 'fixed',
@@ -913,71 +1171,114 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
     padding: '16px',
     animation: 'fadeIn 0.2s ease',
+    backdropFilter: 'blur(4px)',
   },
   modalContent: {
     backgroundColor: '#ffffff',
-    padding: 'clamp(20px, 5vw, 30px)',
-    borderRadius: '12px',
-    maxWidth: '700px',
+    borderRadius: '16px',
+    maxWidth: '800px',
     width: '100%',
     maxHeight: '85vh',
     overflow: 'auto',
-    position: 'relative',
-    border: '1px solid #e0e0e0',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
     animation: 'slideUp 0.3s ease',
   },
+  modalHeader: {
+    padding: '24px 24px 16px 24px',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   modalTitle: {
-    margin: '0 0 20px 0',
-    color: '#000000',
-    fontSize: 'clamp(18px, 4vw, 20px)',
+    margin: '0 0 4px 0',
+    fontSize: '20px',
     fontWeight: '600',
-    paddingRight: '30px',
+    color: '#0f172a',
+  },
+  modalSubtitle: {
+    margin: 0,
+    fontSize: '14px',
+    color: '#64748b',
   },
   closeButton: {
-    position: 'absolute',
-    top: '15px',
-    right: '15px',
-    fontSize: 'clamp(20px, 4vw, 24px)',
     background: 'none',
     border: 'none',
+    fontSize: '24px',
     cursor: 'pointer',
-    color: '#666666',
-    width: '32px',
-    height: '32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
+    color: '#94a3b8',
+    padding: '4px 8px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f0f0f0',
-      color: '#000000',
+      backgroundColor: '#f1f5f9',
+      color: '#475569',
     },
   },
   details: {
-    marginTop: '20px',
+    padding: '24px',
   },
   detailGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: 'clamp(12px, 3vw, 16px)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '16px',
   },
   detailItem: {
-    margin: 0,
-    color: '#333333',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    lineHeight: '1.6',
-    borderBottom: '1px solid #f0f0f0',
-    paddingBottom: '8px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    padding: '12px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #f1f5f9',
+  },
+  detailLabel: {
+    fontSize: '12px',
+    color: '#64748b',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    fontWeight: '500',
+  },
+  detailValue: {
+    fontSize: '14px',
+    color: '#0f172a',
+    fontWeight: '500',
     wordBreak: 'break-word',
+  },
+  statusBadge: {
+    padding: '4px 10px',
+    borderRadius: '20px',
+    fontSize: '12px',
+    fontWeight: '500',
+    display: 'inline-block',
+    width: 'fit-content',
+  },
+  yesBadge: {
+    padding: '2px 8px',
+    backgroundColor: '#e8f5e8',
+    color: '#2e7d32',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '500',
+    display: 'inline-block',
+    width: 'fit-content',
+  },
+  noBadge: {
+    padding: '2px 8px',
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '500',
+    display: 'inline-block',
+    width: 'fit-content',
   },
 };
 
@@ -998,6 +1299,10 @@ style.textContent = `
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 `;
 document.head.appendChild(style);

@@ -122,14 +122,12 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.background}>
-        <div style={styles.overlay}></div>
-      </div>
+      <div style={styles.background}></div>
       
       <div style={styles.card}>
         <div style={styles.header}>
           <div style={styles.logoContainer}>
-            <span style={styles.logo}>⚖️</span>
+            <span style={styles.logo}>CSMS</span>
           </div>
           <h1 style={styles.title}>Community Service Management</h1>
           <p style={styles.subtitle}>Sign in to access your dashboard</p>
@@ -137,7 +135,6 @@ const Login = () => {
         
         {error && (
           <div style={styles.error}>
-            <span style={styles.errorIcon}>⚠️</span>
             {error}
           </div>
         )}
@@ -145,7 +142,6 @@ const Login = () => {
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>
-              <span style={styles.labelIcon}>📧</span>
               Email Address
             </label>
             <input
@@ -161,7 +157,6 @@ const Login = () => {
           
           <div style={styles.inputGroup}>
             <label style={styles.label}>
-              <span style={styles.labelIcon}>🔒</span>
               Password
             </label>
             <div style={styles.passwordContainer}>
@@ -179,7 +174,7 @@ const Login = () => {
                 style={styles.passwordToggle}
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
           </div>
@@ -224,7 +219,6 @@ const Login = () => {
 
         <div style={styles.quickLogin}>
           <div style={styles.quickLoginHeader}>
-            <span style={styles.quickLoginIcon}>⚡</span>
             <p style={styles.quickLoginText}>Quick Access</p>
           </div>
           <div style={styles.buttonGroup}>
@@ -234,7 +228,6 @@ const Login = () => {
               type="button"
               disabled={loading}
             >
-              <span style={styles.quickButtonIcon}>👑</span>
               Admin Demo
             </button>
             <button 
@@ -243,7 +236,6 @@ const Login = () => {
               type="button"
               disabled={loading}
             >
-              <span style={styles.quickButtonIcon}>👤</span>
               User Demo
             </button>
           </div>
@@ -268,7 +260,7 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f2f5',
     position: 'relative',
     padding: 'clamp(16px, 4vw, 24px)',
     boxSizing: 'border-box',
@@ -279,29 +271,20 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    backgroundColor: '#f0f2f5',
     zIndex: 0,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   card: {
     backgroundColor: '#ffffff',
     padding: 'clamp(24px, 6vw, 40px)',
-    borderRadius: '20px',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1)',
     width: '100%',
     maxWidth: '450px',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid #dddfe2',
     position: 'relative',
     zIndex: 1,
-    animation: 'slideUp 0.5s ease',
-    backdropFilter: 'blur(10px)',
+    animation: 'slideUp 0.3s ease',
     '@media (max-width: 480px)': {
       padding: '24px',
     },
@@ -311,52 +294,46 @@ const styles = {
     marginBottom: 'clamp(24px, 5vw, 32px)',
   },
   logoContainer: {
-    width: 'clamp(70px, 15vw, 90px)',
-    height: 'clamp(70px, 15vw, 90px)',
-    backgroundColor: '#f8f8f8',
-    borderRadius: '50%',
+    width: 'clamp(60px, 15vw, 80px)',
+    height: 'clamp(60px, 15vw, 80px)',
+    backgroundColor: '#1a73e8',
+    borderRadius: '8px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     margin: '0 auto 16px auto',
-    border: '3px solid #000000',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
   },
   logo: {
-    fontSize: 'clamp(36px, 8vw, 48px)',
+    fontSize: 'clamp(18px, 4vw, 24px)',
+    fontWeight: 'bold',
+    color: '#ffffff',
     lineHeight: 1,
   },
   title: {
     fontSize: 'clamp(20px, 5vw, 24px)',
-    color: '#000000',
+    color: '#1c1e21',
     margin: '0 0 8px 0',
     fontWeight: '600',
-    letterSpacing: '-0.5px',
   },
   subtitle: {
     fontSize: 'clamp(13px, 3vw, 14px)',
-    color: '#666666',
+    color: '#606770',
     margin: 0,
   },
   error: {
-    backgroundColor: '#fff2f0',
-    color: '#ff4d4f',
+    backgroundColor: '#ffebe9',
+    color: '#c00',
     padding: 'clamp(10px, 2.5vw, 12px)',
-    borderRadius: '10px',
+    borderRadius: '6px',
     marginBottom: '20px',
     fontSize: 'clamp(13px, 3vw, 14px)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    border: '1px solid #ffccc7',
-  },
-  errorIcon: {
-    fontSize: '16px',
+    border: '1px solid #ffb8b8',
+    textAlign: 'center',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '16px',
   },
   inputGroup: {
     display: 'flex',
@@ -364,34 +341,26 @@ const styles = {
     gap: '6px',
   },
   label: {
-    color: '#333333',
+    color: '#1c1e21',
     fontSize: 'clamp(13px, 3vw, 14px)',
     fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-  },
-  labelIcon: {
-    fontSize: '14px',
   },
   input: {
     width: '100%',
     padding: 'clamp(12px, 3vw, 14px)',
-    border: '2px solid #e0e0e0',
-    borderRadius: '12px',
+    border: '1px solid #dddfe2',
+    borderRadius: '6px',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
     boxSizing: 'border-box',
-    backgroundColor: '#fafafa',
-    color: '#000000',
-    transition: 'all 0.3s ease',
+    backgroundColor: '#ffffff',
+    color: '#1c1e21',
+    transition: 'border-color 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
-      backgroundColor: '#ffffff',
-      boxShadow: '0 0 0 3px rgba(0,0,0,0.1)',
+      borderColor: '#1a73e8',
     },
     ':disabled': {
-      backgroundColor: '#f5f5f5',
+      backgroundColor: '#f5f6f7',
       cursor: 'not-allowed',
     },
   },
@@ -402,22 +371,20 @@ const styles = {
   passwordInput: {
     width: '100%',
     padding: 'clamp(12px, 3vw, 14px)',
-    paddingRight: '50px',
-    border: '2px solid #e0e0e0',
-    borderRadius: '12px',
+    paddingRight: '60px',
+    border: '1px solid #dddfe2',
+    borderRadius: '6px',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
     boxSizing: 'border-box',
-    backgroundColor: '#fafafa',
-    color: '#000000',
-    transition: 'all 0.3s ease',
+    backgroundColor: '#ffffff',
+    color: '#1c1e21',
+    transition: 'border-color 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
-      backgroundColor: '#ffffff',
-      boxShadow: '0 0 0 3px rgba(0,0,0,0.1)',
+      borderColor: '#1a73e8',
     },
     ':disabled': {
-      backgroundColor: '#f5f5f5',
+      backgroundColor: '#f5f6f7',
       cursor: 'not-allowed',
     },
   },
@@ -429,12 +396,12 @@ const styles = {
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    fontSize: '20px',
-    padding: '4px',
-    color: '#666666',
-    transition: 'color 0.2s ease',
+    fontSize: '14px',
+    padding: '4px 8px',
+    color: '#1a73e8',
+    fontWeight: '500',
     ':hover': {
-      color: '#000000',
+      textDecoration: 'underline',
     },
     ':disabled': {
       cursor: 'not-allowed',
@@ -453,14 +420,13 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     cursor: 'pointer',
-    color: '#666666',
+    color: '#606770',
     fontSize: 'clamp(13px, 3vw, 14px)',
   },
   checkbox: {
     width: '16px',
     height: '16px',
     cursor: 'pointer',
-    accentColor: '#000000',
   },
   checkboxText: {
     userSelect: 'none',
@@ -468,51 +434,45 @@ const styles = {
   forgotPassword: {
     background: 'none',
     border: 'none',
-    color: '#000000',
+    color: '#1a73e8',
     fontSize: 'clamp(13px, 3vw, 14px)',
     cursor: 'pointer',
-    textDecoration: 'underline',
     padding: '4px',
-    transition: 'opacity 0.2s ease',
+    fontWeight: '500',
     ':hover': {
-      opacity: 0.7,
+      textDecoration: 'underline',
     },
   },
   button: {
-    backgroundColor: '#000000',
+    backgroundColor: '#1a73e8',
     color: '#ffffff',
     padding: 'clamp(14px, 3.5vw, 16px)',
     border: 'none',
-    borderRadius: '12px',
+    borderRadius: '6px',
     fontSize: 'clamp(16px, 4vw, 18px)',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.3s ease',
+    transition: 'background-color 0.2s ease',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '10px',
-    marginTop: '10px',
+    marginTop: '8px',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+      backgroundColor: '#1557b0',
     },
     ':active': {
-      transform: 'translateY(0)',
+      backgroundColor: '#174ea6',
     },
     ':disabled': {
-      opacity: 0.7,
+      backgroundColor: '#9aa0a6',
       cursor: 'not-allowed',
-      transform: 'none',
     },
   },
   buttonDisabled: {
-    backgroundColor: '#666666',
+    backgroundColor: '#9aa0a6',
     ':hover': {
-      backgroundColor: '#666666',
-      transform: 'none',
-      boxShadow: 'none',
+      backgroundColor: '#9aa0a6',
     },
   },
   buttonText: {
@@ -521,24 +481,18 @@ const styles = {
   quickLogin: {
     marginTop: 'clamp(24px, 5vw, 30px)',
     padding: 'clamp(16px, 4vw, 20px)',
-    backgroundColor: '#f8f8f8',
-    borderRadius: '16px',
-    border: '1px solid #e0e0e0',
+    backgroundColor: '#f5f6f7',
+    borderRadius: '8px',
+    border: '1px solid #dddfe2',
   },
   quickLoginHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
     marginBottom: '16px',
-  },
-  quickLoginIcon: {
-    fontSize: '20px',
+    textAlign: 'center',
   },
   quickLoginText: {
     margin: 0,
     fontSize: 'clamp(14px, 3.5vw, 16px)',
-    color: '#000000',
+    color: '#1c1e21',
     fontWeight: '500',
   },
   buttonGroup: {
@@ -550,40 +504,30 @@ const styles = {
   },
   quickButton: {
     flex: 1,
-    padding: 'clamp(12px, 3vw, 14px)',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '10px',
-    fontSize: 'clamp(14px, 3.5vw, 16px)',
+    padding: 'clamp(10px, 3vw, 12px)',
+    backgroundColor: '#e4e6eb',
+    color: '#1c1e21',
+    border: '1px solid #ccced2',
+    borderRadius: '6px',
+    fontSize: 'clamp(14px, 3.5vw, 15px)',
     fontWeight: '500',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
+    transition: 'background-color 0.2s ease',
     ':hover': {
-      backgroundColor: '#555555',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 5px 10px rgba(0,0,0,0.1)',
+      backgroundColor: '#d8dadf',
     },
     ':active': {
-      transform: 'translateY(0)',
+      backgroundColor: '#ccced2',
     },
     ':disabled': {
       opacity: 0.5,
       cursor: 'not-allowed',
-      transform: 'none',
     },
-  },
-  quickButtonIcon: {
-    fontSize: '18px',
   },
   quickLoginNote: {
     margin: '12px 0 0 0',
     fontSize: 'clamp(12px, 2.5vw, 13px)',
-    color: '#999999',
+    color: '#606770',
     textAlign: 'center',
     fontStyle: 'italic',
   },
@@ -594,7 +538,7 @@ const styles = {
   footerText: {
     margin: 0,
     fontSize: 'clamp(11px, 2.5vw, 12px)',
-    color: '#999999',
+    color: '#606770',
   },
 };
 
@@ -604,17 +548,11 @@ style.textContent = `
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
   }
 `;

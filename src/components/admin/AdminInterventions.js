@@ -72,76 +72,177 @@ const AdminInterventions = () => {
 
   const getRiskColor = (risk) => {
     switch (risk) {
-      case 'High': return '#666666';
-      case 'Medium': return '#999999';
-      case 'Low': return '#333333';
-      default: return '#cccccc';
+      case 'High': return '#dc2626';
+      case 'Medium': return '#f59e0b';
+      case 'Low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getInterventionTypeColor = (type) => {
+    switch (type) {
+      case 'counseling': return '#8b5cf6';
+      case 'detox': return '#3b82f6';
+      case 'education': return '#10b981';
+      case 'vocational': return '#f59e0b';
+      case 'mental': return '#ec4899';
+      default: return '#6b7280';
     }
   };
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Intervention Management (#5)</h2>
+      {/* Header */}
+      <div style={styles.header}>
+        <div style={styles.headerLeft}>
+          <h1 style={styles.title}>Intervention Management</h1>
+          <span style={styles.subtitle}>Assign and monitor rehabilitation programs</span>
+        </div>
+        <div style={styles.stats}>
+          <div style={styles.stat}>
+            <span style={styles.statValue}>{offenders.filter(o => !o.hasIntervention).length}</span>
+            <span style={styles.statLabel}>Needing Intervention</span>
+          </div>
+          <div style={styles.statDivider} />
+          <div style={styles.stat}>
+            <span style={styles.statValue}>{interventions.filter(i => i.status === 'active').length}</span>
+            <span style={styles.statLabel}>Active Programs</span>
+          </div>
+        </div>
+      </div>
 
       <div style={styles.grid}>
         {/* Left Column - Offenders Needing Intervention */}
         <div style={styles.column}>
-          <h3 style={styles.columnTitle}>Offenders Needing Intervention</h3>
+          <div style={styles.columnHeader}>
+            <h2 style={styles.columnTitle}>Needs Intervention</h2>
+            <span style={styles.columnBadge}>
+              {offenders.filter(o => !o.hasIntervention).length} pending
+            </span>
+          </div>
           <div style={styles.cardList}>
             {offenders.filter(o => !o.hasIntervention).map(offender => (
               <div key={offender.id} style={styles.offenderCard}>
                 <div style={styles.cardHeader}>
-                  <strong style={styles.offenderName}>{offender.firstName} {offender.lastName}</strong>
+                  <div style={styles.offenderInfo}>
+                    <span style={styles.offenderName}>
+                      {offender.firstName} {offender.lastName}
+                    </span>
+                    <span style={styles.offenderId}>#{offender.id.slice(0, 8)}</span>
+                  </div>
                   <span style={{
                     ...styles.riskBadge,
-                    backgroundColor: getRiskColor(offender.riskLevel)
+                    backgroundColor: getRiskColor(offender.riskLevel),
+                    color: '#ffffff'
                   }}>
-                    {offender.riskLevel}
+                    {offender.riskLevel} Risk
                   </span>
                 </div>
                 
                 <div style={styles.needs}>
-                  {offender.substanceAbuse && <span style={styles.need}>Substance Abuse</span>}
-                  {offender.mentalHealthIssues && <span style={styles.need}>Mental Health</span>}
+                  {offender.substanceAbuse && (
+                    <span style={styles.need}>
+                      <span style={styles.needDot} /> Substance Abuse
+                    </span>
+                  )}
+                  {offender.mentalHealthIssues && (
+                    <span style={styles.need}>
+                      <span style={styles.needDot} /> Mental Health
+                    </span>
+                  )}
                 </div>
 
-                <button 
-                  onClick={() => handleAssign(offender)}
-                  style={styles.assignButton}
-                >
-                  Assign Intervention
-                </button>
+                <div style={styles.cardFooter}>
+                  <span style={styles.recommendedDate}>
+                    Recommended: {new Date(offender.recommendedDate).toLocaleDateString()}
+                  </span>
+                  <button 
+                    onClick={() => handleAssign(offender)}
+                    style={styles.assignButton}
+                  >
+                    Assign Program →
+                  </button>
+                </div>
               </div>
             ))}
+            {offenders.filter(o => !o.hasIntervention).length === 0 && (
+              <div style={styles.emptyState}>
+                <span style={styles.emptyStateIcon}>✅</span>
+                <p style={styles.emptyStateText}>No offenders need intervention</p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right Column - Active Interventions */}
         <div style={styles.column}>
-          <h3 style={styles.columnTitle}>Active Interventions</h3>
+          <div style={styles.columnHeader}>
+            <h2 style={styles.columnTitle}>Active Programs</h2>
+            <span style={styles.columnBadge}>
+              {interventions.filter(i => i.status === 'active').length} active
+            </span>
+          </div>
           <div style={styles.cardList}>
             {interventions.filter(i => i.status === 'active').map(intervention => (
               <div key={intervention.id} style={styles.interventionCard}>
                 <div style={styles.cardHeader}>
-                  <span style={styles.interventionIcon}>
-                    {getInterventionIcon(intervention.type)}
-                  </span>
-                  <strong style={styles.offenderName}>{intervention.offenderName}</strong>
+                  <div style={styles.interventionType}>
+                    <span style={{
+                      ...styles.interventionIcon,
+                      backgroundColor: getInterventionTypeColor(intervention.type)
+                    }}>
+                      {getInterventionIcon(intervention.type)}
+                    </span>
+                    <div style={styles.interventionInfo}>
+                      <span style={styles.offenderName}>{intervention.offenderName}</span>
+                      <span style={styles.interventionTypeText}>
+                        {intervention.type.charAt(0).toUpperCase() + intervention.type.slice(1)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 
                 <div style={styles.interventionDetails}>
-                  <p style={styles.detailItem}><strong>Type:</strong> {intervention.type}</p>
-                  <p style={styles.detailItem}><strong>Provider:</strong> {intervention.provider}</p>
-                  <p style={styles.detailItem}><strong>Start:</strong> {new Date(intervention.startDate).toLocaleDateString()}</p>
-                  {intervention.endDate && (
-                    <p style={styles.detailItem}><strong>End:</strong> {new Date(intervention.endDate).toLocaleDateString()}</p>
-                  )}
+                  <div style={styles.detailGrid}>
+                    <div style={styles.detailItem}>
+                      <span style={styles.detailLabel}>Provider</span>
+                      <span style={styles.detailValue}>{intervention.provider}</span>
+                    </div>
+                    <div style={styles.detailItem}>
+                      <span style={styles.detailLabel}>Start Date</span>
+                      <span style={styles.detailValue}>
+                        {new Date(intervention.startDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {intervention.endDate && (
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>End Date</span>
+                        <span style={styles.detailValue}>
+                          {new Date(intervention.endDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
                   {intervention.notes && (
-                    <p style={styles.detailItem}><strong>Notes:</strong> {intervention.notes}</p>
+                    <div style={styles.notes}>
+                      <span style={styles.notesLabel}>Notes:</span>
+                      <p style={styles.notesText}>{intervention.notes}</p>
+                    </div>
                   )}
+                </div>
+
+                <div style={styles.progressBar}>
+                  <div style={styles.progressFill} />
                 </div>
               </div>
             ))}
+            {interventions.filter(i => i.status === 'active').length === 0 && (
+              <div style={styles.emptyState}>
+                <span style={styles.emptyStateIcon}>📋</span>
+                <p style={styles.emptyStateText}>No active intervention programs</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -150,24 +251,31 @@ const AdminInterventions = () => {
       {showForm && (
         <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowForm(false)}>
           <div style={styles.modalContent}>
-            <h3 style={styles.modalTitle}>Assign Intervention</h3>
-            <button onClick={() => setShowForm(false)} style={styles.closeButton}>×</button>
+            <div style={styles.modalHeader}>
+              <div>
+                <h3 style={styles.modalTitle}>Assign Intervention Program</h3>
+                <p style={styles.modalSubtitle}>
+                  For: {selectedOffender?.firstName} {selectedOffender?.lastName}
+                </p>
+              </div>
+              <button onClick={() => setShowForm(false)} style={styles.closeButton}>×</button>
+            </div>
             
             <form onSubmit={handleSubmit}>
               <div style={styles.formGroup}>
-                <label style={styles.label}>Intervention Type *</label>
+                <label style={styles.label}>Program Type *</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({...formData, type: e.target.value})}
-                  style={styles.input}
+                  style={styles.select}
                   required
                 >
-                  <option value="">Select...</option>
-                  <option value="counseling">Counseling</option>
-                  <option value="detox">Detoxification</option>
-                  <option value="education">Education</option>
-                  <option value="vocational">Vocational Training</option>
-                  <option value="mental">Mental Health Support</option>
+                  <option value="">Select program type...</option>
+                  <option value="counseling">🧠 Counseling</option>
+                  <option value="detox">🏥 Detoxification</option>
+                  <option value="education">📚 Education</option>
+                  <option value="vocational">💼 Vocational Training</option>
+                  <option value="mental">❤️ Mental Health Support</option>
                 </select>
               </div>
 
@@ -195,24 +303,25 @@ const AdminInterventions = () => {
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Provider *</label>
+                <label style={styles.label}>Service Provider *</label>
                 <input
                   type="text"
                   value={formData.provider}
                   onChange={(e) => setFormData({...formData, provider: e.target.value})}
                   style={styles.input}
                   required
-                  placeholder="Enter provider name"
+                  placeholder="Enter provider name or organization"
                 />
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Notes</label>
+                <label style={styles.label}>Additional Notes</label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  style={{...styles.input, minHeight: '80px', resize: 'vertical'}}
-                  placeholder="Enter any additional notes"
+                  style={styles.textarea}
+                  placeholder="Enter any relevant notes or instructions..."
+                  rows="4"
                 />
               </div>
 
@@ -221,7 +330,7 @@ const AdminInterventions = () => {
                   Cancel
                 </button>
                 <button type="submit" style={styles.submitButton}>
-                  Assign
+                  Assign Program
                 </button>
               </div>
             </form>
@@ -238,23 +347,79 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: 'clamp(16px, 4vw, 24px)',
-    backgroundColor: '#ffffff',
+    padding: '32px 24px',
+    backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    '@media (max-width: 768px)': {
+      padding: '24px 16px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px 12px',
+    }
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '32px',
+    flexWrap: 'wrap',
+    gap: '20px',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    }
+  },
+  headerLeft: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
   },
   title: {
-    fontSize: 'clamp(24px, 5vw, 28px)',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
-    color: '#000000',
+    fontSize: 'clamp(28px, 5vw, 32px)',
+    color: '#0f172a',
+    margin: 0,
     fontWeight: '600',
-    '@media (max-width: 480px)': {
-      textAlign: 'center',
-    }
+    letterSpacing: '-0.02em',
+  },
+  subtitle: {
+    fontSize: 'clamp(14px, 3vw, 16px)',
+    color: '#64748b',
+  },
+  stats: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    padding: '12px 20px',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+  },
+  stat: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: '24px',
+    fontWeight: '600',
+    color: '#0f172a',
+    lineHeight: 1.2,
+  },
+  statLabel: {
+    fontSize: '12px',
+    color: '#64748b',
+  },
+  statDivider: {
+    width: '1px',
+    height: '30px',
+    backgroundColor: '#e2e8f0',
   },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: 'clamp(16px, 3vw, 24px)',
+    gap: '24px',
     '@media (max-width: 768px)': {
       gridTemplateColumns: '1fr',
       gap: '20px',
@@ -262,101 +427,108 @@ const styles = {
   },
   column: {
     backgroundColor: '#ffffff',
-    borderRadius: '12px',
-    padding: 'clamp(16px, 3vw, 24px)',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
     height: 'fit-content',
     maxHeight: 'calc(100vh - 200px)',
     display: 'flex',
     flexDirection: 'column',
-    '@media (max-width: 768px)': {
-      maxHeight: '500px',
-    }
+    overflow: 'hidden',
+  },
+  columnHeader: {
+    padding: '20px 20px 12px 20px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottom: '1px solid #e2e8f0',
   },
   columnTitle: {
-    margin: '0 0 16px 0',
-    color: '#000000',
-    fontSize: 'clamp(16px, 3vw, 18px)',
+    margin: 0,
+    fontSize: '18px',
     fontWeight: '600',
-    paddingBottom: '12px',
-    borderBottom: '2px solid #e0e0e0',
+    color: '#0f172a',
+  },
+  columnBadge: {
+    padding: '4px 12px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '500',
   },
   cardList: {
     flex: 1,
     overflowY: 'auto',
-    paddingRight: '8px',
-    // Custom scrollbar styling
+    padding: '20px',
     scrollbarWidth: 'thin',
-    scrollbarColor: '#cccccc #f5f5f5',
+    scrollbarColor: '#cbd5e1 #f1f5f9',
     '&::-webkit-scrollbar': {
       width: '6px',
     },
     '&::-webkit-scrollbar-track': {
-      background: '#f5f5f5',
+      background: '#f1f5f9',
       borderRadius: '3px',
     },
     '&::-webkit-scrollbar-thumb': {
-      background: '#cccccc',
+      background: '#cbd5e1',
       borderRadius: '3px',
       '&:hover': {
-        background: '#999999',
+        background: '#94a3b8',
       },
     },
   },
   offenderCard: {
-    border: '1px solid #e0e0e0',
-    borderRadius: '10px',
-    padding: 'clamp(12px, 2.5vw, 16px)',
+    border: '1px solid #e2e8f0',
+    borderRadius: '12px',
+    padding: '16px',
     marginBottom: '12px',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#ffffff',
     transition: 'all 0.2s ease',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-      backgroundColor: '#f0f0f0',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
+      borderColor: '#cbd5e1',
     },
-    '@media (max-width: 480px)': {
-      padding: '12px',
-    }
   },
   interventionCard: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: '10px',
-    padding: 'clamp(12px, 2.5vw, 16px)',
+    border: '1px solid #e2e8f0',
+    borderRadius: '12px',
+    padding: '16px',
     marginBottom: '12px',
-    border: '1px solid #e0e0e0',
+    backgroundColor: '#ffffff',
     transition: 'all 0.2s ease',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-      backgroundColor: '#f0f0f0',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
+      borderColor: '#cbd5e1',
     },
-    '@media (max-width: 480px)': {
-      padding: '12px',
-    }
   },
   cardHeader: {
+    marginBottom: '12px',
+  },
+  offenderInfo: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '12px',
-    flexWrap: 'wrap',
-    gap: '8px',
+    marginBottom: '8px',
   },
   offenderName: {
-    color: '#000000',
-    fontSize: 'clamp(14px, 2.5vw, 16px)',
-    wordBreak: 'break-word',
-    flex: 1,
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+  offenderId: {
+    fontSize: '12px',
+    color: '#64748b',
+    fontFamily: 'monospace',
   },
   riskBadge: {
+    display: 'inline-block',
     padding: '4px 10px',
     borderRadius: '20px',
-    color: '#ffffff',
-    fontSize: 'clamp(11px, 2vw, 12px)',
+    fontSize: '12px',
     fontWeight: '500',
-    whiteSpace: 'nowrap',
   },
   needs: {
     display: 'flex',
@@ -365,49 +537,147 @@ const styles = {
     flexWrap: 'wrap',
   },
   need: {
-    backgroundColor: '#e0e0e0',
-    color: '#333333',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
     padding: '4px 10px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
     borderRadius: '20px',
-    fontSize: 'clamp(11px, 2vw, 12px)',
-    border: '1px solid #cccccc',
+    fontSize: '12px',
     fontWeight: '500',
   },
+  needDot: {
+    width: '6px',
+    height: '6px',
+    backgroundColor: '#94a3b8',
+    borderRadius: '50%',
+  },
+  cardFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTop: '1px solid #f1f5f9',
+    paddingTop: '12px',
+  },
+  recommendedDate: {
+    fontSize: '12px',
+    color: '#64748b',
+  },
   assignButton: {
-    width: '100%',
-    padding: 'clamp(8px, 2vw, 10px)',
-    backgroundColor: '#000000',
+    padding: '8px 16px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    borderRadius: '8px',
+    fontSize: '13px',
     fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#1e293b',
       transform: 'translateY(-1px)',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
     },
-    '@media (max-width: 480px)': {
-      padding: '12px',
-    }
+  },
+  interventionType: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
   },
   interventionIcon: {
-    fontSize: 'clamp(18px, 3vw, 20px)',
-    marginRight: '10px',
+    width: '40px',
+    height: '40px',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '20px',
+    color: '#ffffff',
+  },
+  interventionInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  interventionTypeText: {
+    fontSize: '13px',
+    color: '#64748b',
   },
   interventionDetails: {
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#333333',
+    marginBottom: '12px',
+  },
+  detailGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '12px',
+    marginBottom: '12px',
   },
   detailItem: {
-    margin: '6px 0',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  detailLabel: {
+    fontSize: '11px',
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  detailValue: {
+    fontSize: '14px',
+    color: '#0f172a',
+    fontWeight: '500',
+  },
+  notes: {
+    padding: '10px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #f1f5f9',
+  },
+  notesLabel: {
+    fontSize: '12px',
+    color: '#64748b',
+    display: 'block',
+    marginBottom: '4px',
+  },
+  notesText: {
+    margin: 0,
+    fontSize: '13px',
+    color: '#334155',
     lineHeight: '1.5',
-    wordBreak: 'break-word',
+  },
+  progressBar: {
+    height: '4px',
+    backgroundColor: '#f1f5f9',
+    borderRadius: '2px',
+    overflow: 'hidden',
+  },
+  progressFill: {
+    width: '60%',
+    height: '100%',
+    backgroundColor: '#10b981',
+    borderRadius: '2px',
+  },
+  emptyState: {
+    padding: '48px 24px',
+    textAlign: 'center',
+    backgroundColor: '#f8fafc',
+    borderRadius: '12px',
+    border: '1px dashed #cbd5e1',
+  },
+  emptyStateIcon: {
+    fontSize: '32px',
+    marginBottom: '12px',
+    display: 'block',
+  },
+  emptyStateText: {
+    margin: 0,
+    color: '#64748b',
+    fontSize: '14px',
   },
   modal: {
     position: 'fixed',
@@ -415,138 +685,160 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
     padding: '16px',
     animation: 'fadeIn 0.2s ease',
+    backdropFilter: 'blur(4px)',
   },
   modalContent: {
     backgroundColor: '#ffffff',
-    padding: 'clamp(20px, 5vw, 30px)',
-    borderRadius: '12px',
-    maxWidth: '550px',
+    borderRadius: '16px',
+    maxWidth: '600px',
     width: '100%',
     maxHeight: '90vh',
     overflowY: 'auto',
-    position: 'relative',
-    border: '1px solid #e0e0e0',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
     animation: 'slideUp 0.3s ease',
   },
+  modalHeader: {
+    padding: '24px 24px 16px 24px',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
   modalTitle: {
-    margin: '0 0 20px 0',
-    color: '#000000',
-    fontSize: 'clamp(18px, 4vw, 20px)',
+    margin: '0 0 4px 0',
+    fontSize: '20px',
     fontWeight: '600',
-    paddingRight: '30px',
+    color: '#0f172a',
+  },
+  modalSubtitle: {
+    margin: 0,
+    fontSize: '14px',
+    color: '#64748b',
   },
   closeButton: {
-    position: 'absolute',
-    top: '15px',
-    right: '15px',
-    fontSize: 'clamp(20px, 4vw, 24px)',
     background: 'none',
     border: 'none',
+    fontSize: '24px',
     cursor: 'pointer',
-    color: '#666666',
-    width: '32px',
-    height: '32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
+    color: '#94a3b8',
+    padding: '4px 8px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f0f0f0',
-      color: '#000000',
+      backgroundColor: '#f1f5f9',
+      color: '#475569',
     },
+  },
+  formGroup: {
+    padding: '0 24px',
+    marginBottom: '20px',
+  },
+  formRow: {
+    padding: '0 24px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
+    marginBottom: '20px',
     '@media (max-width: 480px)': {
-      top: '10px',
-      right: '10px',
+      gridTemplateColumns: '1fr',
     }
   },
   label: {
-    color: '#333333',
-    fontWeight: '500',
-    marginBottom: '6px',
     display: 'block',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-  },
-  formGroup: {
-    marginBottom: '16px',
-    flex: 1,
-  },
-  formRow: {
-    display: 'flex',
-    gap: 'clamp(12px, 3vw, 16px)',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      gap: '12px',
-    }
+    marginBottom: '6px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#334155',
   },
   input: {
     width: '100%',
-    padding: 'clamp(8px, 2vw, 10px)',
-    border: '1px solid #cccccc',
-    borderRadius: '6px',
-    marginTop: '4px',
+    padding: '10px 12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '14px',
+    color: '#0f172a',
+    transition: 'all 0.2s ease',
     boxSizing: 'border-box',
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    transition: 'border-color 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
+    },
+  },
+  select: {
+    width: '100%',
+    padding: '10px 12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '14px',
+    color: '#0f172a',
+    backgroundColor: '#ffffff',
+    cursor: 'pointer',
+    ':focus': {
+      outline: 'none',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
+    },
+  },
+  textarea: {
+    width: '100%',
+    padding: '10px 12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '14px',
+    color: '#0f172a',
+    fontFamily: 'inherit',
+    resize: 'vertical',
+    boxSizing: 'border-box',
+    ':focus': {
+      outline: 'none',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
   },
   modalButtons: {
-    display: 'flex',
+    padding: '20px 24px 24px 24px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '12px',
-    marginTop: '24px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      gap: '10px',
-    }
+    borderTop: '1px solid #e2e8f0',
   },
   cancelButton: {
-    flex: 1,
-    padding: 'clamp(10px, 2vw, 12px)',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    padding: '12px',
+    backgroundColor: '#ffffff',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '14px',
     fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#555555',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#cbd5e1',
     },
   },
   submitButton: {
-    flex: 1,
-    padding: 'clamp(10px, 2vw, 12px)',
-    backgroundColor: '#000000',
+    padding: '12px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    borderRadius: '8px',
+    fontSize: '14px',
     fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#1e293b',
       transform: 'translateY(-1px)',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',

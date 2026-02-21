@@ -38,10 +38,13 @@ const AdminDashboard = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h1 style={styles.title}>Admin Dashboard</h1>
+        <div style={styles.headerLeft}>
+          <h1 style={styles.title}>Dashboard</h1>
+          <span style={styles.subtitle}>Admin Overview</span>
+        </div>
         <button onClick={fetchDashboardData} style={styles.refreshButton}>
-          <span style={styles.refreshIcon}>🔄</span>
-          <span style={styles.refreshText}>Refresh</span>
+          <span style={styles.refreshIcon}>↻</span>
+          <span style={styles.refreshText}>Refresh Data</span>
         </button>
       </div>
 
@@ -50,48 +53,51 @@ const AdminDashboard = () => {
           title="Total Vetted"
           value={stats.totalVetted}
           icon="👥"
-          color="#000000"
+          color="#2563eb"
           onClick={() => navigate('/offenders')}
         />
         <StatCard
           title="Not Recommended"
           value={stats.notRecommended}
           icon="❌"
-          color="#333333"
+          color="#dc2626"
           onClick={() => navigate('/offenders?filter=not-recommended')}
         />
         <StatCard
           title="Recommended"
           value={stats.recommended}
           icon="✅"
-          color="#666666"
+          color="#16a34a"
           onClick={() => navigate('/recommended')}
         />
         <StatCard
           title="Completed"
           value={stats.completed}
           icon="🎉"
-          color="#999999"
+          color="#9333ea"
           onClick={() => navigate('/reports?type=completed')}
         />
         <StatCard
           title="Defaulted"
           value={stats.defaulted}
           icon="⚠️"
-          color="#4d4d4d"
+          color="#ea580c"
           onClick={() => navigate('/reports?type=defaulted')}
         />
         <StatCard
           title="Active Cases"
           value={stats.active}
           icon="📋"
-          color="#1a1a1a"
+          color="#0891b2"
           onClick={() => navigate('/offenders?filter=active')}
         />
       </div>
 
       <div style={styles.recentActivity}>
-        <h2 style={styles.sectionTitle}>Recent Activity</h2>
+        <div style={styles.sectionHeader}>
+          <h2 style={styles.sectionTitle}>Recent Activity</h2>
+          <span style={styles.activityBadge}>{activities.length} items</span>
+        </div>
         <div style={styles.activityList}>
           {activities.map(activity => (
             <div key={activity.id} style={styles.activityItem}>
@@ -101,14 +107,23 @@ const AdminDashboard = () => {
               </div>
               <div style={styles.activityContent}>
                 <p style={styles.activityDescription}>{activity.description}</p>
-                <p style={styles.activityTime}>
-                  {new Date(activity.timestamp).toLocaleString()}
-                </p>
+                <div style={styles.activityMeta}>
+                  <span style={styles.activityType}>
+                    {activity.type === 'offender' ? 'Offender Update' : 
+                     activity.type === 'assignment' ? 'Assignment' : 'Report'}
+                  </span>
+                  <span style={styles.activityTime}>
+                    {new Date(activity.timestamp).toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
           {activities.length === 0 && (
-            <p style={styles.noActivity}>No recent activity</p>
+            <div style={styles.noActivity}>
+              <span style={styles.noActivityIcon}>📭</span>
+              <p>No recent activity to display</p>
+            </div>
           )}
         </div>
       </div>
@@ -122,14 +137,14 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '20px',
-    backgroundColor: '#ffffff',
+    padding: '32px 24px',
+    backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     '@media (max-width: 768px)': {
-      padding: '15px',
+      padding: '24px 16px',
     },
     '@media (max-width: 480px)': {
-      padding: '10px',
+      padding: '20px 12px',
     }
   },
   header: {
@@ -137,52 +152,70 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '30px',
+    marginBottom: '32px',
     flexWrap: 'wrap',
-    gap: '15px',
+    gap: '16px',
     '@media (max-width: 480px)': {
       flexDirection: 'column',
       alignItems: 'stretch',
-      marginBottom: '20px',
+      marginBottom: '24px',
     }
   },
+  headerLeft: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
   title: {
-    fontSize: 'clamp(24px, 5vw, 32px)',
-    color: '#000000',
+    fontSize: 'clamp(28px, 5vw, 36px)',
+    color: '#0f172a',
     margin: 0,
     fontWeight: '600',
-    '@media (max-width: 480px)': {
-      textAlign: 'center',
-    }
+    letterSpacing: '-0.02em',
+    lineHeight: 1.2,
+  },
+  subtitle: {
+    fontSize: 'clamp(14px, 3vw, 16px)',
+    color: '#64748b',
+    fontWeight: '400',
   },
   refreshButton: {
     backgroundColor: '#ffffff',
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    padding: '10px 20px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    padding: '12px 24px',
     fontSize: '14px',
     fontWeight: '500',
-    color: '#333333',
+    color: '#1e293b',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
+    gap: '10px',
     transition: 'all 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     ':hover': {
-      backgroundColor: '#f5f5f5',
-      borderColor: '#999999',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+      transform: 'translateY(-1px)',
     },
     ':active': {
-      transform: 'scale(0.98)',
+      transform: 'translateY(0)',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     },
     '@media (max-width: 480px)': {
       width: '100%',
-      padding: '12px',
+      padding: '14px',
     }
   },
   refreshIcon: {
-    fontSize: '16px',
+    fontSize: '18px',
+    display: 'inline-block',
+    transition: 'transform 0.3s ease',
+    ':hover': {
+      transform: 'rotate(180deg)',
+    }
   },
   refreshText: {
     '@media (max-width: 320px)': {
@@ -191,12 +224,12 @@ const styles = {
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '20px',
-    marginBottom: '40px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '24px',
+    marginBottom: '48px',
     '@media (max-width: 768px)': {
-      gap: '15px',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gap: '16px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
     },
     '@media (max-width: 480px)': {
       gap: '12px',
@@ -205,84 +238,127 @@ const styles = {
   },
   recentActivity: {
     backgroundColor: '#ffffff',
-    borderRadius: '12px',
-    padding: 'clamp(16px, 4vw, 24px)',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
+    borderRadius: '16px',
+    padding: '24px',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+    border: '1px solid #e2e8f0',
     width: '100%',
     boxSizing: 'border-box',
   },
+  sectionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '24px',
+  },
   sectionTitle: {
     fontSize: 'clamp(18px, 4vw, 20px)',
-    color: '#000000',
-    marginTop: 0,
-    marginBottom: '20px',
+    color: '#0f172a',
+    margin: 0,
     fontWeight: '600',
+    letterSpacing: '-0.01em',
+  },
+  activityBadge: {
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    padding: '4px 12px',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '500',
   },
   activityList: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '8px',
   },
   activityItem: {
     display: 'flex',
-    gap: 'clamp(12px, 3vw, 16px)',
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
+    gap: '16px',
+    padding: '16px',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
     transition: 'all 0.2s ease',
-    border: '1px solid #e0e0e0',
+    border: '1px solid #f1f5f9',
     width: '100%',
     boxSizing: 'border-box',
     ':hover': {
-      backgroundColor: '#e8e8e8',
-      transform: 'translateX(5px)',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#cbd5e1',
+      transform: 'translateX(4px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'flex-start',
+      flexDirection: 'row',
+      padding: '14px',
       ':hover': {
         transform: 'translateY(-2px)',
       }
     }
   },
   activityIcon: {
-    width: 'clamp(35px, 8vw, 40px)',
-    height: 'clamp(35px, 8vw, 40px)',
-    backgroundColor: '#d9d9d9',
-    borderRadius: '50%',
+    width: '44px',
+    height: '44px',
+    backgroundColor: '#f1f5f9',
+    borderRadius: '12px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: 'clamp(16px, 4vw, 20px)',
-    border: '1px solid #b3b3b3',
+    fontSize: '20px',
+    border: '1px solid #e2e8f0',
     flexShrink: 0,
+    transition: 'all 0.2s ease',
+    ':hover': {
+      backgroundColor: '#e2e8f0',
+    }
   },
   activityContent: {
     flex: 1,
-    minWidth: 0, // Prevents text overflow
+    minWidth: 0,
   },
   activityDescription: {
-    margin: '0 0 4px 0',
-    color: '#000000',
-    fontSize: 'clamp(13px, 3.5vw, 14px)',
-    lineHeight: '1.4',
+    margin: '0 0 6px 0',
+    color: '#0f172a',
+    fontSize: 'clamp(14px, 3.5vw, 15px)',
+    lineHeight: '1.5',
+    fontWeight: '500',
     wordWrap: 'break-word',
+  },
+  activityMeta: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '8px',
+  },
+  activityType: {
+    fontSize: '12px',
+    color: '#64748b',
+    backgroundColor: '#f1f5f9',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    fontWeight: '500',
   },
   activityTime: {
     margin: 0,
-    color: '#666666',
-    fontSize: 'clamp(11px, 3vw, 12px)',
+    color: '#94a3b8',
+    fontSize: '12px',
   },
   noActivity: {
     textAlign: 'center',
-    color: '#666666',
-    padding: 'clamp(30px, 8vw, 40px)',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '8px',
-    border: '1px dashed #cccccc',
+    color: '#64748b',
+    padding: '48px 24px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '12px',
+    border: '1px dashed #cbd5e1',
     fontSize: 'clamp(14px, 3.5vw, 16px)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  noActivityIcon: {
+    fontSize: '32px',
+    opacity: 0.7,
   }
 };
 

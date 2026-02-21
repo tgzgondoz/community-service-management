@@ -195,52 +195,63 @@ const AdminRecommendedList = () => {
 
   const getRiskColor = (risk) => {
     switch (risk) {
-      case 'High': return '#666666';
-      case 'Medium': return '#999999';
-      case 'Low': return '#333333';
-      default: return '#cccccc';
+      case 'High': return '#dc2626';
+      case 'Medium': return '#f59e0b';
+      case 'Low': return '#10b981';
+      default: return '#6b7280';
     }
   };
 
   if (loading) {
-    return <div style={styles.loading}>Loading recommended offenders...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <div style={styles.loadingSpinner} />
+        <p style={styles.loadingText}>Loading recommended offenders...</p>
+      </div>
+    );
   }
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Recommended for Community Service (#4)</h2>
-
-      {currentUser && (
-        <div style={styles.userInfo}>
-          <span style={styles.userIcon}>👤</span>
-          <span>Logged in as: <strong>{currentUser.email}</strong> (Admin)</span>
+      {/* Header */}
+      <div style={styles.header}>
+        <div style={styles.headerLeft}>
+          <h1 style={styles.title}>Recommended for Community Service</h1>
+          <span style={styles.subtitle}>Manage assignments for recommended offenders</span>
         </div>
-      )}
+        {currentUser && (
+          <div style={styles.userBadge}>
+            <span style={styles.userBadgeIcon}>👤</span>
+            <span style={styles.userBadgeText}>{currentUser.email}</span>
+          </div>
+        )}
+      </div>
 
-      <div style={styles.stats}>
+      {/* Stats Cards */}
+      <div style={styles.statsGrid}>
         <div style={styles.statCard}>
           <span style={styles.statIcon}>📋</span>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Total Recommended</p>
-            <p style={styles.statValue}>{recommendedOffenders.length}</p>
+            <span style={styles.statValue}>{recommendedOffenders.length}</span>
+            <span style={styles.statLabel}>Total Recommended</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <span style={styles.statIcon}>⏳</span>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Pending Assignment</p>
-            <p style={styles.statValue}>
+            <span style={styles.statValue}>
               {recommendedOffenders.filter(o => o.status !== 'assigned').length}
-            </p>
+            </span>
+            <span style={styles.statLabel}>Pending Assignment</span>
           </div>
         </div>
         <div style={styles.statCard}>
           <span style={styles.statIcon}>✅</span>
           <div style={styles.statContent}>
-            <p style={styles.statLabel}>Assigned</p>
-            <p style={styles.statValue}>
+            <span style={styles.statValue}>
               {recommendedOffenders.filter(o => o.status === 'assigned').length}
-            </p>
+            </span>
+            <span style={styles.statLabel}>Assigned</span>
           </div>
         </div>
       </div>
@@ -293,20 +304,28 @@ const AdminRecommendedList = () => {
           style={styles.filterSelect}
         >
           <option value="name">Sort by Name</option>
-          <option value="risk">Sort by Risk</option>
-          <option value="sentence">Sort by Sentence</option>
+          <option value="risk">Sort by Risk Level</option>
+          <option value="sentence">Sort by Sentence Length</option>
         </select>
 
         <button onClick={fetchRecommendedOffenders} style={styles.refreshButton} title="Refresh">
-          <span style={styles.refreshIcon}>🔄</span>
+          <span style={styles.refreshIcon}>↻</span>
           <span style={styles.refreshText}>Refresh</span>
         </button>
       </div>
 
+      {/* Results Info */}
+      <div style={styles.resultsInfo}>
+        <span style={styles.resultsCount}>
+          Showing {filteredOffenders.length} of {recommendedOffenders.length} offenders
+        </span>
+      </div>
+
+      {/* Offender Cards Grid */}
       {filteredOffenders.length === 0 ? (
         <div style={styles.emptyState}>
           <span style={styles.emptyIcon}>📭</span>
-          <p>No recommended offenders found matching your criteria.</p>
+          <p style={styles.emptyText}>No recommended offenders found matching your criteria.</p>
           <button onClick={() => {
             setSearchTerm('');
             setFilterRisk('all');
@@ -316,91 +335,97 @@ const AdminRecommendedList = () => {
           </button>
         </div>
       ) : (
-        <>
-          <div style={styles.resultsInfo}>
-            Showing {filteredOffenders.length} of {recommendedOffenders.length} offenders
-          </div>
-          
-          <div style={styles.grid}>
-            {filteredOffenders.map(offender => (
-              <div key={offender.id} style={styles.card}>
-                <div style={styles.cardHeader}>
-                  <div style={styles.cardTitleSection}>
-                    <h3 style={styles.cardTitle}>
-                      {offender.firstName} {offender.lastName}
-                    </h3>
-                    <span style={{
-                      ...styles.status,
-                      backgroundColor: offender.status === 'assigned' ? '#333333' : '#666666'
-                    }}>
-                      {offender.status === 'assigned' ? 'Assigned' : 'Pending'}
-                    </span>
-                  </div>
+        <div style={styles.grid}>
+          {filteredOffenders.map(offender => (
+            <div key={offender.id} style={styles.card}>
+              <div style={styles.cardHeader}>
+                <div style={styles.cardTitleSection}>
+                  <h3 style={styles.cardTitle}>
+                    {offender.firstName} {offender.lastName}
+                  </h3>
                   <span style={{
-                    ...styles.riskBadge,
-                    backgroundColor: getRiskColor(offender.riskLevel)
+                    ...styles.statusBadge,
+                    backgroundColor: offender.status === 'assigned' ? '#10b981' : '#f59e0b'
                   }}>
-                    {offender.riskLevel || 'Low'} Risk
+                    {offender.status === 'assigned' ? 'Assigned' : 'Pending'}
                   </span>
                 </div>
+                <span style={{
+                  ...styles.riskBadge,
+                  backgroundColor: getRiskColor(offender.riskLevel)
+                }}>
+                  {offender.riskLevel || 'Low'} Risk
+                </span>
+              </div>
 
-                <div style={styles.cardBody}>
-                  <div style={styles.cardDetail}>
-                    <span style={styles.cardDetailLabel}>Offense:</span>
-                    <span style={styles.cardDetailValue}>{offender.offenseType || 'N/A'}</span>
-                  </div>
-                  
-                  <div style={styles.cardDetail}>
-                    <span style={styles.cardDetailLabel}>Sentence:</span>
-                    <span style={styles.cardDetailValue}>{offender.sentenceLength || '0'} months</span>
-                  </div>
-                  
-                  {offender.assignedTo && (
-                    <div style={styles.cardDetail}>
-                      <span style={styles.cardDetailLabel}>Assigned to:</span>
-                      <span style={styles.cardDetailValue}>{offender.assignedTo}</span>
-                    </div>
-                  )}
-                  
-                  <div style={styles.needs}>
-                    {offender.substanceAbuse && (
-                      <span style={styles.need}>Substance Abuse</span>
-                    )}
-                    {offender.mentalHealthIssues && (
-                      <span style={styles.need}>Mental Health</span>
-                    )}
-                  </div>
+              <div style={styles.cardBody}>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Offense:</span>
+                  <span style={styles.detailValue}>{offender.offenseType || 'N/A'}</span>
                 </div>
-
-                {offender.status !== 'assigned' && (
-                  <button 
-                    onClick={() => handleAssign(offender)}
-                    style={styles.assignButton}
-                  >
-                    Assign to Institution
-                  </button>
+                
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Sentence:</span>
+                  <span style={styles.detailValue}>{offender.sentenceLength || '0'} months</span>
+                </div>
+                
+                {offender.assignedTo && (
+                  <div style={styles.detailItem}>
+                    <span style={styles.detailLabel}>Assigned to:</span>
+                    <span style={styles.detailValue}>{offender.assignedTo}</span>
+                  </div>
                 )}
                 
-                {offender.status === 'assigned' && offender.assignmentDate && (
-                  <div style={styles.assignmentInfo}>
-                    <small>Assigned on: {new Date(offender.assignmentDate).toLocaleDateString()}</small>
-                  </div>
-                )}
+                <div style={styles.needs}>
+                  {offender.substanceAbuse && (
+                    <span style={styles.needTag}>
+                      <span style={styles.needDot} /> Substance Abuse
+                    </span>
+                  )}
+                  {offender.mentalHealthIssues && (
+                    <span style={styles.needTag}>
+                      <span style={styles.needDot} /> Mental Health
+                    </span>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-        </>
+
+              {offender.status !== 'assigned' ? (
+                <button 
+                  onClick={() => handleAssign(offender)}
+                  style={styles.assignButton}
+                >
+                  Assign to Institution →
+                </button>
+              ) : (
+                <div style={styles.assignmentInfo}>
+                  <span style={styles.assignmentIcon}>📅</span>
+                  <span style={styles.assignmentDate}>
+                    Assigned on: {new Date(offender.assignmentDate).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Assignment Modal */}
       {showAssignment && selectedOffender && (
         <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowAssignment(false)}>
           <div style={styles.modalContent}>
-            <h3 style={styles.modalTitle}>Assign to Institution</h3>
-            <button onClick={() => setShowAssignment(false)} style={styles.closeButton}>×</button>
+            <div style={styles.modalHeader}>
+              <div>
+                <h3 style={styles.modalTitle}>Assign to Institution</h3>
+                <p style={styles.modalSubtitle}>
+                  {selectedOffender.firstName} {selectedOffender.lastName}
+                </p>
+              </div>
+              <button onClick={() => setShowAssignment(false)} style={styles.closeButton}>×</button>
+            </div>
             
-            <div style={styles.modalOffenderInfo}>
-              <strong>{selectedOffender.firstName} {selectedOffender.lastName}</strong>
+            <div style={styles.modalRiskInfo}>
+              <span style={styles.modalRiskLabel}>Risk Level:</span>
               <span style={{
                 ...styles.modalRiskBadge,
                 backgroundColor: getRiskColor(selectedOffender.riskLevel)
@@ -483,7 +508,7 @@ const AdminRecommendedList = () => {
                   Cancel
                 </button>
                 <button type="submit" style={styles.submitButton}>
-                  Assign
+                  Create Assignment
                 </button>
               </div>
             </form>
@@ -500,77 +525,107 @@ const styles = {
     minHeight: '100vh',
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: 'clamp(16px, 4vw, 24px)',
-    backgroundColor: '#ffffff',
+    padding: '32px 24px',
+    backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
-  },
-  title: {
-    fontSize: 'clamp(24px, 5vw, 28px)',
-    marginBottom: 'clamp(16px, 3vw, 20px)',
-    color: '#000000',
-    fontWeight: '600',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    '@media (max-width: 768px)': {
+      padding: '24px 16px',
+    },
     '@media (max-width: 480px)': {
-      textAlign: 'center',
+      padding: '20px 12px',
     }
   },
-  userInfo: {
-    backgroundColor: '#f8f8f8',
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 16px)',
-    borderRadius: '8px',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
-    color: '#333333',
-    border: '1px solid #e0e0e0',
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '24px',
+    flexWrap: 'wrap',
+    gap: '16px',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+    }
+  },
+  headerLeft: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  title: {
+    fontSize: 'clamp(28px, 5vw, 32px)',
+    color: '#0f172a',
+    margin: 0,
+    fontWeight: '600',
+    letterSpacing: '-0.02em',
+  },
+  subtitle: {
+    fontSize: 'clamp(14px, 3vw, 16px)',
+    color: '#64748b',
+  },
+  userBadge: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    padding: '8px 16px',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '40px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
-  userIcon: {
+  userBadgeIcon: {
     fontSize: '16px',
   },
-  stats: {
+  userBadgeText: {
+    fontSize: '14px',
+    color: '#1e293b',
+    fontWeight: '500',
+  },
+  statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: 'clamp(12px, 2vw, 16px)',
-    marginBottom: 'clamp(20px, 4vw, 30px)',
+    gap: '16px',
+    marginBottom: '24px',
   },
   statCard: {
     backgroundColor: '#ffffff',
-    padding: 'clamp(16px, 3vw, 20px)',
+    padding: '20px',
     borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     display: 'flex',
     alignItems: 'center',
-    gap: 'clamp(12px, 2vw, 16px)',
-    transition: 'transform 0.2s ease',
+    gap: '16px',
+    transition: 'all 0.2s ease',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+      borderColor: '#cbd5e1',
     },
   },
   statIcon: {
-    fontSize: 'clamp(24px, 5vw, 32px)',
+    fontSize: '32px',
   },
   statContent: {
-    flex: 1,
-  },
-  statLabel: {
-    color: '#666666',
-    margin: '0 0 4px 0',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
   },
   statValue: {
-    fontSize: 'clamp(24px, 5vw, 32px)',
-    fontWeight: 'bold',
-    color: '#000000',
-    margin: 0,
-    lineHeight: 1.2,
+    fontSize: '28px',
+    fontWeight: '600',
+    color: '#0f172a',
+    lineHeight: 1,
+  },
+  statLabel: {
+    fontSize: '14px',
+    color: '#64748b',
   },
   filters: {
     display: 'flex',
-    gap: 'clamp(8px, 2vw, 12px)',
-    marginBottom: 'clamp(16px, 3vw, 24px)',
+    gap: '12px',
+    marginBottom: '16px',
     flexWrap: 'wrap',
     '@media (max-width: 768px)': {
       flexDirection: 'column',
@@ -579,29 +634,30 @@ const styles = {
   searchWrapper: {
     flex: 2,
     position: 'relative',
-    minWidth: '200px',
+    minWidth: '250px',
   },
   searchIcon: {
     position: 'absolute',
     left: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
-    color: '#999999',
+    color: '#94a3b8',
     fontSize: '16px',
   },
   searchInput: {
     width: '100%',
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(10px, 2.5vw, 12px) clamp(10px, 2.5vw, 12px) 40px',
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    padding: '12px 40px 12px 40px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '14px',
     backgroundColor: '#ffffff',
-    color: '#000000',
+    color: '#0f172a',
     boxSizing: 'border-box',
-    transition: 'border-color 0.2s ease',
+    transition: 'all 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
   },
   clearSearch: {
@@ -611,47 +667,52 @@ const styles = {
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
-    color: '#999999',
+    color: '#94a3b8',
     cursor: 'pointer',
     fontSize: '16px',
-    padding: '4px',
+    padding: '4px 8px',
+    borderRadius: '4px',
     ':hover': {
-      color: '#000000',
+      backgroundColor: '#f1f5f9',
+      color: '#475569',
     },
   },
   filterSelect: {
     flex: 1,
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    padding: '12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '14px',
     minWidth: '140px',
     backgroundColor: '#ffffff',
-    color: '#000000',
+    color: '#0f172a',
     cursor: 'pointer',
-    transition: 'border-color 0.2s ease',
+    transition: 'all 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
   },
   refreshButton: {
-    padding: 'clamp(10px, 2.5vw, 12px) clamp(16px, 3vw, 20px)',
-    backgroundColor: '#000000',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    padding: '12px 20px',
+    backgroundColor: '#ffffff',
+    color: '#1e293b',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    fontSize: '14px',
     fontWeight: '500',
+    cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     transition: 'all 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     ':hover': {
-      backgroundColor: '#333333',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#94a3b8',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
@@ -662,6 +723,10 @@ const styles = {
   },
   refreshIcon: {
     fontSize: '16px',
+    transition: 'transform 0.3s ease',
+    ':hover': {
+      transform: 'rotate(180deg)',
+    },
   },
   refreshText: {
     '@media (max-width: 480px)': {
@@ -669,109 +734,131 @@ const styles = {
     },
   },
   resultsInfo: {
-    marginBottom: '16px',
-    color: '#666666',
-    fontSize: '14px',
+    marginBottom: '20px',
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  resultsCount: {
+    padding: '6px 12px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '500',
   },
   emptyState: {
     textAlign: 'center',
-    padding: 'clamp(30px, 8vw, 40px)',
-    backgroundColor: '#f8f8f8',
+    padding: '48px 24px',
+    backgroundColor: '#ffffff',
     borderRadius: '12px',
-    color: '#666666',
-    border: '2px dashed #cccccc',
+    border: '1px dashed #cbd5e1',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
   emptyIcon: {
     fontSize: '48px',
     display: 'block',
     marginBottom: '16px',
   },
+  emptyText: {
+    color: '#64748b',
+    fontSize: '16px',
+    marginBottom: '16px',
+  },
   clearFiltersButton: {
-    marginTop: '16px',
-    padding: '8px 16px',
-    backgroundColor: '#000000',
+    padding: '8px 20px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
+    borderRadius: '8px',
     fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#1e293b',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
     },
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-    gap: 'clamp(16px, 3vw, 20px)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+    gap: '20px',
   },
   card: {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    padding: 'clamp(16px, 3vw, 20px)',
-    border: '1px solid #e0e0e0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'hidden',
     ':hover': {
       transform: 'translateY(-2px)',
-      boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
+      borderColor: '#cbd5e1',
     },
   },
   cardHeader: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    marginBottom: '12px',
+    padding: '16px',
+    borderBottom: '1px solid #f1f5f9',
   },
   cardTitleSection: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: '8px',
     flexWrap: 'wrap',
     gap: '8px',
   },
   cardTitle: {
     margin: 0,
-    fontSize: 'clamp(16px, 3.5vw, 18px)',
-    color: '#000000',
+    fontSize: '18px',
+    color: '#0f172a',
     fontWeight: '600',
   },
-  status: {
+  statusBadge: {
     padding: '4px 10px',
     borderRadius: '20px',
     color: '#ffffff',
-    fontSize: 'clamp(11px, 2vw, 12px)',
+    fontSize: '12px',
     fontWeight: '500',
   },
   riskBadge: {
+    display: 'inline-block',
     padding: '4px 10px',
     borderRadius: '20px',
     color: '#ffffff',
-    fontSize: 'clamp(11px, 2vw, 12px)',
+    fontSize: '12px',
     fontWeight: '500',
-    alignSelf: 'flex-start',
   },
   cardBody: {
-    marginBottom: '16px',
+    padding: '16px',
     flex: 1,
   },
-  cardDetail: {
+  detailItem: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '6px 0',
-    borderBottom: '1px solid #f0f0f0',
+    borderBottom: '1px solid #f1f5f9',
+    ':last-child': {
+      borderBottom: 'none',
+    },
   },
-  cardDetailLabel: {
-    color: '#666666',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+  detailLabel: {
+    color: '#64748b',
+    fontSize: '14px',
     fontWeight: '500',
   },
-  cardDetailValue: {
-    color: '#000000',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+  detailValue: {
+    color: '#0f172a',
+    fontSize: '14px',
+    fontWeight: '500',
     textAlign: 'right',
     maxWidth: '60%',
     wordBreak: 'break-word',
@@ -782,51 +869,84 @@ const styles = {
     marginTop: '12px',
     flexWrap: 'wrap',
   },
-  need: {
-    backgroundColor: '#f0f0f0',
-    color: '#333333',
+  needTag: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
     padding: '4px 10px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
     borderRadius: '20px',
-    fontSize: 'clamp(11px, 2vw, 12px)',
-    border: '1px solid #cccccc',
+    fontSize: '12px',
     fontWeight: '500',
   },
+  needDot: {
+    width: '6px',
+    height: '6px',
+    backgroundColor: '#94a3b8',
+    borderRadius: '50%',
+  },
   assignButton: {
-    width: '100%',
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    backgroundColor: '#000000',
+    margin: '0 16px 16px 16px',
+    padding: '12px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
     borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    fontSize: '14px',
     fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#1e293b',
       transform: 'translateY(-1px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
     },
   },
   assignmentInfo: {
-    marginTop: '12px',
-    padding: '8px',
-    backgroundColor: '#f8f8f8',
-    borderRadius: '6px',
-    textAlign: 'center',
-    color: '#666666',
-    fontSize: '12px',
-    border: '1px solid #e0e0e0',
+    margin: '0 16px 16px 16px',
+    padding: '10px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #e2e8f0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
   },
-  loading: {
-    textAlign: 'center',
-    padding: 'clamp(30px, 8vw, 40px)',
-    color: '#666666',
-    backgroundColor: '#ffffff',
-    fontSize: 'clamp(16px, 4vw, 18px)',
+  assignmentIcon: {
+    fontSize: '14px',
+  },
+  assignmentDate: {
+    fontSize: '13px',
+    color: '#64748b',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '400px',
+    gap: '16px',
+  },
+  loadingSpinner: {
+    width: '40px',
+    height: '40px',
+    border: '3px solid #f1f5f9',
+    borderTopColor: '#0f172a',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+  },
+  loadingText: {
+    color: '#64748b',
+    fontSize: '16px',
   },
   modal: {
     position: 'fixed',
@@ -834,153 +954,149 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
     padding: '16px',
     animation: 'fadeIn 0.2s ease',
+    backdropFilter: 'blur(4px)',
   },
   modalContent: {
     backgroundColor: '#ffffff',
-    padding: 'clamp(20px, 5vw, 30px)',
-    borderRadius: '12px',
-    maxWidth: '550px',
+    borderRadius: '16px',
+    maxWidth: '600px',
     width: '100%',
     maxHeight: '90vh',
     overflow: 'auto',
-    position: 'relative',
-    border: '1px solid #e0e0e0',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
     animation: 'slideUp 0.3s ease',
   },
-  modalTitle: {
-    margin: '0 0 16px 0',
-    color: '#000000',
-    fontSize: 'clamp(18px, 4vw, 20px)',
-    fontWeight: '600',
-    paddingRight: '30px',
-  },
-  modalOffenderInfo: {
-    backgroundColor: '#f8f8f8',
-    padding: '12px',
-    borderRadius: '8px',
-    marginBottom: '20px',
+  modalHeader: {
+    padding: '24px 24px 16px 24px',
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '8px',
-    border: '1px solid #e0e0e0',
+    alignItems: 'flex-start',
   },
-  modalRiskBadge: {
-    padding: '4px 10px',
-    borderRadius: '20px',
-    color: '#ffffff',
-    fontSize: '12px',
-    fontWeight: '500',
+  modalTitle: {
+    margin: '0 0 4px 0',
+    fontSize: '20px',
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+  modalSubtitle: {
+    margin: 0,
+    fontSize: '14px',
+    color: '#64748b',
   },
   closeButton: {
-    position: 'absolute',
-    top: '15px',
-    right: '15px',
-    fontSize: 'clamp(20px, 4vw, 24px)',
     background: 'none',
     border: 'none',
+    fontSize: '24px',
     cursor: 'pointer',
-    color: '#666666',
-    width: '32px',
-    height: '32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
+    color: '#94a3b8',
+    padding: '4px 8px',
+    borderRadius: '6px',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#f0f0f0',
-      color: '#000000',
+      backgroundColor: '#f1f5f9',
+      color: '#475569',
     },
   },
-  label: {
-    color: '#333333',
+  modalRiskInfo: {
+    padding: '16px 24px',
+    backgroundColor: '#f8fafc',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  modalRiskLabel: {
+    fontSize: '14px',
+    color: '#64748b',
     fontWeight: '500',
-    marginBottom: '6px',
-    display: 'block',
-    fontSize: 'clamp(13px, 2.5vw, 14px)',
+  },
+  modalRiskBadge: {
+    padding: '4px 12px',
+    borderRadius: '20px',
+    color: '#ffffff',
+    fontSize: '13px',
+    fontWeight: '500',
   },
   formGroup: {
-    marginBottom: '16px',
-    flex: 1,
+    padding: '0 24px',
+    marginBottom: '20px',
   },
   formRow: {
-    display: 'flex',
-    gap: 'clamp(12px, 3vw, 16px)',
+    padding: '0 24px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
+    marginBottom: '20px',
     '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      gap: '12px',
+      gridTemplateColumns: '1fr',
     }
+  },
+  label: {
+    display: 'block',
+    marginBottom: '6px',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#334155',
   },
   input: {
     width: '100%',
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    border: '1px solid #cccccc',
+    padding: '10px 12px',
+    border: '1px solid #e2e8f0',
     borderRadius: '8px',
-    marginTop: '4px',
+    fontSize: '14px',
+    color: '#0f172a',
+    transition: 'all 0.2s ease',
     boxSizing: 'border-box',
-    backgroundColor: '#ffffff',
-    color: '#000000',
-    fontSize: 'clamp(14px, 3vw, 16px)',
-    transition: 'border-color 0.2s ease',
     ':focus': {
       outline: 'none',
-      borderColor: '#000000',
+      borderColor: '#0f172a',
+      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
     },
   },
   modalButtons: {
-    display: 'flex',
+    padding: '20px 24px 24px 24px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '12px',
-    marginTop: '24px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      gap: '10px',
-    }
+    borderTop: '1px solid #e2e8f0',
   },
   cancelButton: {
-    flex: 1,
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    backgroundColor: '#666666',
-    color: '#ffffff',
-    border: 'none',
+    padding: '12px',
+    backgroundColor: '#ffffff',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
     borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    fontSize: '14px',
     fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#777777',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
+      backgroundColor: '#f8fafc',
+      borderColor: '#cbd5e1',
     },
   },
   submitButton: {
-    flex: 1,
-    padding: 'clamp(10px, 2.5vw, 12px)',
-    backgroundColor: '#000000',
+    padding: '12px',
+    backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
     borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: 'clamp(14px, 3vw, 16px)',
+    fontSize: '14px',
     fontWeight: '500',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
     ':hover': {
-      backgroundColor: '#333333',
+      backgroundColor: '#1e293b',
       transform: 'translateY(-1px)',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     },
     ':active': {
       transform: 'translateY(0)',
@@ -1005,6 +1121,10 @@ style.textContent = `
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 `;
 document.head.appendChild(style);
