@@ -13,28 +13,28 @@ const StatCard = ({
   loading = false
 }) => {
   
-  // Size mappings
+  // Size mappings - use objects instead of string parsing
   const sizeMap = {
     small: {
-      container: 'padding: clamp(12px, 2vw, 16px); gap: clamp(12px, 2vw, 16px);',
-      icon: 'width: clamp(40px, 8vw, 50px); height: clamp(40px, 8vw, 50px);',
-      iconFont: 'font-size: clamp(20px, 4vw, 24px);',
-      title: 'font-size: clamp(12px, 2.5vw, 13px);',
-      value: 'font-size: clamp(20px, 5vw, 24px);'
+      container: { padding: 'clamp(12px, 2vw, 16px)', gap: 'clamp(12px, 2vw, 16px)' },
+      icon: { width: 'clamp(40px, 8vw, 50px)', height: 'clamp(40px, 8vw, 50px)' },
+      iconFont: { fontSize: 'clamp(20px, 4vw, 24px)' },
+      title: { fontSize: 'clamp(12px, 2.5vw, 13px)' },
+      value: { fontSize: 'clamp(20px, 5vw, 24px)' }
     },
     medium: {
-      container: 'padding: clamp(16px, 3vw, 20px); gap: clamp(16px, 3vw, 20px);',
-      icon: 'width: clamp(50px, 10vw, 60px); height: clamp(50px, 10vw, 60px);',
-      iconFont: 'font-size: clamp(24px, 5vw, 30px);',
-      title: 'font-size: clamp(13px, 2.5vw, 14px);',
-      value: 'font-size: clamp(24px, 6vw, 28px);'
+      container: { padding: 'clamp(16px, 3vw, 20px)', gap: 'clamp(16px, 3vw, 20px)' },
+      icon: { width: 'clamp(50px, 10vw, 60px)', height: 'clamp(50px, 10vw, 60px)' },
+      iconFont: { fontSize: 'clamp(24px, 5vw, 30px)' },
+      title: { fontSize: 'clamp(13px, 2.5vw, 14px)' },
+      value: { fontSize: 'clamp(24px, 6vw, 28px)' }
     },
     large: {
-      container: 'padding: clamp(20px, 4vw, 24px); gap: clamp(20px, 4vw, 24px);',
-      icon: 'width: clamp(60px, 12vw, 70px); height: clamp(60px, 12vw, 70px);',
-      iconFont: 'font-size: clamp(28px, 6vw, 35px);',
-      title: 'font-size: clamp(14px, 3vw, 16px);',
-      value: 'font-size: clamp(28px, 7vw, 32px);'
+      container: { padding: 'clamp(20px, 4vw, 24px)', gap: 'clamp(20px, 4vw, 24px)' },
+      icon: { width: 'clamp(60px, 12vw, 70px)', height: 'clamp(60px, 12vw, 70px)' },
+      iconFont: { fontSize: 'clamp(28px, 6vw, 35px)' },
+      title: { fontSize: 'clamp(14px, 3vw, 16px)' },
+      value: { fontSize: 'clamp(28px, 7vw, 32px)' }
     }
   };
 
@@ -90,10 +90,6 @@ const StatCard = ({
             50% { opacity: 1; }
             100% { opacity: 0.6; }
           }
-          
-          .loading-pulse {
-            animation: pulse 1.5s ease-in-out infinite;
-          }
         `}</style>
       </div>
     );
@@ -106,6 +102,7 @@ const StatCard = ({
         borderLeft: `4px solid ${color}`,
         cursor: onClick ? 'pointer' : 'default',
         ...(onClick ? styles.clickable : {}),
+        ...selectedSize.container
       }}
       onClick={onClick}
       role={onClick ? 'button' : 'article'}
@@ -114,24 +111,24 @@ const StatCard = ({
     >
       <div style={{
         ...styles.iconContainer,
-        ...JSON.parse(selectedSize.icon.replace(/(\w+):\s*([^;]+);/g, '"$1":"$2",'))
+        ...selectedSize.icon
       }}>
         <span style={{
           ...styles.icon,
-          ...JSON.parse(selectedSize.iconFont.replace(/(\w+):\s*([^;]+);/g, '"$1":"$2",'))
+          ...selectedSize.iconFont
         }}>{icon}</span>
       </div>
       
       <div style={styles.content}>
         <p style={{
           ...styles.title,
-          ...JSON.parse(selectedSize.title.replace(/(\w+):\s*([^;]+);/g, '"$1":"$2",'))
+          ...selectedSize.title
         }}>{title}</p>
         
         <div style={styles.valueContainer}>
           <p style={{
             ...styles.value,
-            ...JSON.parse(selectedSize.value.replace(/(\w+):\s*([^;]+);/g, '"$1":"$2",'))
+            ...selectedSize.value
           }}>{value}</p>
           
           {subtitle && (
@@ -156,7 +153,6 @@ const StatCard = ({
         )}
       </div>
 
-      {/* Add CSS for hover effects */}
       <style>{`
         @media (hover: hover) {
           .stat-card:hover {
@@ -214,14 +210,6 @@ export const HorizontalStatCard = ({ title, value, icon, color, onClick }) => {
         <p style={styles.horizontalTitle}>{title}</p>
         <p style={styles.horizontalValue}>{value}</p>
       </div>
-      
-      <style>{`
-        @media (max-width: 768px) {
-          .horizontal-card {
-            padding: 12px;
-          }
-        }
-      `}</style>
     </div>
   );
 };
@@ -260,10 +248,6 @@ export const ProgressStatCard = ({ title, value, icon, color, progress, max }) =
           from { width: 0; }
           to { width: ${progressPercentage}%; }
         }
-        
-        .progress-fill {
-          animation: fillBar 1s ease-out forwards;
-        }
       `}</style>
     </div>
   );
@@ -273,10 +257,8 @@ const styles = {
   card: {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    padding: 'clamp(16px, 3vw, 20px)',
     display: 'flex',
     alignItems: 'center',
-    gap: 'clamp(16px, 3vw, 20px)',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
     transition: 'all 0.3s ease',
     border: '1px solid #e0e0e0',
@@ -312,7 +294,7 @@ const styles = {
   },
   content: {
     flex: 1,
-    minWidth: 0, // Prevents text overflow
+    minWidth: 0,
   },
   valueContainer: {
     display: 'flex',
