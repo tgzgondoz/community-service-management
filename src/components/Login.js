@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { InlineSpinner } from './common/LoadingSpinner';
+import { InlineSpinner } from '../components/common/LoadingSpinner';
 
-// Hardcoded admin credentials
 const HARDCODED_ADMIN = {
   email: 'admin@csms.com',
   password: 'admin123',
   role: 'admin'
 };
 
-// Hardcoded user credentials (for demo)
 const HARDCODED_USER = {
   email: 'user@csms.com',
   password: 'user123',
@@ -27,7 +25,6 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  // Check for saved credentials on mount
   useEffect(() => {
     const savedEmail = localStorage.getItem('savedEmail');
     if (savedEmail) {
@@ -42,59 +39,46 @@ const Login = () => {
     setError('');
     
     try {
-      // Save email if remember me is checked
       if (rememberMe) {
         localStorage.setItem('savedEmail', email);
       } else {
         localStorage.removeItem('savedEmail');
       }
       
-      // Check for hardcoded admin first
+      // Check for hardcoded admin
       if (email === HARDCODED_ADMIN.email && password === HARDCODED_ADMIN.password) {
-        console.log('✅ Hardcoded admin login successful');
-        
-        // Store user info in localStorage or session storage
         localStorage.setItem('user', JSON.stringify({
           email: email,
           role: 'admin',
           isHardcoded: true
         }));
-        
-        // Navigate to admin dashboard
         navigate('/dashboard');
-        window.location.reload(); // Force reload to update app state
+        window.location.reload();
         return;
       }
       
       // Check for hardcoded user
       if (email === HARDCODED_USER.email && password === HARDCODED_USER.password) {
-        console.log('✅ Hardcoded user login successful');
-        
-        // Store user info in localStorage
         localStorage.setItem('user', JSON.stringify({
           email: email,
           role: 'user',
           isHardcoded: true
         }));
-        
-        // Navigate to user dashboard
-        navigate('/dashboard');
-        window.location.reload(); // Force reload to update app state
+        navigate('/user-dashboard');
+        window.location.reload();
         return;
       }
       
-      // Regular Firebase authentication for other users
+      // Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Store Firebase user info
       localStorage.setItem('user', JSON.stringify({
         uid: userCredential.user.uid,
         email: email,
-        role: 'user', // Default role, you might want to fetch from DB
+        role: 'user',
         isHardcoded: false
       }));
       
-      navigate('/dashboard');
+      navigate('/user-dashboard');
       window.location.reload();
       
     } catch (error) {
@@ -105,7 +89,6 @@ const Login = () => {
     }
   };
 
-  // Quick login functions for demo
   const loginAsAdmin = () => {
     setEmail(HARDCODED_ADMIN.email);
     setPassword(HARDCODED_ADMIN.password);
@@ -116,14 +99,8 @@ const Login = () => {
     setPassword(HARDCODED_USER.password);
   };
 
-  const handleForgotPassword = () => {
-    alert('Please contact your administrator to reset your password.');
-  };
-
   return (
     <div style={styles.container}>
-      <div style={styles.background}></div>
-      
       <div style={styles.card}>
         <div style={styles.header}>
           <div style={styles.logoContainer}>
@@ -141,9 +118,7 @@ const Login = () => {
         
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>
-              Email address
-            </label>
+            <label style={styles.label}>Email address</label>
             <input
               type="email"
               value={email}
@@ -156,9 +131,7 @@ const Login = () => {
           </div>
           
           <div style={styles.inputGroup}>
-            <label style={styles.label}>
-              Password
-            </label>
+            <label style={styles.label}>Password</label>
             <div style={styles.passwordContainer}>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -189,13 +162,6 @@ const Login = () => {
               />
               <span style={styles.checkboxText}>Remember me</span>
             </label>
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              style={styles.forgotPassword}
-            >
-              Forgot password?
-            </button>
           </div>
           
           <button 
@@ -208,7 +174,7 @@ const Login = () => {
           >
             {loading ? (
               <>
-                <InlineSpinner size="small" color="#ffffff" />
+                <InlineSpinner size="small" />
                 <span style={styles.buttonText}>Signing in...</span>
               </>
             ) : (
@@ -226,7 +192,7 @@ const Login = () => {
               type="button"
               disabled={loading}
             >
-              Admin
+              Admin Login
             </button>
             <button 
               onClick={loginAsUser} 
@@ -234,17 +200,11 @@ const Login = () => {
               type="button"
               disabled={loading}
             >
-              User
+              User Login
             </button>
           </div>
           <p style={styles.quickLoginNote}>
             Use demo credentials for testing
-          </p>
-        </div>
-
-        <div style={styles.footer}>
-          <p style={styles.footerText}>
-            © 2024 Community Service Management System
           </p>
         </div>
       </div>
@@ -259,19 +219,9 @@ const styles = {
     alignItems: 'center',
     minHeight: '100vh',
     backgroundColor: '#f8fafc',
-    position: 'relative',
     padding: 'clamp(16px, 4vw, 24px)',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  background: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#f8fafc',
-    zIndex: 0,
   },
   card: {
     backgroundColor: '#ffffff',
@@ -281,12 +231,7 @@ const styles = {
     width: '100%',
     maxWidth: '440px',
     border: '1px solid #e2e8f0',
-    position: 'relative',
-    zIndex: 1,
     animation: 'slideUp 0.3s ease',
-    '@media (max-width: 480px)': {
-      padding: '32px 24px',
-    },
   },
   header: {
     textAlign: 'center',
@@ -355,18 +300,6 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#0f172a',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-    ':disabled': {
-      backgroundColor: '#f1f5f9',
-      cursor: 'not-allowed',
-    },
-    '::placeholder': {
-      color: '#94a3b8',
-    },
   },
   passwordContainer: {
     position: 'relative',
@@ -382,19 +315,6 @@ const styles = {
     boxSizing: 'border-box',
     backgroundColor: '#ffffff',
     color: '#0f172a',
-    transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-    ':disabled': {
-      backgroundColor: '#f1f5f9',
-      cursor: 'not-allowed',
-    },
-    '::placeholder': {
-      color: '#94a3b8',
-    },
   },
   passwordToggle: {
     position: 'absolute',
@@ -408,14 +328,6 @@ const styles = {
     padding: '4px 8px',
     color: '#64748b',
     fontWeight: '500',
-    transition: 'color 0.2s ease',
-    ':hover': {
-      color: '#0f172a',
-    },
-    ':disabled': {
-      cursor: 'not-allowed',
-      opacity: 0.5,
-    },
   },
   options: {
     display: 'flex',
@@ -442,19 +354,6 @@ const styles = {
   checkboxText: {
     userSelect: 'none',
   },
-  forgotPassword: {
-    background: 'none',
-    border: 'none',
-    color: '#64748b',
-    fontSize: '14px',
-    cursor: 'pointer',
-    padding: '4px',
-    fontWeight: '500',
-    transition: 'color 0.2s ease',
-    ':hover': {
-      color: '#0f172a',
-    },
-  },
   button: {
     backgroundColor: '#0f172a',
     color: '#ffffff',
@@ -470,26 +369,10 @@ const styles = {
     justifyContent: 'center',
     gap: '10px',
     marginTop: '8px',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    ':disabled': {
-      backgroundColor: '#94a3b8',
-      cursor: 'not-allowed',
-      transform: 'none',
-      boxShadow: 'none',
-    },
   },
   buttonDisabled: {
     backgroundColor: '#94a3b8',
-    ':hover': {
-      backgroundColor: '#94a3b8',
-    },
+    cursor: 'not-allowed',
   },
   buttonText: {
     marginLeft: '4px',
@@ -513,9 +396,6 @@ const styles = {
   buttonGroup: {
     display: 'flex',
     gap: '12px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-    },
   },
   quickButton: {
     flex: 1,
@@ -528,19 +408,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-      transform: 'none',
-    },
   },
   quickLoginNote: {
     margin: '12px 0 0 0',
@@ -548,31 +415,24 @@ const styles = {
     color: '#94a3b8',
     textAlign: 'center',
   },
-  footer: {
-    marginTop: '24px',
-    textAlign: 'center',
-  },
-  footerText: {
-    margin: 0,
-    fontSize: '12px',
-    color: '#94a3b8',
-  },
 };
 
 // Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-document.head.appendChild(style);
+  `;
+  document.head.appendChild(style);
+}
 
 export default Login;

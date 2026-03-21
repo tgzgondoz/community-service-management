@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getOffenders, updateOffender, deleteOffender } from '../../utils/database';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const AdminOffenderList = () => {
   const [offenders, setOffenders] = useState([]);
@@ -17,11 +18,9 @@ const AdminOffenderList = () => {
     fetchOffenders();
   }, []);
 
-  // Wrap filterOffenders in useCallback to prevent unnecessary re-renders
   const filterOffenders = useCallback(() => {
     let filtered = [...offenders];
 
-    // Search filter
     if (searchTerm) {
       filtered = filtered.filter(o => 
         o.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -31,7 +30,6 @@ const AdminOffenderList = () => {
       );
     }
 
-    // Status filter
     if (filterStatus !== 'all') {
       if (filterStatus === 'recommended') {
         filtered = filtered.filter(o => o.recommendedForCS === true);
@@ -48,7 +46,6 @@ const AdminOffenderList = () => {
       }
     }
 
-    // Sorting
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -70,7 +67,7 @@ const AdminOffenderList = () => {
     }
 
     setFilteredOffenders(filtered);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
   }, [offenders, searchTerm, filterStatus, sortConfig]);
 
   useEffect(() => {
@@ -126,7 +123,21 @@ const AdminOffenderList = () => {
     }
   };
 
-  // Pagination
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'active':
+        return { backgroundColor: '#e8f5e8', color: '#2e7d32', borderColor: '#a5d6a5' };
+      case 'completed':
+        return { backgroundColor: '#e3f2fd', color: '#1565c0', borderColor: '#90caf9' };
+      case 'defaulted':
+        return { backgroundColor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a' };
+      case 'pending':
+        return { backgroundColor: '#fff3e0', color: '#ef6c00', borderColor: '#ffb74d' };
+      default:
+        return { backgroundColor: '#f5f5f5', color: '#616161', borderColor: '#e0e0e0' };
+    }
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredOffenders.slice(indexOfFirstItem, indexOfLastItem);
@@ -135,17 +146,11 @@ const AdminOffenderList = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loading) {
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingSpinner} />
-        <p style={styles.loadingText}>Loading offenders...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
+    <div className="admin-offender-list" style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>Offender Management</h1>
@@ -156,7 +161,6 @@ const AdminOffenderList = () => {
         </button>
       </div>
 
-      {/* Stats Cards */}
       <div style={styles.statsGrid}>
         <div style={styles.statCard}>
           <span style={styles.statValue}>{offenders.length}</span>
@@ -176,7 +180,6 @@ const AdminOffenderList = () => {
         </div>
       </div>
 
-      {/* Filters */}
       <div style={styles.filters}>
         <div style={styles.searchWrapper}>
           <input
@@ -215,7 +218,6 @@ const AdminOffenderList = () => {
         </div>
       </div>
 
-      {/* Table View - Desktop */}
       <div style={styles.tableContainer}>
         <table style={styles.table}>
           <thead>
@@ -334,7 +336,6 @@ const AdminOffenderList = () => {
         </table>
       </div>
 
-      {/* Card View - Mobile */}
       <div style={styles.mobileCardContainer}>
         {currentItems.map(offender => (
           <div key={offender.id} style={styles.offenderCard}>
@@ -415,7 +416,6 @@ const AdminOffenderList = () => {
         ))}
       </div>
 
-      {/* Pagination */}
       {filteredOffenders.length > 0 && (
         <div style={styles.pagination}>
           <button
@@ -464,7 +464,6 @@ const AdminOffenderList = () => {
         </div>
       )}
 
-      {/* Details Modal */}
       {showDetails && selectedOffender && (
         <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowDetails(false)}>
           <div style={styles.modalContent}>
@@ -580,24 +579,45 @@ const AdminOffenderList = () => {
           </div>
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-offender-list .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+          border-color: #cbd5e1;
+        }
+        
+        .admin-offender-list .table-row:hover {
+          background-color: #f8fafc;
+        }
+        
+        .admin-offender-list .view-button:hover {
+          background-color: #e2e8f0;
+          border-color: #94a3b8;
+        }
+        
+        .admin-offender-list .delete-button:hover {
+          background-color: #ffcdd2;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      ` }} />
     </div>
   );
-};
-
-// Helper function for status styles
-const getStatusStyle = (status) => {
-  switch (status) {
-    case 'active':
-      return { backgroundColor: '#e8f5e8', color: '#2e7d32', borderColor: '#a5d6a5' };
-    case 'completed':
-      return { backgroundColor: '#e3f2fd', color: '#1565c0', borderColor: '#90caf9' };
-    case 'defaulted':
-      return { backgroundColor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a' };
-    case 'pending':
-      return { backgroundColor: '#fff3e0', color: '#ef6c00', borderColor: '#ffb74d' };
-    default:
-      return { backgroundColor: '#f5f5f5', color: '#616161', borderColor: '#e0e0e0' };
-  }
 };
 
 const styles = {
@@ -610,12 +630,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   header: {
     display: 'flex',
@@ -624,10 +638,6 @@ const styles = {
     marginBottom: '24px',
     flexWrap: 'wrap',
     gap: '16px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }
   },
   headerLeft: {
     display: 'flex',
@@ -658,18 +668,6 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    '@media (max-width: 480px)': {
-      justifyContent: 'center',
-    }
   },
   refreshText: {
     fontWeight: '500',
@@ -691,11 +689,6 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-      borderColor: '#cbd5e1',
-    },
   },
   statValue: {
     fontSize: '32px',
@@ -714,10 +707,6 @@ const styles = {
     marginBottom: '24px',
     flexWrap: 'wrap',
     alignItems: 'center',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }
   },
   searchWrapper: {
     flex: 2,
@@ -734,11 +723,6 @@ const styles = {
     color: '#0f172a',
     boxSizing: 'border-box',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
   },
   clearSearch: {
     position: 'absolute',
@@ -751,9 +735,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '13px',
     padding: '4px 8px',
-    ':hover': {
-      color: '#0f172a',
-    },
   },
   filterSelect: {
     flex: 1,
@@ -765,12 +746,6 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#0f172a',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
   },
   resultsCount: {
     padding: '8px 16px',
@@ -788,9 +763,6 @@ const styles = {
     border: '1px solid #e2e8f0',
     overflow: 'auto',
     marginBottom: '24px',
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
   },
   table: {
     width: '100%',
@@ -810,9 +782,6 @@ const styles = {
     cursor: 'pointer',
     userSelect: 'none',
     transition: 'background-color 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-    },
   },
   thContent: {
     display: 'flex',
@@ -826,9 +795,6 @@ const styles = {
   tableRow: {
     borderBottom: '1px solid #f1f5f9',
     transition: 'background-color 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-    },
   },
   td: {
     padding: '16px',
@@ -873,10 +839,6 @@ const styles = {
     transition: 'all 0.2s ease',
     width: '100%',
     maxWidth: '120px',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-    },
   },
   vettedBy: {
     color: '#64748b',
@@ -896,10 +858,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#e2e8f0',
-      borderColor: '#94a3b8',
-    },
   },
   deleteButton: {
     padding: '6px 12px',
@@ -911,18 +869,9 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#ffcdd2',
-    },
   },
   mobileCardContainer: {
     display: 'none',
-    '@media (max-width: 768px)': {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      marginBottom: '24px',
-    },
   },
   offenderCard: {
     backgroundColor: '#ffffff',
@@ -931,11 +880,7 @@ const styles = {
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-      borderColor: '#cbd5e1',
-    },
+    marginBottom: '16px',
   },
   cardHeader: {
     display: 'flex',
@@ -973,10 +918,6 @@ const styles = {
     fontSize: '13px',
     fontWeight: '500',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#e2e8f0',
-    },
   },
   cardDeleteButton: {
     padding: '6px 12px',
@@ -987,10 +928,6 @@ const styles = {
     fontSize: '13px',
     fontWeight: '500',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#ffcdd2',
-    },
   },
   cardDetails: {
     display: 'flex',
@@ -1064,15 +1001,6 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    ':hover:not(:disabled)': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-    },
   },
   pageNumbers: {
     display: 'flex',
@@ -1092,18 +1020,11 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-    },
   },
   activePage: {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     borderColor: '#0f172a',
-    ':hover': {
-      backgroundColor: '#1e293b',
-    },
   },
   itemsPerPage: {
     marginLeft: 'auto',
@@ -1116,30 +1037,6 @@ const styles = {
     color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-    },
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '400px',
-    gap: '16px',
-  },
-  loadingSpinner: {
-    width: '40px',
-    height: '40px',
-    border: '3px solid #f1f5f9',
-    borderTopColor: '#0f172a',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-  loadingText: {
-    color: '#64748b',
-    fontSize: '16px',
   },
   modal: {
     position: 'fixed',
@@ -1193,10 +1090,6 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#0f172a',
-    },
   },
   details: {
     padding: '24px',
@@ -1257,30 +1150,5 @@ const styles = {
     width: 'fit-content',
   },
 };
-
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(style);
 
 export default AdminOffenderList;

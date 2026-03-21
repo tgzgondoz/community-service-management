@@ -92,8 +92,7 @@ const AdminInterventions = () => {
   };
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
+    <div className="admin-interventions" style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>Intervention Management</h1>
@@ -113,7 +112,6 @@ const AdminInterventions = () => {
       </div>
 
       <div style={styles.grid}>
-        {/* Left Column - Offenders Needing Intervention */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>
             <h2 style={styles.columnTitle}>Needs Intervention</h2>
@@ -123,13 +121,13 @@ const AdminInterventions = () => {
           </div>
           <div style={styles.cardList}>
             {offenders.filter(o => !o.hasIntervention).map(offender => (
-              <div key={offender.id} style={styles.offenderCard}>
+              <div key={offender.id} className="offender-card" style={styles.offenderCard}>
                 <div style={styles.cardHeader}>
                   <div style={styles.offenderInfo}>
                     <span style={styles.offenderName}>
                       {offender.firstName} {offender.lastName}
                     </span>
-                    <span style={styles.offenderId}>#{offender.id.slice(0, 8)}</span>
+                    <span style={styles.offenderId}>#{offender.id?.slice(0, 8)}</span>
                   </div>
                   <span style={{
                     ...styles.riskBadge,
@@ -142,14 +140,10 @@ const AdminInterventions = () => {
                 
                 <div style={styles.needs}>
                   {offender.substanceAbuse && (
-                    <span style={styles.need}>
-                      Substance Abuse
-                    </span>
+                    <span style={styles.need}>Substance Abuse</span>
                   )}
                   {offender.mentalHealthIssues && (
-                    <span style={styles.need}>
-                      Mental Health
-                    </span>
+                    <span style={styles.need}>Mental Health</span>
                   )}
                 </div>
 
@@ -174,7 +168,6 @@ const AdminInterventions = () => {
           </div>
         </div>
 
-        {/* Right Column - Active Interventions */}
         <div style={styles.column}>
           <div style={styles.columnHeader}>
             <h2 style={styles.columnTitle}>Active Programs</h2>
@@ -184,7 +177,7 @@ const AdminInterventions = () => {
           </div>
           <div style={styles.cardList}>
             {interventions.filter(i => i.status === 'active').map(intervention => (
-              <div key={intervention.id} style={styles.interventionCard}>
+              <div key={intervention.id} className="intervention-card" style={styles.interventionCard}>
                 <div style={styles.cardHeader}>
                   <div style={styles.interventionType}>
                     <div style={styles.interventionInfo}>
@@ -243,7 +236,6 @@ const AdminInterventions = () => {
         </div>
       </div>
 
-      {/* Assignment Modal */}
       {showForm && (
         <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowForm(false)}>
           <div style={styles.modalContent}>
@@ -335,6 +327,37 @@ const AdminInterventions = () => {
           </div>
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-interventions .offender-card:hover,
+        .admin-interventions .intervention-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+          border-color: #cbd5e1;
+        }
+        
+        .admin-interventions .assign-button:hover {
+          background-color: #1e293b;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      ` }} />
     </div>
   );
 };
@@ -349,12 +372,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   header: {
     display: 'flex',
@@ -363,10 +380,6 @@ const styles = {
     marginBottom: '32px',
     flexWrap: 'wrap',
     gap: '20px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }
   },
   headerLeft: {
     display: 'flex',
@@ -418,10 +431,6 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '24px',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-      gap: '20px',
-    }
   },
   column: {
     backgroundColor: '#ffffff',
@@ -459,22 +468,6 @@ const styles = {
     flex: 1,
     overflowY: 'auto',
     padding: '20px',
-    scrollbarWidth: 'thin',
-    scrollbarColor: '#cbd5e1 #f1f5f9',
-    '&::-webkit-scrollbar': {
-      width: '6px',
-    },
-    '&::-webkit-scrollbar-track': {
-      background: '#f1f5f9',
-      borderRadius: '3px',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      background: '#cbd5e1',
-      borderRadius: '3px',
-      '&:hover': {
-        background: '#94a3b8',
-      },
-    },
   },
   offenderCard: {
     border: '1px solid #e2e8f0',
@@ -483,11 +476,6 @@ const styles = {
     marginBottom: '12px',
     backgroundColor: '#ffffff',
     transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
-      borderColor: '#cbd5e1',
-    },
   },
   interventionCard: {
     border: '1px solid #e2e8f0',
@@ -496,11 +484,6 @@ const styles = {
     marginBottom: '12px',
     backgroundColor: '#ffffff',
     transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
-      borderColor: '#cbd5e1',
-    },
   },
   cardHeader: {
     marginBottom: '12px',
@@ -563,14 +546,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   interventionType: {
     display: 'flex',
@@ -712,10 +687,6 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#0f172a',
-    },
   },
   formGroup: {
     padding: '0 24px',
@@ -727,9 +698,6 @@ const styles = {
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '16px',
     marginBottom: '20px',
-    '@media (max-width: 480px)': {
-      gridTemplateColumns: '1fr',
-    }
   },
   label: {
     display: 'block',
@@ -747,11 +715,6 @@ const styles = {
     color: '#0f172a',
     transition: 'all 0.2s ease',
     boxSizing: 'border-box',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
   },
   select: {
     width: '100%',
@@ -762,11 +725,6 @@ const styles = {
     color: '#0f172a',
     backgroundColor: '#ffffff',
     cursor: 'pointer',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
   },
   textarea: {
     width: '100%',
@@ -778,11 +736,6 @@ const styles = {
     fontFamily: 'inherit',
     resize: 'vertical',
     boxSizing: 'border-box',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
   },
   modalButtons: {
     padding: '20px 24px 24px 24px',
@@ -801,10 +754,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#cbd5e1',
-    },
   },
   submitButton: {
     padding: '12px',
@@ -816,36 +765,7 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
 };
-
-// Add keyframe animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-document.head.appendChild(style);
 
 export default AdminInterventions;

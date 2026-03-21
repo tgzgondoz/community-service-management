@@ -32,9 +32,7 @@ const OffenderProfiling = () => {
   const [formProgress, setFormProgress] = useState(0);
 
   useEffect(() => {
-    // Get current user from Firebase or localStorage
     const getUserInfo = () => {
-      // Check Firebase first
       if (auth.currentUser) {
         setCurrentUser({
           uid: auth.currentUser.uid,
@@ -43,7 +41,6 @@ const OffenderProfiling = () => {
         return;
       }
 
-      // Check localStorage for hardcoded user
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         try {
@@ -62,7 +59,6 @@ const OffenderProfiling = () => {
     getUserInfo();
   }, []);
 
-  // Calculate form progress
   useEffect(() => {
     const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'offenseType'];
     const filledRequired = requiredFields.filter(field => formData[field]).length;
@@ -90,12 +86,10 @@ const OffenderProfiling = () => {
     setMessage('');
     
     try {
-      // Validate required fields
       if (!formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.offenseType) {
         throw new Error('Please fill in all required fields');
       }
 
-      // Get user info with fallback
       const userEmail = currentUser?.email || 'unknown@user.com';
       const userUid = currentUser?.uid || 'unknown-uid';
 
@@ -107,7 +101,6 @@ const OffenderProfiling = () => {
         createdBy: userUid
       };
 
-      // Remove any undefined values
       Object.keys(offenderData).forEach(key => {
         if (offenderData[key] === undefined) {
           offenderData[key] = '';
@@ -119,7 +112,6 @@ const OffenderProfiling = () => {
       setMessageType('success');
       setMessage('Profile created successfully!');
       
-      // Reset form
       setFormData({
         firstName: '', lastName: '', dateOfBirth: '', address: '', phone: '', email: '',
         offenseType: '', offenseDate: '', sentenceLength: '', riskLevel: 'Low',
@@ -129,7 +121,6 @@ const OffenderProfiling = () => {
       });
       setCurrentStep(1);
       
-      // Auto-hide success message after 5 seconds
       setTimeout(() => setMessage(''), 5000);
     } catch (error) {
       console.error('Error creating profile:', error);
@@ -156,7 +147,7 @@ const OffenderProfiling = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="offender-profiling" style={styles.container}>
       <div style={styles.header}>
         <h1 style={styles.title}>Offender Profiling</h1>
         <p style={styles.subtitle}>Create a new offender profile</p>
@@ -192,7 +183,6 @@ const OffenderProfiling = () => {
         </div>
       )}
       
-      {/* Step Indicators */}
       <div style={styles.stepIndicator}>
         {[1, 2, 3].map(step => (
           <div key={step} style={styles.stepItem}>
@@ -211,7 +201,6 @@ const OffenderProfiling = () => {
       </div>
       
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Step 1: Personal Information */}
         {currentStep === 1 && (
           <div style={styles.formSection}>
             <h2 style={styles.sectionTitle}>Personal Information</h2>
@@ -301,7 +290,6 @@ const OffenderProfiling = () => {
           </div>
         )}
 
-        {/* Step 2: Offense Details */}
         {currentStep === 2 && (
           <div style={styles.formSection}>
             <h2 style={styles.sectionTitle}>Offense Details</h2>
@@ -369,7 +357,6 @@ const OffenderProfiling = () => {
           </div>
         )}
 
-        {/* Step 3: Risk Assessment */}
         {currentStep === 3 && (
           <div style={styles.formSection}>
             <h2 style={styles.sectionTitle}>Risk Assessment</h2>
@@ -481,7 +468,6 @@ const OffenderProfiling = () => {
           </div>
         )}
 
-        {/* Navigation Buttons */}
         <div style={styles.buttonGroup}>
           {currentStep > 1 && (
             <button 
@@ -521,6 +507,43 @@ const OffenderProfiling = () => {
           )}
         </div>
       </form>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .offender-profiling .primary-button:hover,
+        .offender-profiling .submit-button:hover {
+          background-color: #1e293b;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .offender-profiling .secondary-button:hover {
+          background-color: #f8fafc;
+          border-color: #94a3b8;
+          transform: translateY(-1px);
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+      ` }} />
     </div>
   );
 };
@@ -535,12 +558,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   header: {
     marginBottom: '24px',
@@ -647,9 +664,6 @@ const styles = {
     borderRadius: '16px',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
     border: '1px solid #e2e8f0',
-    '@media (max-width: 640px)': {
-      padding: '20px',
-    },
   },
   formSection: {
     marginBottom: '24px',
@@ -668,10 +682,6 @@ const styles = {
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '16px',
     marginBottom: '16px',
-    '@media (max-width: 640px)': {
-      gridTemplateColumns: '1fr',
-      gap: '12px',
-    },
   },
   formGroup: {
     marginBottom: '16px',
@@ -697,14 +707,6 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#0f172a',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-    ':hover': {
-      borderColor: '#94a3b8',
-    },
   },
   checkboxGroup: {
     marginBottom: '12px',
@@ -731,9 +733,6 @@ const styles = {
     display: 'flex',
     gap: '16px',
     marginTop: '24px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-    },
   },
   primaryButton: {
     flex: 1,
@@ -746,19 +745,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-      transform: 'none',
-    },
   },
   secondaryButton: {
     flex: 1,
@@ -771,19 +757,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-      transform: 'none',
-    },
   },
   submitButton: {
     flex: 2,
@@ -800,19 +773,6 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-      transform: 'none',
-    },
   },
   buttonText: {
     marginLeft: '4px',
@@ -837,9 +797,6 @@ const styles = {
     borderRadius: '4px',
     opacity: 0.7,
     transition: 'opacity 0.2s ease',
-    ':hover': {
-      opacity: 1,
-    },
   },
   successMessage: {
     backgroundColor: '#f0fdf4',
@@ -852,32 +809,5 @@ const styles = {
     border: '1px solid #fecaca',
   },
 };
-
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-`;
-document.head.appendChild(style);
 
 export default OffenderProfiling;

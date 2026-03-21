@@ -22,7 +22,6 @@ const UserProfile = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
-    // Get user email
     if (auth.currentUser) {
       setUserEmail(auth.currentUser.email);
       loadProfile();
@@ -32,7 +31,6 @@ const UserProfile = () => {
         try {
           const userData = JSON.parse(storedUser);
           setUserEmail(userData.email);
-          // For hardcoded users, set default profile
           const defaultProfile = {
             displayName: userData.displayName || userData.email.split('@')[0],
             phone: '',
@@ -97,7 +95,6 @@ const UserProfile = () => {
 
     try {
       if (!auth.currentUser) {
-        // For hardcoded users, just show success message
         setMessage({ 
           text: 'Profile updated successfully! (Demo mode)', 
           type: 'success' 
@@ -139,8 +136,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div style={styles.container}>
-      {/* Header with Cover Photo */}
+    <div className="user-profile" style={styles.container}>
       <div style={styles.coverPhoto}>
         <div style={styles.coverOverlay}>
           <div style={styles.profileHeader}>
@@ -169,7 +165,6 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div style={styles.tabContainer}>
         <button
           style={{
@@ -200,7 +195,6 @@ const UserProfile = () => {
         </button>
       </div>
 
-      {/* Message Display */}
       {message.text && (
         <div style={{
           ...styles.message,
@@ -218,7 +212,6 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Profile Tab Content */}
       {activeTab === 'profile' && (
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formSection}>
@@ -341,7 +334,6 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Form Actions */}
           <div style={styles.formActions}>
             <button 
               type="button" 
@@ -376,7 +368,6 @@ const UserProfile = () => {
         </form>
       )}
 
-      {/* Settings Tab Content */}
       {activeTab === 'settings' && (
         <div style={styles.settingsContainer}>
           <div style={styles.settingsSection}>
@@ -444,7 +435,6 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Activity Tab Content */}
       {activeTab === 'activity' && (
         <div style={styles.activityContainer}>
           <h2 style={styles.sectionTitle}>Recent Activity</h2>
@@ -497,7 +487,6 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div style={styles.modal} onClick={() => setShowConfirmDialog(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
@@ -522,6 +511,47 @@ const UserProfile = () => {
           </div>
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .user-profile .setting-item:hover {
+          background-color: #f1f5f9;
+          border-color: #cbd5e1;
+        }
+        
+        .user-profile .setting-button:hover,
+        .user-profile .view-all-button:hover {
+          background-color: #f1f5f9;
+          border-color: #94a3b8;
+          transform: translateY(-1px);
+        }
+        
+        .user-profile .danger-button:hover {
+          background-color: #fee2e2;
+          transform: translateY(-1px);
+        }
+        
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      ` }} />
     </div>
   );
 };
@@ -567,10 +597,6 @@ const styles = {
     gap: '20px',
     flex: 1,
     flexWrap: 'wrap',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      textAlign: 'center',
-    },
   },
   avatar: {
     width: '80px',
@@ -615,10 +641,6 @@ const styles = {
     color: '#475569',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#e2e8f0',
-      transform: 'translateY(-1px)',
-    },
   },
   tabContainer: {
     display: 'flex',
@@ -638,10 +660,6 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     borderRadius: '8px 8px 0 0',
-    ':hover': {
-      color: '#0f172a',
-      backgroundColor: '#f1f5f9',
-    },
   },
   activeTab: {
     color: '#0f172a',
@@ -660,11 +678,6 @@ const styles = {
     marginBottom: '30px',
     paddingBottom: '24px',
     borderBottom: '1px solid #e2e8f0',
-    ':last-child': {
-      borderBottom: 'none',
-      marginBottom: 0,
-      paddingBottom: 0,
-    },
   },
   sectionTitle: {
     fontSize: '18px',
@@ -677,10 +690,6 @@ const styles = {
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '16px',
     marginBottom: '16px',
-    '@media (max-width: 640px)': {
-      gridTemplateColumns: '1fr',
-      gap: '12px',
-    },
   },
   formGroup: {
     marginBottom: '16px',
@@ -702,14 +711,6 @@ const styles = {
     backgroundColor: '#ffffff',
     color: '#0f172a',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-    ':hover': {
-      borderColor: '#94a3b8',
-    },
   },
   helperText: {
     display: 'block',
@@ -721,9 +722,6 @@ const styles = {
     display: 'flex',
     gap: '16px',
     marginTop: '24px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-    },
   },
   cancelButton: {
     flex: 1,
@@ -736,15 +734,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover:not(:disabled)': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-    },
   },
   saveButton: {
     flex: 2,
@@ -764,11 +753,6 @@ const styles = {
   },
   saveButtonActive: {
     backgroundColor: '#0f172a',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
   },
   saveButtonDisabled: {
     cursor: 'not-allowed',
@@ -802,9 +786,6 @@ const styles = {
     borderRadius: '4px',
     opacity: 0.7,
     transition: 'opacity 0.2s ease',
-    ':hover': {
-      opacity: 1,
-    },
   },
   successMessage: {
     backgroundColor: '#f0fdf4',
@@ -843,10 +824,7 @@ const styles = {
     flexWrap: 'wrap',
     gap: '12px',
     border: '1px solid #f1f5f9',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-    },
+    transition: 'all 0.2s ease',
   },
   settingInfo: {
     flex: 1,
@@ -875,14 +853,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    '@media (max-width: 480px)': {
-      width: '100%',
-    },
   },
   dangerSection: {
     backgroundColor: '#fef2f2',
@@ -912,13 +882,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#fee2e2',
-      transform: 'translateY(-1px)',
-    },
-    '@media (max-width: 480px)': {
-      width: '100%',
-    },
   },
   activityContainer: {
     backgroundColor: '#ffffff',
@@ -934,9 +897,6 @@ const styles = {
   timelineItem: {
     padding: '16px 0',
     borderBottom: '1px solid #f1f5f9',
-    ':last-child': {
-      borderBottom: 'none',
-    },
   },
   timelineContent: {
     flex: 1,
@@ -967,10 +927,6 @@ const styles = {
     cursor: 'pointer',
     marginTop: '20px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      borderColor: '#cbd5e1',
-    },
   },
   modal: {
     position: 'fixed',
@@ -1010,9 +966,6 @@ const styles = {
   modalActions: {
     display: 'flex',
     gap: '12px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-    },
   },
   modalCancelButton: {
     flex: 1,
@@ -1024,10 +977,6 @@ const styles = {
     color: '#475569',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-    },
   },
   modalConfirmButton: {
     flex: 1,
@@ -1040,37 +989,7 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-    },
   },
 };
-
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-document.head.appendChild(style);
 
 export default UserProfile;

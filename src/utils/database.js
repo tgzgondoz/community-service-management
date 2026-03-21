@@ -9,7 +9,6 @@ export const getUserRole = async (uid) => {
     if (snapshot.exists()) {
       return snapshot.val().role || 'user';
     }
-    // Default to user if not found
     return 'user';
   } catch (error) {
     console.error('Error getting user role:', error);
@@ -356,5 +355,4 @@ const database = {
   updateUserProfile
 };
 
-// Default export for backward compatibility if needed
 export default database;

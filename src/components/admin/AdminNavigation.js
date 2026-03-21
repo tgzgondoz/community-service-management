@@ -9,7 +9,6 @@ const AdminNavigation = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -18,12 +17,10 @@ const AdminNavigation = ({ onLogout }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close nav on route change
   useEffect(() => {
     setIsNavOpen(false);
   }, [location.pathname]);
 
-  // Prevent body scroll when nav is open
   useEffect(() => {
     if (isNavOpen) {
       document.body.style.overflow = 'hidden';
@@ -72,14 +69,13 @@ const AdminNavigation = ({ onLogout }) => {
 
   return (
     <>
-      {/* Top Header Bar */}
-      <header style={{
+      <header className="admin-header" style={{
         ...styles.header,
         ...(scrolled ? styles.headerScrolled : {}),
-        boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.1)' : 'none',
       }}>
         <div style={styles.headerLeft}>
           <button 
+            className="menu-button"
             style={styles.menuButton}
             onClick={toggleNav}
             aria-label="Toggle navigation menu"
@@ -102,14 +98,13 @@ const AdminNavigation = ({ onLogout }) => {
         </div>
         
         <div style={styles.headerRight}>
-          <button onClick={handleLogout} style={styles.logoutButton}>
+          <button onClick={handleLogout} className="logout-button" style={styles.logoutButton}>
             <span style={styles.logoutIcon}>→</span>
             <span style={styles.logoutText}>Sign out</span>
           </button>
         </div>
       </header>
 
-      {/* Navigation Overlay */}
       {isNavOpen && (
         <div 
           style={styles.overlay}
@@ -117,8 +112,7 @@ const AdminNavigation = ({ onLogout }) => {
         />
       )}
 
-      {/* Side Navigation */}
-      <nav style={{
+      <nav className="admin-nav" style={{
         ...styles.nav,
         transform: isNavOpen ? 'translateX(0)' : 'translateX(-100%)',
       }}>
@@ -131,6 +125,7 @@ const AdminNavigation = ({ onLogout }) => {
           {menuItems.map(item => (
             <button
               key={item.path}
+              className="nav-item"
               onClick={() => {
                 navigate(item.path);
                 setIsNavOpen(false);
@@ -148,29 +143,68 @@ const AdminNavigation = ({ onLogout }) => {
 
         <div style={styles.navFooter}>
           <div style={styles.userInfo}>
-            <div style={styles.userAvatar}>
-              A
-            </div>
+            <div style={styles.userAvatar}>A</div>
             <div style={styles.userDetails}>
               <span style={styles.userName}>Admin User</span>
               <span style={styles.userEmail}>admin@csms.com</span>
             </div>
           </div>
-          <button onClick={handleLogout} style={styles.navLogoutButton}>
+          <button onClick={handleLogout} className="nav-logout-button" style={styles.navLogoutButton}>
             <span style={styles.navLogoutIcon}>→</span>
             <span>Sign out</span>
           </button>
         </div>
       </nav>
 
-      {/* Main Content Spacer */}
       <div style={styles.spacer} />
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-header {
+          transition: all 0.2s ease;
+        }
+        
+        .menu-button:hover .menu-bar {
+          background-color: #0f172a;
+        }
+        
+        .logout-button:hover {
+          background-color: #f1f5f9;
+          border-color: #cbd5e1;
+          transform: translateY(-1px);
+        }
+        
+        .nav-item:hover {
+          background-color: #f8fafc;
+          color: #0f172a;
+        }
+        
+        .nav-logout-button:hover {
+          background-color: #f1f5f9;
+          border-color: #cbd5e1;
+          transform: translateY(-1px);
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-50%) translateX(-5px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+          }
+        }
+      ` }} />
     </>
   );
 };
 
 const styles = {
-  // Header Styles
   header: {
     position: 'fixed',
     top: 0,
@@ -184,7 +218,6 @@ const styles = {
     justifyContent: 'space-between',
     padding: '0 24px',
     zIndex: 900,
-    transition: 'all 0.2s ease',
   },
   headerScrolled: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -249,26 +282,12 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      borderColor: '#cbd5e1',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   logoutIcon: {
     fontSize: '14px',
     transform: 'rotate(180deg)',
   },
-  logoutText: {
-    '@media (max-width: 480px)': {
-      display: 'none',
-    },
-  },
-
-  // Overlay
+  logoutText: {},
   overlay: {
     position: 'fixed',
     top: 0,
@@ -280,8 +299,6 @@ const styles = {
     animation: 'fadeIn 0.2s ease',
     backdropFilter: 'blur(4px)',
   },
-
-  // Navigation Styles
   nav: {
     position: 'fixed',
     top: 0,
@@ -338,10 +355,6 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     position: 'relative',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      color: '#0f172a',
-    },
   },
   navItemActive: {
     backgroundColor: '#f1f5f9',
@@ -418,61 +431,14 @@ const styles = {
     alignItems: 'center',
     gap: '12px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      borderColor: '#cbd5e1',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   navLogoutIcon: {
     fontSize: '14px',
     transform: 'rotate(180deg)',
   },
   spacer: {
-    height: '64px', // Height of the header
+    height: '64px',
   },
 };
-
-// Add global animations and styles
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-50%) translateX(-5px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(-50%) translateX(0);
-    }
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  button {
-    cursor: pointer;
-  }
-`;
-document.head.appendChild(style);
 
 export default AdminNavigation;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getStats, getOffenders, getAssignments } from '../../utils/database';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const AdminReports = () => {
   const [stats, setStats] = useState(null);
@@ -33,7 +34,6 @@ const AdminReports = () => {
     }
   };
 
-  // Filter by date range
   const filterByDateRange = (items, dateField) => {
     if (dateRange === 'all') return items;
     
@@ -51,7 +51,6 @@ const AdminReports = () => {
     return items.filter(item => new Date(item[dateField]) >= filterDate);
   };
 
-  // Sort function
   const sortData = (data, key, direction) => {
     if (!key) return data;
     
@@ -59,13 +58,11 @@ const AdminReports = () => {
       let aValue = a[key];
       let bValue = b[key];
       
-      // Handle date fields
       if (key.includes('Date') || key === 'createdAt') {
         aValue = new Date(aValue || 0).getTime();
         bValue = new Date(bValue || 0).getTime();
       }
       
-      // Handle string comparison
       if (typeof aValue === 'string') {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
@@ -77,7 +74,6 @@ const AdminReports = () => {
     });
   };
 
-  // Pagination
   const getPaginatedData = (data) => {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -101,7 +97,6 @@ const AdminReports = () => {
       });
       filename = 'assignments_report';
     } else {
-      // Summary report as JSON
       const blob = new Blob([JSON.stringify(stats, null, 2)], { type: 'application/json' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -130,7 +125,6 @@ const AdminReports = () => {
     });
   };
 
-  // Prepare data based on filters and sorting
   const getFilteredData = () => {
     let data = [];
     if (reportType === 'offenders') {
@@ -147,18 +141,42 @@ const AdminReports = () => {
   const paginatedData = getPaginatedData(filteredData);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'active':
+        return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
+      case 'completed':
+        return { backgroundColor: '#e3f2fd', color: '#1565c0' };
+      case 'defaulted':
+        return { backgroundColor: '#ffebee', color: '#c62828' };
+      case 'pending':
+        return { backgroundColor: '#fff3e0', color: '#ef6c00' };
+      default:
+        return { backgroundColor: '#f5f5f5', color: '#616161' };
+    }
+  };
+
+  const getAssignmentStatusStyle = (status) => {
+    switch (status) {
+      case 'completed':
+        return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
+      case 'active':
+        return { backgroundColor: '#e3f2fd', color: '#1565c0' };
+      case 'defaulted':
+        return { backgroundColor: '#ffebee', color: '#c62828' };
+      case 'new':
+        return { backgroundColor: '#fff3e0', color: '#ef6c00' };
+      default:
+        return { backgroundColor: '#f5f5f5', color: '#616161' };
+    }
+  };
+
   if (loading) {
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingSpinner} />
-        <p style={styles.loadingText}>Loading reports...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
+    <div className="admin-reports" style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>Reports & Analytics</h1>
@@ -166,7 +184,6 @@ const AdminReports = () => {
         </div>
       </div>
 
-      {/* Controls */}
       <div style={styles.controls}>
         <div style={styles.controlGroup}>
           <label style={styles.controlLabel}>Report Type</label>
@@ -216,7 +233,6 @@ const AdminReports = () => {
         </div>
       </div>
 
-      {/* Summary Report */}
       {reportType === 'summary' && stats && (
         <div style={styles.summary}>
           <div style={styles.sectionHeader}>
@@ -330,7 +346,6 @@ const AdminReports = () => {
         </div>
       )}
 
-      {/* Offenders Report */}
       {reportType === 'offenders' && (
         <div style={styles.reportContainer}>
           <div style={styles.sectionHeader}>
@@ -340,7 +355,6 @@ const AdminReports = () => {
             </span>
           </div>
           
-          {/* Desktop Table View */}
           <div style={styles.desktopTable}>
             <table style={styles.table}>
               <thead>
@@ -425,7 +439,7 @@ const AdminReports = () => {
                       )}
                     </div>
                   </th>
-                </tr>
+                 </tr>
               </thead>
               <tbody>
                 {paginatedData.map(o => (
@@ -467,7 +481,6 @@ const AdminReports = () => {
             </table>
           </div>
 
-          {/* Mobile Card View */}
           <div style={styles.mobileCards}>
             {paginatedData.map(o => (
               <div key={o.id} style={styles.reportCard}>
@@ -521,7 +534,6 @@ const AdminReports = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {filteredData.length > 0 && (
             <div style={styles.pagination}>
               <button
@@ -588,7 +600,6 @@ const AdminReports = () => {
         </div>
       )}
 
-      {/* Assignments Report */}
       {reportType === 'assignments' && (
         <div style={styles.reportContainer}>
           <div style={styles.sectionHeader}>
@@ -598,7 +609,6 @@ const AdminReports = () => {
             </span>
           </div>
           
-          {/* Desktop Table View */}
           <div style={styles.desktopTable}>
             <table style={styles.table}>
               <thead>
@@ -683,7 +693,7 @@ const AdminReports = () => {
                       )}
                     </div>
                   </th>
-                </tr>
+                 </tr>
               </thead>
               <tbody>
                 {paginatedData.map(a => (
@@ -711,7 +721,6 @@ const AdminReports = () => {
             </table>
           </div>
 
-          {/* Mobile Card View */}
           <div style={styles.mobileCards}>
             {paginatedData.map(a => (
               <div key={a.id} style={styles.reportCard}>
@@ -753,7 +762,6 @@ const AdminReports = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {filteredData.length > 0 && (
             <div style={styles.pagination}>
               <button
@@ -819,39 +827,49 @@ const AdminReports = () => {
           )}
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-reports .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+          border-color: #cbd5e1;
+        }
+        
+        .admin-reports .export-button:hover,
+        .admin-reports .print-button:hover,
+        .admin-reports .refresh-button:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .admin-reports .table-row:hover {
+          background-color: #f8fafc;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .admin-reports, .admin-reports * {
+            visibility: visible;
+          }
+          .admin-reports {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .controls, .refresh-button, .print-button, .export-button {
+            display: none;
+          }
+        }
+      ` }} />
     </div>
   );
-};
-
-// Helper function for status styles
-const getStatusStyle = (status) => {
-  switch (status) {
-    case 'active':
-      return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
-    case 'completed':
-      return { backgroundColor: '#e3f2fd', color: '#1565c0' };
-    case 'defaulted':
-      return { backgroundColor: '#ffebee', color: '#c62828' };
-    case 'pending':
-      return { backgroundColor: '#fff3e0', color: '#ef6c00' };
-    default:
-      return { backgroundColor: '#f5f5f5', color: '#616161' };
-  }
-};
-
-const getAssignmentStatusStyle = (status) => {
-  switch (status) {
-    case 'completed':
-      return { backgroundColor: '#e8f5e8', color: '#2e7d32' };
-    case 'active':
-      return { backgroundColor: '#e3f2fd', color: '#1565c0' };
-    case 'defaulted':
-      return { backgroundColor: '#ffebee', color: '#c62828' };
-    case 'new':
-      return { backgroundColor: '#fff3e0', color: '#ef6c00' };
-    default:
-      return { backgroundColor: '#f5f5f5', color: '#616161' };
-  }
 };
 
 const styles = {
@@ -864,12 +882,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   header: {
     display: 'flex',
@@ -906,10 +918,6 @@ const styles = {
     borderRadius: '12px',
     border: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }
   },
   controlGroup: {
     flex: 1,
@@ -934,24 +942,10 @@ const styles = {
     color: '#0f172a',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-    ':disabled': {
-      backgroundColor: '#f8fafc',
-      cursor: 'not-allowed',
-    },
   },
   actionButtons: {
     display: 'flex',
     gap: '8px',
-    marginLeft: 'auto',
-    '@media (max-width: 768px)': {
-      marginLeft: 0,
-      width: '100%',
-    }
   },
   exportButton: {
     padding: '10px 16px',
@@ -963,14 +957,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   printButton: {
     padding: '10px 16px',
@@ -982,14 +968,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   refreshButton: {
     padding: '10px 16px',
@@ -1001,14 +979,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   buttonText: {
     fontWeight: '500',
@@ -1042,6 +1012,14 @@ const styles = {
     fontSize: '13px',
     fontWeight: '500',
   },
+  resultCount: {
+    padding: '4px 12px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '500',
+  },
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -1055,11 +1033,6 @@ const styles = {
     border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
     textAlign: 'center',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-      borderColor: '#cbd5e1',
-    },
   },
   statContent: {
     display: 'flex',
@@ -1136,19 +1109,8 @@ const styles = {
     border: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
-  resultCount: {
-    padding: '4px 12px',
-    backgroundColor: '#f1f5f9',
-    color: '#475569',
-    borderRadius: '20px',
-    fontSize: '13px',
-    fontWeight: '500',
-  },
   desktopTable: {
     overflow: 'auto',
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
   },
   table: {
     width: '100%',
@@ -1168,9 +1130,6 @@ const styles = {
     cursor: 'pointer',
     userSelect: 'none',
     transition: 'background-color 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-    },
   },
   thContent: {
     display: 'flex',
@@ -1184,9 +1143,6 @@ const styles = {
   tableRow: {
     borderBottom: '1px solid #f1f5f9',
     transition: 'background-color 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-    },
   },
   td: {
     padding: '14px 16px',
@@ -1232,11 +1188,6 @@ const styles = {
   },
   mobileCards: {
     display: 'none',
-    '@media (max-width: 768px)': {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '12px',
-    },
   },
   reportCard: {
     backgroundColor: '#ffffff',
@@ -1244,6 +1195,7 @@ const styles = {
     padding: '16px',
     border: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    marginBottom: '12px',
   },
   cardHeader: {
     display: 'flex',
@@ -1310,15 +1262,6 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    ':hover:not(:disabled)': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-    },
   },
   pageNumbers: {
     display: 'flex',
@@ -1338,18 +1281,11 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-    },
   },
   activePage: {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     borderColor: '#0f172a',
-    ':hover': {
-      backgroundColor: '#1e293b',
-    },
   },
   itemsPerPage: {
     marginLeft: 'auto',
@@ -1362,55 +1298,7 @@ const styles = {
     color: '#334155',
     cursor: 'pointer',
     fontSize: '14px',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-    },
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '400px',
-    gap: '16px',
-  },
-  loadingSpinner: {
-    width: '40px',
-    height: '40px',
-    border: '3px solid #f1f5f9',
-    borderTopColor: '#0f172a',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-  loadingText: {
-    color: '#64748b',
-    fontSize: '16px',
   },
 };
-
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  @media print {
-    body * {
-      visibility: hidden;
-    }
-    .report-container, .report-container * {
-      visibility: visible;
-    }
-    .report-container {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-    }
-  }
-`;
-document.head.appendChild(style);
 
 export default AdminReports;

@@ -11,7 +11,6 @@ const UserNavigation = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -20,23 +19,10 @@ const UserNavigation = ({ onLogout }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Close mobile menu on window resize (if screen becomes larger)
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 768 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [mobileMenuOpen]);
-
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -49,14 +35,22 @@ const UserNavigation = ({ onLogout }) => {
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    // Get user name from localStorage if available
+    const handleResize = () => {
+      if (window.innerWidth > 768 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
         if (userData.displayName) {
           setUserName(userData.displayName);
-          // Get initials for avatar
           const nameParts = userData.displayName.split(' ');
           if (nameParts.length >= 2) {
             setUserInitials(nameParts[0][0] + nameParts[1][0]);
@@ -72,7 +66,6 @@ const UserNavigation = ({ onLogout }) => {
         console.error('Error parsing user data:', error);
       }
     } else if (auth.currentUser) {
-      // Get from Firebase auth
       const email = auth.currentUser.email;
       if (email) {
         const name = email.split('@')[0];
@@ -84,24 +77,19 @@ const UserNavigation = ({ onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      // Clear localStorage first (for hardcoded users)
       localStorage.removeItem('user');
       localStorage.removeItem('userRole');
       
-      // Then try to sign out from Firebase (if it was a Firebase user)
       try {
         await signOut(auth);
       } catch (firebaseError) {
-        // Ignore Firebase errors if user was hardcoded
         console.log('Firebase signOut not needed for hardcoded user');
       }
       
-      // Call the parent onLogout if provided
       if (onLogout) {
         onLogout();
       }
       
-      // Navigate to login page
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
@@ -117,125 +105,147 @@ const UserNavigation = ({ onLogout }) => {
   ];
 
   return (
-    <nav style={{
-      ...styles.navbar,
-      ...(scrolled ? styles.navbarScrolled : {}),
-      boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.1)',
-    }}>
-      <div style={styles.navContainer}>
-        {/* Logo Section */}
-        <div 
-          style={styles.logoSection}
-          onClick={() => navigate('/user-dashboard')}
-        >
-          <span style={styles.logoText}>CSMS</span>
-          <span style={styles.logoBadge}>User</span>
-        </div>
+    <>
+      <nav className="user-nav" style={{
+        ...styles.navbar,
+        ...(scrolled ? styles.navbarScrolled : {}),
+      }}>
+        <div style={styles.navContainer}>
+          <div 
+            style={styles.logoSection}
+            onClick={() => navigate('/user-dashboard')}
+          >
+            <span style={styles.logoText}>CSMS</span>
+            <span style={styles.logoBadge}>User</span>
+          </div>
 
-        {/* Desktop Menu */}
-        <div style={styles.desktopMenu}>
-          {menuItems.map(item => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              style={{
-                ...styles.navLink,
-                ...(isActive(item.path) ? styles.navLinkActive : {}),
-              }}
-            >
-              <span style={styles.navLabel}>{item.label}</span>
-            </button>
-          ))}
-        </div>
+          <div style={styles.desktopMenu}>
+            {menuItems.map(item => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                style={{
+                  ...styles.navLink,
+                  ...(isActive(item.path) ? styles.navLinkActive : {}),
+                }}
+              >
+                <span style={styles.navLabel}>{item.label}</span>
+              </button>
+            ))}
+          </div>
 
-        {/* Desktop Right Section */}
-        <div style={styles.rightSection}>
-          {userName && (
-            <div style={styles.userInfo}>
-              <div style={styles.userAvatar}>
-                {userInitials || 'U'}
+          <div style={styles.rightSection}>
+            {userName && (
+              <div style={styles.userInfo}>
+                <div style={styles.userAvatar}>
+                  {userInitials || 'U'}
+                </div>
+                <span style={styles.userName}>{userName}</span>
               </div>
-              <span style={styles.userName}>{userName}</span>
-            </div>
-          )}
-          <button onClick={handleLogout} style={styles.logoutButton}>
-            <span style={styles.logoutText}>Sign out</span>
-          </button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button 
-          style={styles.mobileMenuButton}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <div style={{
-            ...styles.hamburgerLine,
-            transform: mobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none',
-          }} />
-          <div style={{
-            ...styles.hamburgerLine,
-            opacity: mobileMenuOpen ? 0 : 1,
-          }} />
-          <div style={{
-            ...styles.hamburgerLine,
-            transform: mobileMenuOpen ? 'rotate(-45deg) translate(7px, -7px)' : 'none',
-          }} />
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div style={styles.mobileMenu}>
-          <div style={styles.mobileMenuHeader}>
-            <span style={styles.mobileMenuTitle}>Menu</span>
-            <button 
-              style={styles.mobileCloseButton}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Close
+            )}
+            <button onClick={handleLogout} className="logout-button" style={styles.logoutButton}>
+              <span style={styles.logoutText}>Sign out</span>
             </button>
           </div>
-          
-          {userName && (
-            <div style={styles.mobileUserInfo}>
-              <div style={styles.mobileUserAvatar}>
-                {userInitials || 'U'}
-              </div>
-              <div style={styles.mobileUserDetails}>
-                <span style={styles.mobileUserName}>{userName}</span>
-                <span style={styles.mobileUserRole}>Probation Officer</span>
-              </div>
-            </div>
-          )}
-          
-          <div style={styles.mobileMenuDivider} />
-          
-          {menuItems.map(item => (
-            <button
-              key={item.path}
-              onClick={() => {
-                navigate(item.path);
-                setMobileMenuOpen(false);
-              }}
-              style={{
-                ...styles.mobileNavLink,
-                ...(isActive(item.path) ? styles.mobileNavLinkActive : {}),
-              }}
-            >
-              <span style={styles.mobileNavLabel}>{item.label}</span>
-              {isActive(item.path) && <span style={styles.mobileActiveIndicator}>●</span>}
-            </button>
-          ))}
-          
-          <div style={styles.mobileMenuDivider} />
-          
-          <button onClick={handleLogout} style={styles.mobileLogoutButton}>
-            <span>Sign out</span>
+
+          <button 
+            style={styles.mobileMenuButton}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <div style={{
+              ...styles.hamburgerLine,
+              transform: mobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none',
+            }} />
+            <div style={{
+              ...styles.hamburgerLine,
+              opacity: mobileMenuOpen ? 0 : 1,
+            }} />
+            <div style={{
+              ...styles.hamburgerLine,
+              transform: mobileMenuOpen ? 'rotate(-45deg) translate(7px, -7px)' : 'none',
+            }} />
           </button>
         </div>
-      )}
-    </nav>
+
+        {mobileMenuOpen && (
+          <div style={styles.mobileMenu}>
+            <div style={styles.mobileMenuHeader}>
+              <span style={styles.mobileMenuTitle}>Menu</span>
+              <button 
+                style={styles.mobileCloseButton}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+            
+            {userName && (
+              <div style={styles.mobileUserInfo}>
+                <div style={styles.mobileUserAvatar}>
+                  {userInitials || 'U'}
+                </div>
+                <div style={styles.mobileUserDetails}>
+                  <span style={styles.mobileUserName}>{userName}</span>
+                  <span style={styles.mobileUserRole}>Probation Officer</span>
+                </div>
+              </div>
+            )}
+            
+            <div style={styles.mobileMenuDivider} />
+            
+            {menuItems.map(item => (
+              <button
+                key={item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  setMobileMenuOpen(false);
+                }}
+                style={{
+                  ...styles.mobileNavLink,
+                  ...(isActive(item.path) ? styles.mobileNavLinkActive : {}),
+                }}
+              >
+                <span style={styles.mobileNavLabel}>{item.label}</span>
+                {isActive(item.path) && <span style={styles.mobileActiveIndicator}>●</span>}
+              </button>
+            ))}
+            
+            <div style={styles.mobileMenuDivider} />
+            
+            <button onClick={handleLogout} style={styles.mobileLogoutButton}>
+              <span>Sign out</span>
+            </button>
+          </div>
+        )}
+      </nav>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .user-nav {
+          transition: all 0.3s ease;
+        }
+        
+        .user-nav .logout-button:hover {
+          background-color: #f8fafc;
+          border-color: #94a3b8;
+          transform: translateY(-1px);
+        }
+        
+        .user-nav .nav-link:hover {
+          background-color: #f1f5f9;
+          color: #0f172a;
+        }
+        
+        .user-nav .user-info:hover {
+          background-color: #f1f5f9;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      ` }} />
+    </>
   );
 };
 
@@ -243,11 +253,9 @@ const styles = {
   navbar: {
     backgroundColor: '#ffffff',
     padding: 'clamp(8px, 2vw, 12px) 0',
-    color: '#1e293b',
     position: 'sticky',
     top: 0,
     zIndex: 1000,
-    transition: 'all 0.3s ease',
     width: '100%',
     borderBottom: '1px solid #e2e8f0',
   },
@@ -272,9 +280,6 @@ const styles = {
     gap: 'clamp(4px, 1vw, 8px)',
     cursor: 'pointer',
     transition: 'opacity 0.2s',
-    ':hover': {
-      opacity: 0.8,
-    },
   },
   logoText: {
     fontSize: 'clamp(18px, 4vw, 22px)',
@@ -295,9 +300,6 @@ const styles = {
   desktopMenu: {
     display: 'flex',
     gap: 'clamp(4px, 1vw, 8px)',
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
   },
   navLink: {
     padding: 'clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 16px)',
@@ -309,10 +311,6 @@ const styles = {
     fontWeight: '500',
     background: 'transparent',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#0f172a',
-    },
   },
   navLinkActive: {
     backgroundColor: '#f1f5f9',
@@ -326,9 +324,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: 'clamp(12px, 2vw, 16px)',
-    '@media (max-width: 768px)': {
-      display: 'none',
-    },
   },
   userInfo: {
     display: 'flex',
@@ -340,9 +335,6 @@ const styles = {
     border: '1px solid #e2e8f0',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-    },
   },
   userAvatar: {
     width: 'clamp(30px, 5vw, 32px)',
@@ -377,14 +369,6 @@ const styles = {
     fontWeight: '500',
     transition: 'all 0.2s ease',
     whiteSpace: 'nowrap',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   logoutText: {
     fontWeight: '500',
@@ -400,9 +384,6 @@ const styles = {
     cursor: 'pointer',
     padding: '0',
     zIndex: 1100,
-    '@media (max-width: 768px)': {
-      display: 'flex',
-    },
   },
   hamburgerLine: {
     width: '30px',
@@ -424,9 +405,6 @@ const styles = {
     zIndex: 1050,
     overflowY: 'auto',
     borderLeft: '1px solid #e2e8f0',
-    '@media (max-width: 768px)': {
-      display: 'block',
-    },
   },
   mobileMenuHeader: {
     display: 'flex',
@@ -450,10 +428,6 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#0f172a',
-    },
   },
   mobileUserInfo: {
     display: 'flex',
@@ -513,10 +487,6 @@ const styles = {
     textAlign: 'left',
     marginBottom: '8px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#cbd5e1',
-    },
   },
   mobileNavLinkActive: {
     backgroundColor: '#f1f5f9',
@@ -547,10 +517,6 @@ const styles = {
     width: '100%',
     textAlign: 'center',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#fef2f2',
-      borderColor: '#dc2626',
-    },
   },
 };
 

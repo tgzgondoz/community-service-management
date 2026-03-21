@@ -30,79 +30,86 @@ const AdminDashboard = () => {
     }
   };
 
+  const getRiskColor = (risk) => {
+    switch (risk) {
+      case 'High': return '#dc2626';
+      case 'Medium': return '#f59e0b';
+      case 'Low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
+    <div className="admin-dashboard" style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.title}>Dashboard</h1>
           <span style={styles.subtitle}>Welcome back, Administrator</span>
         </div>
-        <button onClick={fetchDashboardData} style={styles.refreshButton}>
+        <button onClick={fetchDashboardData} className="refresh-button" style={styles.refreshButton}>
           <span style={styles.refreshText}>Refresh Data</span>
         </button>
       </div>
 
-      {/* Stats Grid */}
       <div style={styles.statsGrid}>
-        <div style={styles.statCard} onClick={() => navigate('/offenders')}>
+        <div className="stat-card" style={styles.statCard} onClick={() => navigate('/offenders')}>
           <div style={styles.statHeader}>
             <span style={styles.statTitle}>Total Vetted</span>
-            <span style={styles.statValue}>{stats.totalVetted}</span>
+            <span style={styles.statValue}>{stats?.totalVetted || 0}</span>
           </div>
           <div style={styles.statFooter}>
             <span style={styles.statLink}>View offenders →</span>
           </div>
         </div>
 
-        <div style={styles.statCard} onClick={() => navigate('/offenders?filter=not-recommended')}>
+        <div className="stat-card" style={styles.statCard} onClick={() => navigate('/offenders?filter=not-recommended')}>
           <div style={styles.statHeader}>
             <span style={styles.statTitle}>Not Recommended</span>
-            <span style={styles.statValue}>{stats.notRecommended}</span>
+            <span style={styles.statValue}>{stats?.notRecommended || 0}</span>
           </div>
           <div style={styles.statFooter}>
             <span style={styles.statLink}>View details →</span>
           </div>
         </div>
 
-        <div style={styles.statCard} onClick={() => navigate('/recommended')}>
+        <div className="stat-card" style={styles.statCard} onClick={() => navigate('/recommended')}>
           <div style={styles.statHeader}>
             <span style={styles.statTitle}>Recommended</span>
-            <span style={styles.statValue}>{stats.recommended}</span>
+            <span style={styles.statValue}>{stats?.recommended || 0}</span>
           </div>
           <div style={styles.statFooter}>
             <span style={styles.statLink}>View recommended →</span>
           </div>
         </div>
 
-        <div style={styles.statCard} onClick={() => navigate('/reports?type=completed')}>
+        <div className="stat-card" style={styles.statCard} onClick={() => navigate('/reports?type=completed')}>
           <div style={styles.statHeader}>
             <span style={styles.statTitle}>Completed</span>
-            <span style={styles.statValue}>{stats.completed}</span>
+            <span style={styles.statValue}>{stats?.completed || 0}</span>
           </div>
           <div style={styles.statFooter}>
             <span style={styles.statLink}>View reports →</span>
           </div>
         </div>
 
-        <div style={styles.statCard} onClick={() => navigate('/reports?type=defaulted')}>
+        <div className="stat-card" style={styles.statCard} onClick={() => navigate('/reports?type=defaulted')}>
           <div style={styles.statHeader}>
             <span style={styles.statTitle}>Defaulted</span>
-            <span style={styles.statValue}>{stats.defaulted}</span>
+            <span style={styles.statValue}>{stats?.defaulted || 0}</span>
           </div>
           <div style={styles.statFooter}>
             <span style={styles.statLink}>View reports →</span>
           </div>
         </div>
 
-        <div style={styles.statCard} onClick={() => navigate('/offenders?filter=active')}>
+        <div className="stat-card" style={styles.statCard} onClick={() => navigate('/offenders?filter=active')}>
           <div style={styles.statHeader}>
             <span style={styles.statTitle}>Active Cases</span>
-            <span style={styles.statValue}>{stats.active}</span>
+            <span style={styles.statValue}>{stats?.active || 0}</span>
           </div>
           <div style={styles.statFooter}>
             <span style={styles.statLink}>View cases →</span>
@@ -110,7 +117,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Recent Activity */}
       <div style={styles.recentActivity}>
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionTitle}>Recent Activity</h2>
@@ -119,7 +125,7 @@ const AdminDashboard = () => {
         
         <div style={styles.activityList}>
           {activities.map(activity => (
-            <div key={activity.id} style={styles.activityItem}>
+            <div key={activity.id} className="activity-item" style={styles.activityItem}>
               <div style={styles.activityContent}>
                 <p style={styles.activityDescription}>{activity.description}</p>
                 <div style={styles.activityMeta}>
@@ -142,6 +148,34 @@ const AdminDashboard = () => {
           )}
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-dashboard .stat-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+          border-color: #cbd5e1;
+        }
+        
+        .admin-dashboard .refresh-button:hover {
+          background-color: #f8fafc;
+          border-color: #94a3b8;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+          transform: translateY(-1px);
+        }
+        
+        .admin-dashboard .activity-item:hover {
+          background-color: #f8fafc;
+          border-color: #cbd5e1;
+          transform: translateX(4px);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+          .admin-dashboard .activity-item:hover {
+            transform: translateY(-2px);
+          }
+        }
+      ` }} />
     </div>
   );
 };
@@ -156,12 +190,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   header: {
     display: 'flex',
@@ -171,11 +199,6 @@ const styles = {
     marginBottom: '32px',
     flexWrap: 'wrap',
     gap: '16px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-      marginBottom: '24px',
-    }
   },
   headerLeft: {
     display: 'flex',
@@ -209,20 +232,6 @@ const styles = {
     justifyContent: 'center',
     transition: 'all 0.2s ease',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    },
-    '@media (max-width: 480px)': {
-      width: '100%',
-      padding: '14px',
-    }
   },
   refreshText: {
     fontWeight: '500',
@@ -232,14 +241,6 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '24px',
     marginBottom: '48px',
-    '@media (max-width: 768px)': {
-      gap: '16px',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    },
-    '@media (max-width: 480px)': {
-      gap: '12px',
-      gridTemplateColumns: '1fr',
-    }
   },
   statCard: {
     backgroundColor: '#ffffff',
@@ -252,11 +253,6 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
-    ':hover': {
-      transform: 'translateY(-4px)',
-      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
-      borderColor: '#cbd5e1',
-    },
   },
   statHeader: {
     display: 'flex',
@@ -282,10 +278,6 @@ const styles = {
     fontSize: '14px',
     color: '#2563eb',
     fontWeight: '500',
-    transition: 'color 0.2s ease',
-    ':hover': {
-      color: '#1d4ed8',
-    },
   },
   recentActivity: {
     backgroundColor: '#ffffff',
@@ -332,18 +324,6 @@ const styles = {
     border: '1px solid #f1f5f9',
     width: '100%',
     boxSizing: 'border-box',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#cbd5e1',
-      transform: 'translateX(4px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    '@media (max-width: 480px)': {
-      padding: '14px',
-      ':hover': {
-        transform: 'translateY(-2px)',
-      }
-    }
   },
   activityContent: {
     flex: 1,

@@ -1,197 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import { getOffendersByRecommendation, addAssignment, updateOffender, addActivity } from '../../utils/database';
-import { auth } from '../../config/firebase';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getOffenders, updateOffender, deleteOffender } from '../../utils/database';
+import LoadingSpinner from '../common/LoadingSpinner';
 
-const AdminRecommendedList = () => {
-  const [recommendedOffenders, setRecommendedOffenders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showAssignment, setShowAssignment] = useState(false);
-  const [selectedOffender, setSelectedOffender] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+const AdminOffenderList = () => {
+  const [offenders, setOffenders] = useState([]);
+  const [filteredOffenders, setFilteredOffenders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRisk, setFilterRisk] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [assignmentData, setAssignmentData] = useState({
-    institution: '',
-    startDate: '',
-    endDate: '',
-    hoursRequired: '',
-    supervisor: ''
-  });
+  const [loading, setLoading] = useState(true);
+  const [selectedOffender, setSelectedOffender] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   useEffect(() => {
-    // Get current user from Firebase or localStorage
-    const getUserInfo = () => {
-      // Check Firebase first
-      if (auth.currentUser) {
-        setCurrentUser({
-          uid: auth.currentUser.uid,
-          email: auth.currentUser.email,
-          displayName: auth.currentUser.displayName || auth.currentUser.email
-        });
-        return;
-      }
-
-      // Check localStorage for hardcoded user
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          setCurrentUser({
-            uid: userData.uid || 'hardcoded-admin',
-            email: userData.email,
-            displayName: 'Admin User',
-            isHardcoded: true
-          });
-        } catch (error) {
-          console.error('Error parsing stored user:', error);
-        }
-      }
-    };
-
-    getUserInfo();
-    fetchRecommendedOffenders();
+    fetchOffenders();
   }, []);
 
-  const fetchRecommendedOffenders = async () => {
+  const filterOffenders = useCallback(() => {
+    let filtered = [...offenders];
+
+    if (searchTerm) {
+      filtered = filtered.filter(o => 
+        o.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        o.offenseType?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (filterStatus !== 'all') {
+      if (filterStatus === 'recommended') {
+        filtered = filtered.filter(o => o.recommendedForCS === true);
+      } else if (filterStatus === 'not-recommended') {
+        filtered = filtered.filter(o => o.recommendedForCS === false);
+      } else if (filterStatus === 'active') {
+        filtered = filtered.filter(o => o.status === 'active');
+      } else if (filterStatus === 'pending') {
+        filtered = filtered.filter(o => o.status === 'pending');
+      } else if (filterStatus === 'completed') {
+        filtered = filtered.filter(o => o.status === 'completed');
+      } else if (filterStatus === 'defaulted') {
+        filtered = filtered.filter(o => o.status === 'defaulted');
+      }
+    }
+
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        
+        if (sortConfig.key === 'name') {
+          aValue = `${a.firstName} ${a.lastName}`;
+          bValue = `${b.firstName} ${b.lastName}`;
+        }
+        
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    setFilteredOffenders(filtered);
+    setCurrentPage(1);
+  }, [offenders, searchTerm, filterStatus, sortConfig]);
+
+  useEffect(() => {
+    filterOffenders();
+  }, [searchTerm, filterStatus, offenders, filterOffenders, sortConfig]);
+
+  const fetchOffenders = async () => {
     setLoading(true);
     try {
-      const data = await getOffendersByRecommendation(true);
-      setRecommendedOffenders(data);
+      const data = await getOffenders();
+      setOffenders(data);
+      setFilteredOffenders(data);
     } catch (error) {
-      console.error('Error fetching recommended offenders:', error);
+      console.error('Error fetching offenders:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAssign = (offender) => {
-    setSelectedOffender(offender);
-    setShowAssignment(true);
-  };
-
-  const handleSubmitAssignment = async (e) => {
-    e.preventDefault();
-    
-    // Validate current user
-    if (!currentUser) {
-      alert('User information not available. Please try logging in again.');
-      return;
-    }
-
+  const handleStatusChange = async (id, newStatus) => {
     try {
-      // Clean assignment data - remove any undefined values
-      const cleanAssignmentData = {
-        institution: assignmentData.institution || '',
-        startDate: assignmentData.startDate || '',
-        endDate: assignmentData.endDate || '',
-        hoursRequired: assignmentData.hoursRequired || '',
-        supervisor: assignmentData.supervisor || ''
-      };
-
-      // Create assignment with safe values
-      await addAssignment({
-        offenderId: selectedOffender.id || '',
-        offenderName: `${selectedOffender.firstName || ''} ${selectedOffender.lastName || ''}`.trim(),
-        ...cleanAssignmentData,
-        status: 'new',
-        notified: false,
-        createdAt: new Date().toISOString(),
-        assignedBy: currentUser.email || 'admin@system.com',
-        assignedById: currentUser.uid || 'system'
-      });
-
-      // Update offender status
-      await updateOffender(selectedOffender.id, {
-        status: 'assigned',
-        assignmentDate: new Date().toISOString(),
-        assignedTo: cleanAssignmentData.institution
-      });
-
-      // Log activity with safe values
-      await addActivity({
-        description: `Offender ${selectedOffender.firstName || ''} ${selectedOffender.lastName || ''} assigned to ${cleanAssignmentData.institution}`,
-        timestamp: new Date().toISOString(),
-        user: currentUser.email || 'system',
-        userId: currentUser.uid || 'system',
-        type: 'assignment'
-      });
-
-      // Reset form and close modal
-      setShowAssignment(false);
-      setAssignmentData({
-        institution: '',
-        startDate: '',
-        endDate: '',
-        hoursRequired: '',
-        supervisor: ''
-      });
-      
-      // Refresh the list
-      await fetchRecommendedOffenders();
-      
-      // Show success message
-      alert('Assignment created successfully!');
-      
+      await updateOffender(id, { status: newStatus });
+      fetchOffenders();
     } catch (error) {
-      console.error('Error creating assignment:', error);
-      alert('Error creating assignment: ' + (error.message || 'Unknown error'));
+      console.error('Error updating status:', error);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setAssignmentData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Filter and sort offenders
-  const getFilteredOffenders = () => {
-    let filtered = [...recommendedOffenders];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(o => 
-        o.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.offenseType?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Risk filter
-    if (filterRisk !== 'all') {
-      filtered = filtered.filter(o => o.riskLevel === filterRisk);
-    }
-
-    // Status filter
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(o => 
-        filterStatus === 'assigned' ? o.status === 'assigned' : o.status !== 'assigned'
-      );
-    }
-
-    // Sorting
-    filtered.sort((a, b) => {
-      if (sortBy === 'name') {
-        const nameA = `${a.firstName} ${a.lastName}`;
-        const nameB = `${b.firstName} ${b.lastName}`;
-        return nameA.localeCompare(nameB);
-      } else if (sortBy === 'risk') {
-        const riskOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
-        return (riskOrder[a.riskLevel] || 4) - (riskOrder[b.riskLevel] || 4);
-      } else if (sortBy === 'sentence') {
-        return (b.sentenceLength || 0) - (a.sentenceLength || 0);
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this offender?')) {
+      try {
+        await deleteOffender(id);
+        fetchOffenders();
+      } catch (error) {
+        console.error('Error deleting offender:', error);
       }
-      return 0;
-    });
-
-    return filtered;
+    }
   };
 
-  const filteredOffenders = getFilteredOffenders();
+  const handleSort = (key) => {
+    setSortConfig({
+      key,
+      direction: sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
+    });
+  };
 
   const getRiskColor = (risk) => {
     switch (risk) {
@@ -202,62 +123,68 @@ const AdminRecommendedList = () => {
     }
   };
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'active':
+        return { backgroundColor: '#e8f5e8', color: '#2e7d32', borderColor: '#a5d6a5' };
+      case 'completed':
+        return { backgroundColor: '#e3f2fd', color: '#1565c0', borderColor: '#90caf9' };
+      case 'defaulted':
+        return { backgroundColor: '#ffebee', color: '#c62828', borderColor: '#ef9a9a' };
+      case 'pending':
+        return { backgroundColor: '#fff3e0', color: '#ef6c00', borderColor: '#ffb74d' };
+      default:
+        return { backgroundColor: '#f5f5f5', color: '#616161', borderColor: '#e0e0e0' };
+    }
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredOffenders.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredOffenders.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   if (loading) {
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.loadingSpinner} />
-        <p style={styles.loadingText}>Loading recommended offenders...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
+    <div className="admin-offender-list" style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
-          <h1 style={styles.title}>Recommended for Community Service</h1>
-          <span style={styles.subtitle}>Manage assignments for recommended offenders</span>
+          <h1 style={styles.title}>Offender Management</h1>
+          <span style={styles.subtitle}>Manage and monitor offender records</span>
         </div>
-        {currentUser && (
-          <div style={styles.userBadge}>
-            <span style={styles.userBadgeText}>{currentUser.email}</span>
-          </div>
-        )}
+        <button onClick={fetchOffenders} style={styles.refreshButton}>
+          <span style={styles.refreshText}>Refresh Data</span>
+        </button>
       </div>
 
-      {/* Stats Cards */}
       <div style={styles.statsGrid}>
         <div style={styles.statCard}>
-          <div style={styles.statContent}>
-            <span style={styles.statValue}>{recommendedOffenders.length}</span>
-            <span style={styles.statLabel}>Total Recommended</span>
-          </div>
+          <span style={styles.statValue}>{offenders.length}</span>
+          <span style={styles.statLabel}>Total Offenders</span>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statContent}>
-            <span style={styles.statValue}>
-              {recommendedOffenders.filter(o => o.status !== 'assigned').length}
-            </span>
-            <span style={styles.statLabel}>Pending Assignment</span>
-          </div>
+          <span style={styles.statValue}>{offenders.filter(o => o.recommendedForCS).length}</span>
+          <span style={styles.statLabel}>Recommended</span>
         </div>
         <div style={styles.statCard}>
-          <div style={styles.statContent}>
-            <span style={styles.statValue}>
-              {recommendedOffenders.filter(o => o.status === 'assigned').length}
-            </span>
-            <span style={styles.statLabel}>Assigned</span>
-          </div>
+          <span style={styles.statValue}>{offenders.filter(o => !o.recommendedForCS).length}</span>
+          <span style={styles.statLabel}>Not Recommended</span>
+        </div>
+        <div style={styles.statCard}>
+          <span style={styles.statValue}>{offenders.filter(o => o.status === 'active').length}</span>
+          <span style={styles.statLabel}>Active Cases</span>
         </div>
       </div>
 
-      {/* Filters */}
       <div style={styles.filters}>
         <div style={styles.searchWrapper}>
           <input
             type="text"
-            placeholder="Search by name or offense..."
+            placeholder="Search by name, email, or offense..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={styles.searchInput}
@@ -271,244 +198,424 @@ const AdminRecommendedList = () => {
             </button>
           )}
         </div>
-
-        <select
-          value={filterRisk}
-          onChange={(e) => setFilterRisk(e.target.value)}
-          style={styles.filterSelect}
-        >
-          <option value="all">All Risk Levels</option>
-          <option value="High">High Risk</option>
-          <option value="Medium">Medium Risk</option>
-          <option value="Low">Low Risk</option>
-        </select>
-
+        
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
           style={styles.filterSelect}
         >
-          <option value="all">All Status</option>
+          <option value="all">All Offenders</option>
+          <option value="recommended">Recommended for CS</option>
+          <option value="not-recommended">Not Recommended</option>
+          <option value="active">Active Cases</option>
           <option value="pending">Pending</option>
-          <option value="assigned">Assigned</option>
+          <option value="completed">Completed</option>
+          <option value="defaulted">Defaulted</option>
         </select>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          style={styles.filterSelect}
-        >
-          <option value="name">Sort by Name</option>
-          <option value="risk">Sort by Risk Level</option>
-          <option value="sentence">Sort by Sentence Length</option>
-        </select>
-
-        <button onClick={fetchRecommendedOffenders} style={styles.refreshButton}>
-          <span style={styles.refreshText}>Refresh</span>
-        </button>
-      </div>
-
-      {/* Results Info */}
-      <div style={styles.resultsInfo}>
-        <span style={styles.resultsCount}>
-          Showing {filteredOffenders.length} of {recommendedOffenders.length} offenders
-        </span>
-      </div>
-
-      {/* Offender Cards Grid */}
-      {filteredOffenders.length === 0 ? (
-        <div style={styles.emptyState}>
-          <p style={styles.emptyText}>No recommended offenders found matching your criteria.</p>
-          <button onClick={() => {
-            setSearchTerm('');
-            setFilterRisk('all');
-            setFilterStatus('all');
-          }} style={styles.clearFiltersButton}>
-            Clear Filters
-          </button>
+        <div style={styles.resultsCount}>
+          {filteredOffenders.length} results
         </div>
-      ) : (
-        <div style={styles.grid}>
-          {filteredOffenders.map(offender => (
-            <div key={offender.id} style={styles.card}>
-              <div style={styles.cardHeader}>
-                <div style={styles.cardTitleSection}>
-                  <h3 style={styles.cardTitle}>
-                    {offender.firstName} {offender.lastName}
-                  </h3>
-                  <span style={{
-                    ...styles.statusBadge,
-                    backgroundColor: offender.status === 'assigned' ? '#10b981' : '#f59e0b'
-                  }}>
-                    {offender.status === 'assigned' ? 'Assigned' : 'Pending'}
-                  </span>
+      </div>
+
+      <div style={styles.tableContainer}>
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.tableHeader}>
+              <th style={styles.th} onClick={() => handleSort('name')}>
+                <div style={styles.thContent}>
+                  Name 
+                  {sortConfig.key === 'name' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
                 </div>
+              </th>
+              <th style={styles.th}>Contact</th>
+              <th style={styles.th} onClick={() => handleSort('offenseType')}>
+                <div style={styles.thContent}>
+                  Offense
+                  {sortConfig.key === 'offenseType' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th style={styles.th} onClick={() => handleSort('riskLevel')}>
+                <div style={styles.thContent}>
+                  Risk
+                  {sortConfig.key === 'riskLevel' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th style={styles.th} onClick={() => handleSort('status')}>
+                <div style={styles.thContent}>
+                  Status
+                  {sortConfig.key === 'status' && (
+                    <span style={styles.sortIcon}>
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
+              <th style={styles.th}>Vetted By</th>
+              <th style={styles.th}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map(offender => (
+              <tr key={offender.id} style={styles.tableRow}>
+                <td style={styles.td}>
+                  <span style={styles.nameCell}>
+                    {offender.firstName} {offender.lastName}
+                  </span>
+                </td>
+                <td style={styles.td}>
+                  <div style={styles.contactInfo}>
+                    <span style={styles.contactEmail}>{offender.email}</span>
+                    <span style={styles.contactPhone}>{offender.phone}</span>
+                  </div>
+                </td>
+                <td style={styles.td}>
+                  <span style={styles.offenseType}>{offender.offenseType}</span>
+                </td>
+                <td style={styles.td}>
+                  <span style={{
+                    ...styles.riskBadge,
+                    backgroundColor: getRiskColor(offender.riskLevel),
+                    color: '#ffffff'
+                  }}>
+                    {offender.riskLevel}
+                  </span>
+                </td>
+                <td style={styles.td}>
+                  <select
+                    value={offender.status || 'pending'}
+                    onChange={(e) => handleStatusChange(offender.id, e.target.value)}
+                    style={{
+                      ...styles.statusSelect,
+                      ...getStatusStyle(offender.status)
+                    }}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="defaulted">Defaulted</option>
+                  </select>
+                </td>
+                <td style={styles.td}>
+                  <span style={styles.vettedBy}>{offender.vettedBy || '—'}</span>
+                </td>
+                <td style={styles.td}>
+                  <div style={styles.actionButtons}>
+                    <button 
+                      onClick={() => {
+                        setSelectedOffender(offender);
+                        setShowDetails(true);
+                      }}
+                      style={styles.viewButton}
+                    >
+                      View
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(offender.id)}
+                      style={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={styles.mobileCardContainer}>
+        {currentItems.map(offender => (
+          <div key={offender.id} style={styles.offenderCard}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <span style={styles.cardName}>
+                  {offender.firstName} {offender.lastName}
+                </span>
                 <span style={{
-                  ...styles.riskBadge,
-                  backgroundColor: getRiskColor(offender.riskLevel)
+                  ...styles.cardRiskBadge,
+                  backgroundColor: getRiskColor(offender.riskLevel),
+                  color: '#ffffff'
                 }}>
-                  {offender.riskLevel || 'Low'} Risk
+                  {offender.riskLevel}
                 </span>
               </div>
-
-              <div style={styles.cardBody}>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Offense</span>
-                  <span style={styles.detailValue}>{offender.offenseType || 'N/A'}</span>
-                </div>
-                
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Sentence</span>
-                  <span style={styles.detailValue}>{offender.sentenceLength || '0'} months</span>
-                </div>
-                
-                {offender.assignedTo && (
-                  <div style={styles.detailItem}>
-                    <span style={styles.detailLabel}>Assigned to</span>
-                    <span style={styles.detailValue}>{offender.assignedTo}</span>
-                  </div>
-                )}
-                
-                <div style={styles.needs}>
-                  {offender.substanceAbuse && (
-                    <span style={styles.needTag}>
-                      Substance Abuse
-                    </span>
-                  )}
-                  {offender.mentalHealthIssues && (
-                    <span style={styles.needTag}>
-                      Mental Health
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {offender.status !== 'assigned' ? (
+              <div style={styles.cardActions}>
                 <button 
-                  onClick={() => handleAssign(offender)}
-                  style={styles.assignButton}
+                  onClick={() => {
+                    setSelectedOffender(offender);
+                    setShowDetails(true);
+                  }}
+                  style={styles.cardViewButton}
                 >
-                  Assign to Institution
+                  View
                 </button>
-              ) : (
-                <div style={styles.assignmentInfo}>
-                  <span style={styles.assignmentDate}>
-                    Assigned: {new Date(offender.assignmentDate).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
+                <button 
+                  onClick={() => handleDelete(offender.id)}
+                  style={styles.cardDeleteButton}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          ))}
+            
+            <div style={styles.cardDetails}>
+              <div style={styles.cardDetail}>
+                <span style={styles.cardDetailLabel}>Email</span>
+                <span style={styles.cardDetailValue}>{offender.email}</span>
+              </div>
+              <div style={styles.cardDetail}>
+                <span style={styles.cardDetailLabel}>Phone</span>
+                <span style={styles.cardDetailValue}>{offender.phone}</span>
+              </div>
+              <div style={styles.cardDetail}>
+                <span style={styles.cardDetailLabel}>Offense</span>
+                <span style={styles.cardDetailValue}>{offender.offenseType}</span>
+              </div>
+              <div style={styles.cardDetail}>
+                <span style={styles.cardDetailLabel}>Status</span>
+                <select
+                  value={offender.status || 'pending'}
+                  onChange={(e) => handleStatusChange(offender.id, e.target.value)}
+                  style={{
+                    ...styles.cardStatusSelect,
+                    ...getStatusStyle(offender.status)
+                  }}
+                >
+                  <option value="pending">Pending</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="defaulted">Defaulted</option>
+                </select>
+              </div>
+              <div style={styles.cardDetail}>
+                <span style={styles.cardDetailLabel}>Vetted By</span>
+                <span style={styles.cardDetailValue}>{offender.vettedBy || '—'}</span>
+              </div>
+            </div>
+
+            <div style={styles.cardFooter}>
+              <span style={styles.cardFooterLabel}>Recommended:</span>
+              <span style={offender.recommendedForCS ? styles.recommendedYes : styles.recommendedNo}>
+                {offender.recommendedForCS ? 'Yes' : 'No'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredOffenders.length > 0 && (
+        <div style={styles.pagination}>
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            style={styles.pageButton}
+          >
+            Previous
+          </button>
+          
+          <div style={styles.pageNumbers}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+              <button
+                key={number}
+                onClick={() => paginate(number)}
+                style={{
+                  ...styles.pageNumber,
+                  ...(currentPage === number ? styles.activePage : {})
+                }}
+              >
+                {number}
+              </button>
+            ))}
+          </div>
+          
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={styles.pageButton}
+          >
+            Next
+          </button>
+
+          <div style={styles.itemsPerPage}>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              style={styles.itemsPerPageSelect}
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={25}>25 per page</option>
+              <option value={50}>50 per page</option>
+            </select>
+          </div>
         </div>
       )}
 
-      {/* Assignment Modal */}
-      {showAssignment && selectedOffender && (
-        <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowAssignment(false)}>
+      {showDetails && selectedOffender && (
+        <div style={styles.modal} onClick={(e) => e.target === e.currentTarget && setShowDetails(false)}>
           <div style={styles.modalContent}>
             <div style={styles.modalHeader}>
               <div>
-                <h3 style={styles.modalTitle}>Assign to Institution</h3>
+                <h3 style={styles.modalTitle}>Offender Details</h3>
                 <p style={styles.modalSubtitle}>
                   {selectedOffender.firstName} {selectedOffender.lastName}
                 </p>
               </div>
-              <button onClick={() => setShowAssignment(false)} style={styles.closeButton}>
+              <button onClick={() => setShowDetails(false)} style={styles.closeButton}>
                 Close
               </button>
             </div>
             
-            <div style={styles.modalRiskInfo}>
-              <span style={styles.modalRiskLabel}>Risk Level</span>
-              <span style={{
-                ...styles.modalRiskBadge,
-                backgroundColor: getRiskColor(selectedOffender.riskLevel)
-              }}>
-                {selectedOffender.riskLevel}
-              </span>
+            <div style={styles.details}>
+              <div style={styles.detailGrid}>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Date of Birth</span>
+                  <span style={styles.detailValue}>{selectedOffender.dateOfBirth}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Email</span>
+                  <span style={styles.detailValue}>{selectedOffender.email}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Phone</span>
+                  <span style={styles.detailValue}>{selectedOffender.phone}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Address</span>
+                  <span style={styles.detailValue}>{selectedOffender.address}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Offense Type</span>
+                  <span style={styles.detailValue}>{selectedOffender.offenseType}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Offense Date</span>
+                  <span style={styles.detailValue}>{selectedOffender.offenseDate}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Sentence Length</span>
+                  <span style={styles.detailValue}>{selectedOffender.sentenceLength} months</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Risk Level</span>
+                  <span style={{
+                    ...styles.riskBadge,
+                    backgroundColor: getRiskColor(selectedOffender.riskLevel),
+                    color: '#ffffff',
+                    display: 'inline-block',
+                    marginTop: '4px'
+                  }}>
+                    {selectedOffender.riskLevel}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Previous Offenses</span>
+                  <span style={styles.detailValue}>{selectedOffender.previousOffenses}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Employment</span>
+                  <span style={styles.detailValue}>{selectedOffender.employmentStatus}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Education</span>
+                  <span style={styles.detailValue}>{selectedOffender.educationLevel}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Substance Abuse</span>
+                  <span style={selectedOffender.substanceAbuse ? styles.yesBadge : styles.noBadge}>
+                    {selectedOffender.substanceAbuse ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Mental Health</span>
+                  <span style={selectedOffender.mentalHealthIssues ? styles.yesBadge : styles.noBadge}>
+                    {selectedOffender.mentalHealthIssues ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Family Support</span>
+                  <span style={styles.detailValue}>{selectedOffender.familySupport}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Recommended for CS</span>
+                  <span style={selectedOffender.recommendedForCS ? styles.recommendedYes : styles.recommendedNo}>
+                    {selectedOffender.recommendedForCS ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Status</span>
+                  <span style={{
+                    ...styles.statusBadge,
+                    ...getStatusStyle(selectedOffender.status)
+                  }}>
+                    {selectedOffender.status}
+                  </span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Vetted By</span>
+                  <span style={styles.detailValue}>{selectedOffender.vettedBy || '—'}</span>
+                </div>
+                <div style={styles.detailItem}>
+                  <span style={styles.detailLabel}>Created</span>
+                  <span style={styles.detailValue}>
+                    {new Date(selectedOffender.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
-            
-            <form onSubmit={handleSubmitAssignment}>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Institution *</label>
-                <input
-                  type="text"
-                  name="institution"
-                  value={assignmentData.institution}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  required
-                  placeholder="Enter institution name"
-                />
-              </div>
-
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Start Date *</label>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={assignmentData.startDate}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>End Date *</label>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={assignmentData.endDate}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Hours Required *</label>
-                  <input
-                    type="number"
-                    name="hoursRequired"
-                    value={assignmentData.hoursRequired}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                    min="1"
-                    placeholder="Enter hours"
-                  />
-                </div>
-
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Supervisor *</label>
-                  <input
-                    type="text"
-                    name="supervisor"
-                    value={assignmentData.supervisor}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                    placeholder="Enter supervisor name"
-                  />
-                </div>
-              </div>
-
-              <div style={styles.modalButtons}>
-                <button type="button" onClick={() => setShowAssignment(false)} style={styles.cancelButton}>
-                  Cancel
-                </button>
-                <button type="submit" style={styles.submitButton}>
-                  Create Assignment
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-offender-list .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+          border-color: #cbd5e1;
+        }
+        
+        .admin-offender-list .table-row:hover {
+          background-color: #f8fafc;
+        }
+        
+        .admin-offender-list .view-button:hover {
+          background-color: #e2e8f0;
+          border-color: #94a3b8;
+        }
+        
+        .admin-offender-list .delete-button:hover {
+          background-color: #ffcdd2;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      ` }} />
     </div>
   );
 };
@@ -523,12 +630,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   header: {
     display: 'flex',
@@ -537,10 +638,6 @@ const styles = {
     marginBottom: '24px',
     flexWrap: 'wrap',
     gap: '16px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }
   },
   headerLeft: {
     display: 'flex',
@@ -553,21 +650,26 @@ const styles = {
     margin: 0,
     fontWeight: '600',
     letterSpacing: '-0.02em',
+    lineHeight: 1.2,
   },
   subtitle: {
     fontSize: 'clamp(14px, 3vw, 16px)',
     color: '#64748b',
+    fontWeight: '400',
   },
-  userBadge: {
-    padding: '8px 16px',
+  refreshButton: {
+    padding: '10px 20px',
     backgroundColor: '#ffffff',
+    color: '#1e293b',
     border: '1px solid #e2e8f0',
-    borderRadius: '40px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
   },
-  userBadgeText: {
-    fontSize: '14px',
-    color: '#1e293b',
+  refreshText: {
     fontWeight: '500',
   },
   statsGrid: {
@@ -583,23 +685,13 @@ const styles = {
     border: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-      borderColor: '#cbd5e1',
-    },
-  },
-  statContent: {
-    display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px',
+    gap: '8px',
+    transition: 'all 0.2s ease',
   },
   statValue: {
-    fontSize: '28px',
+    fontSize: '32px',
     fontWeight: '600',
     color: '#0f172a',
     lineHeight: 1,
@@ -607,15 +699,14 @@ const styles = {
   statLabel: {
     fontSize: '14px',
     color: '#64748b',
+    fontWeight: '500',
   },
   filters: {
     display: 'flex',
     gap: '12px',
-    marginBottom: '16px',
+    marginBottom: '24px',
     flexWrap: 'wrap',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column',
-    }
+    alignItems: 'center',
   },
   searchWrapper: {
     flex: 2,
@@ -632,11 +723,6 @@ const styles = {
     color: '#0f172a',
     boxSizing: 'border-box',
     transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
   },
   clearSearch: {
     position: 'absolute',
@@ -649,9 +735,6 @@ const styles = {
     cursor: 'pointer',
     fontSize: '13px',
     padding: '4px 8px',
-    ':hover': {
-      color: '#0f172a',
-    },
   },
   filterSelect: {
     flex: 1,
@@ -659,234 +742,301 @@ const styles = {
     border: '1px solid #e2e8f0',
     borderRadius: '8px',
     fontSize: '14px',
-    minWidth: '140px',
+    minWidth: '180px',
     backgroundColor: '#ffffff',
     color: '#0f172a',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-  },
-  refreshButton: {
-    padding: '12px 20px',
-    backgroundColor: '#ffffff',
-    color: '#1e293b',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
-    '@media (max-width: 768px)': {
-      justifyContent: 'center',
-    },
-  },
-  refreshText: {
-    fontWeight: '500',
-  },
-  resultsInfo: {
-    marginBottom: '20px',
-    display: 'flex',
-    justifyContent: 'flex-end',
   },
   resultsCount: {
-    padding: '6px 12px',
+    padding: '8px 16px',
     backgroundColor: '#f1f5f9',
     color: '#475569',
     borderRadius: '20px',
-    fontSize: '13px',
-    fontWeight: '500',
-  },
-  emptyState: {
-    textAlign: 'center',
-    padding: '48px 24px',
-    backgroundColor: '#ffffff',
-    borderRadius: '12px',
-    border: '1px dashed #cbd5e1',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-  },
-  emptyText: {
-    color: '#64748b',
-    fontSize: '16px',
-    marginBottom: '16px',
-  },
-  clearFiltersButton: {
-    padding: '8px 20px',
-    backgroundColor: '#0f172a',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
     fontSize: '14px',
     fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
+    whiteSpace: 'nowrap',
   },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-    gap: '20px',
-  },
-  card: {
+  tableContainer: {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
     border: '1px solid #e2e8f0',
-    transition: 'all 0.2s ease',
+    overflow: 'auto',
+    marginBottom: '24px',
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    minWidth: '900px',
+  },
+  tableHeader: {
+    backgroundColor: '#f8fafc',
+    borderBottom: '2px solid #e2e8f0',
+  },
+  th: {
+    padding: '16px',
+    textAlign: 'left',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#475569',
+    cursor: 'pointer',
+    userSelect: 'none',
+    transition: 'background-color 0.2s ease',
+  },
+  thContent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+  },
+  sortIcon: {
+    color: '#0f172a',
+    fontSize: '14px',
+  },
+  tableRow: {
+    borderBottom: '1px solid #f1f5f9',
+    transition: 'background-color 0.2s ease',
+  },
+  td: {
+    padding: '16px',
+    fontSize: '14px',
+    color: '#334155',
+  },
+  nameCell: {
+    fontWeight: '500',
+    color: '#0f172a',
+  },
+  contactInfo: {
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
-      borderColor: '#cbd5e1',
-    },
+    gap: '4px',
   },
-  cardHeader: {
-    padding: '16px',
-    borderBottom: '1px solid #f1f5f9',
-  },
-  cardTitleSection: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '8px',
-    flexWrap: 'wrap',
-    gap: '8px',
-  },
-  cardTitle: {
-    margin: 0,
-    fontSize: '18px',
+  contactEmail: {
     color: '#0f172a',
-    fontWeight: '600',
+    wordBreak: 'break-all',
+    fontSize: '13px',
   },
-  statusBadge: {
-    padding: '4px 10px',
-    borderRadius: '20px',
-    color: '#ffffff',
+  contactPhone: {
+    color: '#64748b',
     fontSize: '12px',
-    fontWeight: '500',
+  },
+  offenseType: {
+    color: '#334155',
   },
   riskBadge: {
-    display: 'inline-block',
     padding: '4px 10px',
     borderRadius: '20px',
-    color: '#ffffff',
     fontSize: '12px',
     fontWeight: '500',
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
   },
-  cardBody: {
-    padding: '16px',
-    flex: 1,
+  statusSelect: {
+    padding: '6px 10px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '6px',
+    fontSize: '13px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    width: '100%',
+    maxWidth: '120px',
   },
-  detailItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '6px 0',
-    borderBottom: '1px solid #f1f5f9',
-    ':last-child': {
-      borderBottom: 'none',
-    },
-  },
-  detailLabel: {
+  vettedBy: {
     color: '#64748b',
-    fontSize: '14px',
-    fontWeight: '500',
+    fontSize: '13px',
   },
-  detailValue: {
-    color: '#0f172a',
-    fontSize: '14px',
-    fontWeight: '500',
-    textAlign: 'right',
-    maxWidth: '60%',
-    wordBreak: 'break-word',
-  },
-  needs: {
+  actionButtons: {
     display: 'flex',
     gap: '8px',
-    marginTop: '12px',
-    flexWrap: 'wrap',
   },
-  needTag: {
-    padding: '4px 10px',
+  viewButton: {
+    padding: '6px 12px',
     backgroundColor: '#f1f5f9',
-    color: '#475569',
-    borderRadius: '20px',
-    fontSize: '12px',
-    fontWeight: '500',
-  },
-  assignButton: {
-    margin: '0 16px 16px 16px',
-    padding: '12px',
-    backgroundColor: '#0f172a',
-    color: '#ffffff',
-    border: 'none',
+    color: '#334155',
+    border: '1px solid #e2e8f0',
     borderRadius: '6px',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
-  assignmentInfo: {
-    margin: '0 16px 16px 16px',
-    padding: '10px',
-    backgroundColor: '#f8fafc',
+  deleteButton: {
+    padding: '6px 12px',
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+    border: '1px solid #ffcdd2',
     borderRadius: '6px',
-    border: '1px solid #e2e8f0',
-    textAlign: 'center',
-  },
-  assignmentDate: {
     fontSize: '13px',
-    color: '#64748b',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
-  loadingContainer: {
+  mobileCardContainer: {
+    display: 'none',
+  },
+  offenderCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    padding: '16px',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    border: '1px solid #e2e8f0',
+    transition: 'all 0.2s ease',
+    marginBottom: '16px',
+  },
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '12px',
+  },
+  cardTitle: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '400px',
-    gap: '16px',
+    gap: '4px',
   },
-  loadingSpinner: {
-    width: '40px',
-    height: '40px',
-    border: '3px solid #f1f5f9',
-    borderTopColor: '#0f172a',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-  },
-  loadingText: {
-    color: '#64748b',
+  cardName: {
     fontSize: '16px',
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+  cardRiskBadge: {
+    padding: '4px 10px',
+    borderRadius: '20px',
+    fontSize: '12px',
+    fontWeight: '500',
+    alignSelf: 'flex-start',
+  },
+  cardActions: {
+    display: 'flex',
+    gap: '8px',
+  },
+  cardViewButton: {
+    padding: '6px 12px',
+    backgroundColor: '#f1f5f9',
+    color: '#334155',
+    border: '1px solid #e2e8f0',
+    borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: '500',
+    cursor: 'pointer',
+  },
+  cardDeleteButton: {
+    padding: '6px 12px',
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+    border: '1px solid #ffcdd2',
+    borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: '500',
+    cursor: 'pointer',
+  },
+  cardDetails: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    marginBottom: '12px',
+  },
+  cardDetail: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '4px 0',
+    borderBottom: '1px solid #f1f5f9',
+  },
+  cardDetailLabel: {
+    color: '#64748b',
+    fontSize: '13px',
+    fontWeight: '500',
+  },
+  cardDetailValue: {
+    color: '#0f172a',
+    fontSize: '13px',
+    textAlign: 'right',
+    wordBreak: 'break-word',
+    maxWidth: '60%',
+  },
+  cardStatusSelect: {
+    padding: '4px 8px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '4px',
+    fontSize: '13px',
+    width: '120px',
+    cursor: 'pointer',
+  },
+  cardFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: '8px',
+    borderTop: '1px solid #f1f5f9',
+  },
+  cardFooterLabel: {
+    color: '#64748b',
+    fontSize: '13px',
+  },
+  recommendedYes: {
+    color: '#10b981',
+    fontWeight: '600',
+    fontSize: '13px',
+  },
+  recommendedNo: {
+    color: '#ef4444',
+    fontWeight: '600',
+    fontSize: '13px',
+  },
+  pagination: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '16px',
+    marginTop: '24px',
+    flexWrap: 'wrap',
+  },
+  pageButton: {
+    padding: '8px 16px',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    color: '#334155',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+  },
+  pageNumbers: {
+    display: 'flex',
+    gap: '4px',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  pageNumber: {
+    minWidth: '36px',
+    height: '36px',
+    padding: '0 8px',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    color: '#334155',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+  },
+  activePage: {
+    backgroundColor: '#0f172a',
+    color: '#ffffff',
+    borderColor: '#0f172a',
+  },
+  itemsPerPage: {
+    marginLeft: 'auto',
+  },
+  itemsPerPageSelect: {
+    padding: '8px 12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    backgroundColor: '#ffffff',
+    color: '#334155',
+    cursor: 'pointer',
+    fontSize: '14px',
   },
   modal: {
     position: 'fixed',
@@ -906,9 +1056,9 @@ const styles = {
   modalContent: {
     backgroundColor: '#ffffff',
     borderRadius: '16px',
-    maxWidth: '600px',
+    maxWidth: '800px',
     width: '100%',
-    maxHeight: '90vh',
+    maxHeight: '85vh',
     overflow: 'auto',
     boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
     animation: 'slideUp 0.3s ease',
@@ -940,133 +1090,65 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f1f5f9',
-      color: '#0f172a',
-    },
   },
-  modalRiskInfo: {
-    padding: '16px 24px',
-    backgroundColor: '#f8fafc',
-    borderBottom: '1px solid #e2e8f0',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
+  details: {
+    padding: '24px',
   },
-  modalRiskLabel: {
-    fontSize: '14px',
-    color: '#64748b',
-    fontWeight: '500',
-  },
-  modalRiskBadge: {
-    padding: '4px 12px',
-    borderRadius: '20px',
-    color: '#ffffff',
-    fontSize: '13px',
-    fontWeight: '500',
-  },
-  formGroup: {
-    padding: '0 24px',
-    marginBottom: '20px',
-  },
-  formRow: {
-    padding: '0 24px',
+  detailGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: '16px',
-    marginBottom: '20px',
-    '@media (max-width: 480px)': {
-      gridTemplateColumns: '1fr',
-    }
   },
-  label: {
-    display: 'block',
-    marginBottom: '6px',
-    fontSize: '14px',
+  detailItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px',
+    padding: '12px',
+    backgroundColor: '#f8fafc',
+    borderRadius: '8px',
+    border: '1px solid #f1f5f9',
+  },
+  detailLabel: {
+    fontSize: '12px',
+    color: '#64748b',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
     fontWeight: '500',
-    color: '#334155',
   },
-  input: {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #e2e8f0',
-    borderRadius: '6px',
+  detailValue: {
     fontSize: '14px',
     color: '#0f172a',
-    transition: 'all 0.2s ease',
-    boxSizing: 'border-box',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#0f172a',
-      boxShadow: '0 0 0 3px rgba(15,23,42,0.1)',
-    },
-  },
-  modalButtons: {
-    padding: '20px 24px 24px 24px',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '12px',
-    borderTop: '1px solid #e2e8f0',
-  },
-  cancelButton: {
-    padding: '12px',
-    backgroundColor: '#ffffff',
-    color: '#475569',
-    border: '1px solid #e2e8f0',
-    borderRadius: '6px',
-    fontSize: '14px',
     fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#cbd5e1',
-    },
+    wordBreak: 'break-word',
   },
-  submitButton: {
-    padding: '12px',
-    backgroundColor: '#0f172a',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '14px',
+  statusBadge: {
+    padding: '4px 10px',
+    borderRadius: '20px',
+    fontSize: '12px',
     fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
+    display: 'inline-block',
+    width: 'fit-content',
+  },
+  yesBadge: {
+    padding: '2px 8px',
+    backgroundColor: '#e8f5e8',
+    color: '#2e7d32',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '500',
+    display: 'inline-block',
+    width: 'fit-content',
+  },
+  noBadge: {
+    padding: '2px 8px',
+    backgroundColor: '#ffebee',
+    color: '#c62828',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '500',
+    display: 'inline-block',
+    width: 'fit-content',
   },
 };
 
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(style);
-
-export default AdminRecommendedList;
+export default AdminOffenderList;

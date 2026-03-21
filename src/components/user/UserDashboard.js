@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOffenders } from '../../utils/database';
 import { auth } from '../../config/firebase';
@@ -22,89 +22,48 @@ const UserDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set greeting based on time of day
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('Good morning');
     else if (hour < 18) setGreeting('Good afternoon');
     else setGreeting('Good evening');
-
-    const initializeData = async () => {
-      // Get user email first
-      const email = await getUserEmail();
-      setUserEmail(email);
-      setUserName(email ? email.split('@')[0] : 'User');
-      
-      // Then fetch data with the email
-      await fetchUserData(email);
-    };
-
-    initializeData();
-
-    // Auto-hide welcome message after 5 seconds
-    const timer = setTimeout(() => setShowWelcome(false), 5000);
-    return () => clearTimeout(timer);
   }, []);
 
-  const getUserEmail = () => {
-    return new Promise((resolve) => {
-      // Check Firebase first
-      if (auth.currentUser) {
-        resolve(auth.currentUser.email);
-        return;
+  const getUserEmail = useCallback(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.email;
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
       }
+    }
+    
+    if (auth.currentUser) {
+      return auth.currentUser.email;
+    }
+    
+    return 'probation.officer@example.com';
+  }, []);
 
-      // Check localStorage
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          resolve(userData.email);
-          return;
-        } catch (error) {
-          console.error('Error parsing stored user:', error);
-        }
-      }
-
-      // Fallback for testing - use a default email if none found
-      console.warn('No user email found, using default for testing');
-      resolve('probation.officer@example.com');
-    });
-  };
-
-  const fetchUserData = async (email) => {
+  const fetchUserData = useCallback(async (email) => {
     setLoading(true);
     try {
-      console.log('Fetching data for user email:', email);
-      
-      // Get all offenders
       const allOffenders = await getOffenders();
-      console.log('Total offenders in database:', allOffenders.length);
-      
-      // Filter offenders created by this user
-      const userOffenders = allOffenders.filter(o => {
-        const matches = (
-          o.vettedBy === email || 
-          o.createdBy === email || 
-          o.vettedBy === auth.currentUser?.email ||
-          (o.vettedBy && o.vettedBy.toLowerCase() === email?.toLowerCase())
-        );
-        if (matches) {
-          console.log('Found matching offender:', o.firstName, o.lastName, 'vettedBy:', o.vettedBy);
-        }
-        return matches;
-      });
-      
-      console.log('User offenders found:', userOffenders.length);
+      const userOffenders = allOffenders.filter(o => 
+        o.vettedBy === email || 
+        o.createdBy === email ||
+        (o.vettedBy && o.vettedBy.toLowerCase() === email?.toLowerCase())
+      );
 
-      // Calculate stats
       const recommended = userOffenders.filter(o => o.recommendedForCS === true).length;
       const notRecommended = userOffenders.filter(o => o.recommendedForCS === false).length;
       const pending = userOffenders.filter(o => o.status === 'pending').length;
       const active = userOffenders.filter(o => o.status === 'active').length;
       const completed = userOffenders.filter(o => o.status === 'completed').length;
 
-      console.log('Stats:', {
-        total: userOffenders.length,
+      setUserStats({
+        totalProfiled: userOffenders.length,
         recommended,
         notRecommended,
         pending,
@@ -112,16 +71,6 @@ const UserDashboard = () => {
         completed
       });
 
-      setUserStats({
-        totalProfiled: userOffenders.length,
-        recommended: recommended,
-        notRecommended: notRecommended,
-        pending: pending,
-        active: active,
-        completed: completed
-      });
-
-      // Sort by createdAt date (newest first) and take first 5
       const sorted = [...userOffenders].sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
         const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
@@ -135,7 +84,17 @@ const UserDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const email = getUserEmail();
+    setUserEmail(email);
+    setUserName(email ? email.split('@')[0] : 'User');
+    fetchUserData(email);
+
+    const timer = setTimeout(() => setShowWelcome(false), 5000);
+    return () => clearTimeout(timer);
+  }, [getUserEmail, fetchUserData]);
 
   const handleRefresh = () => {
     setLoading(true);
@@ -166,8 +125,7 @@ const UserDashboard = () => {
   }
 
   return (
-    <div style={styles.container}>
-      {/* Welcome Banner */}
+    <div className="user-dashboard" style={styles.container}>
       {showWelcome && (
         <div style={styles.welcomeBanner}>
           <div style={styles.welcomeContent}>
@@ -348,7 +306,6 @@ const UserDashboard = () => {
         </div>
       )}
 
-      {/* Quick Stats Summary */}
       {userStats.totalProfiled > 0 && (
         <div style={styles.statsSummary}>
           <h3 style={styles.summaryTitle}>Summary</h3>
@@ -372,6 +329,42 @@ const UserDashboard = () => {
           </div>
         </div>
       )}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .user-dashboard .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+          border-color: #cbd5e1;
+        }
+        
+        .user-dashboard .primary-action-button:hover {
+          background-color: #1e293b;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .user-dashboard .secondary-action-button:hover {
+          background-color: #f8fafc;
+          border-color: #94a3b8;
+          transform: translateY(-1px);
+        }
+        
+        .user-dashboard .view-profile-button:hover {
+          background-color: #f8fafc;
+          border-color: #94a3b8;
+        }
+        
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      ` }} />
     </div>
   );
 };
@@ -386,12 +379,6 @@ const styles = {
     backgroundColor: '#f8fafc',
     boxSizing: 'border-box',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    '@media (max-width: 768px)': {
-      padding: '24px 16px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px 12px',
-    }
   },
   welcomeBanner: {
     backgroundColor: '#0f172a',
@@ -404,11 +391,6 @@ const styles = {
     justifyContent: 'space-between',
     gap: '16px',
     animation: 'slideDown 0.3s ease',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      textAlign: 'center',
-      padding: '16px',
-    },
   },
   welcomeContent: {
     flex: 1,
@@ -432,9 +414,6 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: 'rgba(255,255,255,0.2)',
-    },
   },
   header: {
     display: 'flex',
@@ -443,10 +422,6 @@ const styles = {
     marginBottom: '24px',
     flexWrap: 'wrap',
     gap: '16px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    },
   },
   headerContent: {
     flex: 1,
@@ -473,14 +448,6 @@ const styles = {
     color: '#475569',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   refreshText: {
     fontWeight: '500',
@@ -519,11 +486,6 @@ const styles = {
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-      borderColor: '#cbd5e1',
-    },
   },
   statContent: {
     display: 'flex',
@@ -561,9 +523,6 @@ const styles = {
     display: 'flex',
     gap: '16px',
     flexWrap: 'wrap',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-    },
   },
   primaryActionButton: {
     flex: 2,
@@ -576,14 +535,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#1e293b',
-      transform: 'translateY(-1px)',
-      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   secondaryActionButton: {
     flex: 1,
@@ -596,14 +547,6 @@ const styles = {
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-      transform: 'translateY(-1px)',
-    },
-    ':active': {
-      transform: 'translateY(0)',
-    },
   },
   actionText: {
     fontWeight: '500',
@@ -626,10 +569,6 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-    },
   },
   recentProfiles: {
     backgroundColor: '#ffffff',
@@ -650,11 +589,6 @@ const styles = {
     padding: '16px',
     border: '1px solid #e2e8f0',
     transition: 'all 0.2s ease',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-      borderColor: '#cbd5e1',
-    },
   },
   profileHeader: {
     display: 'flex',
@@ -749,10 +683,6 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f8fafc',
-      borderColor: '#94a3b8',
-    },
   },
   emptyState: {
     textAlign: 'center',
@@ -812,21 +742,5 @@ const styles = {
     fontWeight: '600',
   },
 };
-
-// Add global animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`;
-document.head.appendChild(style);
 
 export default UserDashboard;
